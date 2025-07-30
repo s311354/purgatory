@@ -27,7 +27,7 @@ purgatory is written in C++11, so if you build purgatory yourself, you will need
 ### Compile purgatory
 
 ```shell
-git clone
+git clone https://github.com/s311354/purgatory.git
 cd purgatory
 ./install-build-deps.sh
 cmake -DCAMKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ -B build
