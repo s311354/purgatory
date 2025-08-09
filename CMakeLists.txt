@@ -98,7 +98,8 @@ foreach (SOURCE IN LISTS PURGATORY_FILES)
 endforeach()
 
 set(SOLUTIONS_FILES 
-	src/array.cc)
+	src/array.cc
+	src/hashmap.cc)
 
 target_sources(purgatory PRIVATE
     ${SOLUTIONS_FILES}
