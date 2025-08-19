@@ -272,6 +272,139 @@ TEST(X86_64Test, findSubstringCheck) {
     EXPECT_EQ(expected, solutions.findSubstring(s, words));
 }
 
+TEST(X86_64Test, isPalindromeCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "A man, a plan, a canal: Panama";
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.isPalindrome(s));
+
+    // Edge Case:
+    s = "";
+
+    expected = true;
+
+    EXPECT_EQ(expected, solutions.isPalindrome(s));
+}
+
+TEST(X86_64Test, twoSumCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> numbers = {2, 7, 11, 15};
+
+    int target = 9;
+
+    vector<int> expected = {1, 2};
+
+    EXPECT_EQ(expected, solutions.twoSum(numbers, target));
+
+    // Edge Case:
+    numbers = {2, 3, 4}; target = 6;
+
+    expected = {1, 3};
+
+    EXPECT_EQ(expected, solutions.twoSum(numbers, target));
+}
+
+TEST(X86_64Test, maxAreaCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> height = {1, 8, 6, 2, 5, 4, 8, 3, 7};
+
+    int expected = 49;
+
+    EXPECT_EQ(expected, solutions.maxArea(height));
+
+    // Edge Case:
+    height = {1, 1};
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.maxArea(height));
+}
+
+TEST(X86_64Test, trapCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> height = {0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1};
+
+    int expected = 6;
+
+    EXPECT_EQ(expected, solutions.trap(height));
+
+    // Edge Case:
+    height = {};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.trap(height));
+}
+
+
+TEST(X86_64Test, containsNearbyDuplicateCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3, 1};
+
+    int k = 3;
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.containsNearbyDuplicate(nums, k));
+
+    // Edge Case:
+    nums = {1, 2, 3, 1, 2, 3}; k = 0;
+
+    expected = false;
+
+    EXPECT_EQ(expected, solutions.containsNearbyDuplicate(nums, k));
+}
+
+TEST(X86_64Test, minSubArrayLenCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {2, 3, 1, 2, 4, 3};
+
+    int target = 7;
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.minSubArrayLen(target, nums));
+
+    // Edge Case:
+    nums = {}; target = 4;
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.minSubArrayLen(target, nums));
+}
+
+TEST(X86_64Test, lengthOfLongestSubstringCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "abcabcbb";
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.lengthOfLongestSubstring(s));
+
+    // Edge Case:
+    s = "bbbb";
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.lengthOfLongestSubstring(s));
+}
+
 #elif PURGATORY_ARM64LE
 
 TEST(ARM64LETest, BasicCheck) {

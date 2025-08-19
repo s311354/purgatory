@@ -64,6 +64,22 @@ public:
     int longestConsecutive(vector<int> &nums);
 
     vector<int> findSubstring(string s, vector<string>& words);
+
+    // two pointers
+    bool isPalindrome(string s); 
+    
+    vector<int> twoSum(vector<int> & numbers, int target);
+
+    int maxArea(vector<int> & height);
+
+    int trap(vector<int> & height);
+
+    // sliding window
+    bool containsNearbyDuplicate(vector<int>& nums, int k);
+
+    int minSubArrayLen(int target, vector<int>& nums);
+
+    int lengthOfLongestSubstring(string s);
 };
 
 template <typename E>

@@ -99,7 +99,9 @@ endforeach()
 
 set(SOLUTIONS_FILES 
 	src/array.cc
-	src/hashmap.cc)
+	src/hashmap.cc
+	src/twopointers.cc
+	src/slidingwindow.cc)
 
 target_sources(purgatory PRIVATE
     ${SOLUTIONS_FILES}
