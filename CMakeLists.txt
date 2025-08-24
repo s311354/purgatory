@@ -101,7 +101,10 @@ set(SOLUTIONS_FILES
 	src/array.cc
 	src/hashmap.cc
 	src/twopointers.cc
-	src/slidingwindow.cc)
+	src/slidingwindow.cc
+	src/prefixsum.cc
+	src/binarytree.cc
+	src/stack.cc)
 
 target_sources(purgatory PRIVATE
     ${SOLUTIONS_FILES}

@@ -3,66 +3,105 @@
 
 #ifdef PURGATORY_X86_64
 
+namespace purgatory {
+// Build tree from level-order vector with INT_MIN as null
+TreeNode* buildTree(const vector<int>& arr) {
+    if (arr.empty() || arr[0] == INT_MIN) return nullptr;
+
+    TreeNode* root = new TreeNode(arr[0]);
+    queue<TreeNode*> q;
+    q.push(root);
+
+    int i = 1;
+
+    while (!q.empty() && i < arr.size()) {
+        TreeNode* node = q.front(); q.pop();
+
+	if (i < arr.size() && arr[i] != INT_MIN) {
+	    if(arr[i] != -1) 
+            	node->left = new TreeNode(arr[i]);
+	    else
+		node->left = nullptr;
+	    q.push(node->left);
+	}
+	i++;
+
+	if (i < arr.size() && arr[i] != INT_MIN) {
+	    if(arr[i] != -1)
+                node->right = new TreeNode(arr[i]);
+	    else
+		node->right = nullptr;
+	    q.push(node->right);
+	}
+	i++;
+    }
+
+    return root;
+}
+
+}
+
 TEST(X86_64Test, BasicCheck) {
 	EXPECT_EQ(1 + 1, 2);
 }
 
 TEST(X86_64Test, increasingTripletCheck) {
 
-        purgatory::Purgatory solutions;
+    purgatory::Purgatory solutions;
 
-	// Basic Case:
-	vector<int> nums = {1, 2, 3, 4, 5};
+    // Basic Case:
+    vector<int> nums = {1, 2, 3, 4, 5};
 
-        bool output = solutions.increasingTriplet(nums);
+    bool output = solutions.increasingTriplet(nums);
 
-        bool expected = true;
+    bool expected = true;
 
-	EXPECT_EQ(output, expected);
+    EXPECT_EQ(output, expected);
 }
 
 TEST(X86_64Test, mergeCheck) {
-        purgatory::Purgatory solutions;
 
-	// Basic Case:
-	vector<int> nums1 = {1, 2, 3, 0, 0, 0};
-	vector<int> nums2 = {2, 5, 6};
-	int m = 3, n = 3;
+    purgatory::Purgatory solutions;
 
-	solutions.merge(nums1, m, nums2, n);
+    // Basic Case:
+    vector<int> nums1 = {1, 2, 3, 0, 0, 0};
+    vector<int> nums2 = {2, 5, 6};
+    int m = 3, n = 3;
 
-	vector<int> expected = {1, 2, 2, 3, 5 ,6};
+    solutions.merge(nums1, m, nums2, n);
 
-	EXPECT_EQ(expected, nums1);
+    vector<int> expected = {1, 2, 2, 3, 5 ,6};
 
-        // Edge Case:
-	nums1 = {1, 0}; nums2 = {2}; m = 1; n = 1;
+    EXPECT_EQ(expected, nums1);
+
+    // Edge Case:
+    nums1 = {1, 0}; nums2 = {2}; m = 1; n = 1;
 	
-	solutions.merge(nums1, m, nums2, n);
+    solutions.merge(nums1, m, nums2, n);
 
-	expected = {1, 2};
+    expected = {1, 2};
 
-	EXPECT_EQ(expected, nums1);
+    EXPECT_EQ(expected, nums1);
 }
 
 TEST(X86_64Test, removeDuplicatesCheck) {
 	purgatory::Purgatory solutions;
 
-	// Basic Case:
-	vector<int> nums = {1, 1, 1, 2, 2, 3};
-	int k = solutions.removeDuplicates(nums);
+    // Basic Case:
+    vector<int> nums = {1, 1, 1, 2, 2, 3};
+    int k = solutions.removeDuplicates(nums);
 
-	int expected = 5;
+    int expected = 5;
 
-	EXPECT_EQ(expected, k);
+    EXPECT_EQ(expected, k);
 
-	// Edge Case:
-	nums = {1, 1, 1};
-	k = solutions.removeDuplicates(nums);
+    // Edge Case:
+    nums = {1, 1, 1};
+    k = solutions.removeDuplicates(nums);
 
-	expected = 2;
+    expected = 2;
 
-	EXPECT_EQ(expected, k);
+    EXPECT_EQ(expected, k);
 }
 
 TEST(X86_64Test, rotateCheck) {
@@ -403,6 +442,211 @@ TEST(X86_64Test, lengthOfLongestSubstringCheck) {
     expected = 1;
 
     EXPECT_EQ(expected, solutions.lengthOfLongestSubstring(s));
+}
+
+TEST(X86_64Test, NumArrayCheck) {
+
+    vector<int> nums = {-2, 0, 3, -5, 2, -1};
+
+    // Basic Case:
+    int left = 0, right = 2;
+
+    int expected = 1;
+
+    purgatory::Purgatory::NumArray numarray(nums);
+
+    EXPECT_EQ(expected, numarray.sumRanges(left, right));
+
+    // Edge Case:
+    left = 0; right = 5;
+
+    expected = -3;
+
+    EXPECT_EQ(expected, numarray.sumRanges(left, right));
+}
+
+TEST(X86_64Test, NumMatrixCheck) {
+
+    // Basic Case:
+    vector<vector<int>> matrix = {{3, 0, 1, 4, 2}, {5, 6, 3, 2, 1}, {1, 2, 0, 1, 5}, {4, 1, 0, 1, 7}, {1, 0, 3, 0, 5}};
+    int row1 = 2, col1 = 1, row2 = 4, col2 = 3;
+
+    int expected = 8;
+
+    purgatory::Purgatory::NumMatrix nummatrix(matrix);
+
+    EXPECT_EQ(expected, nummatrix.sumRegion(row1, col1, row2, col2));
+
+    // Edge Case:
+    row1 = 1; col1 = 2; row2 = 2; col2 = 4;
+
+    expected = 12;
+
+    EXPECT_EQ(expected, nummatrix.sumRegion(row1, col1, row2, col2));
+}
+
+TEST(X86_64Test, maxSumSubmatrixCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> matrix = {{1, 0, 1}, {0, -2, 3}};
+    int k = 2;
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.maxSumSubmatrix(matrix, k));
+
+    // Edge Case:
+    matrix = {{2, 2, -1}}; k = 3;
+
+    expected = 3;
+
+    EXPECT_EQ(expected, solutions.maxSumSubmatrix(matrix, k));
+}
+
+TEST(X86_64Test, averageOfLevelsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {3, 9, 20, -1, -1, 15, 7}; // -1 represents "null"
+
+    vector<double> expected = {3, 14.5, 11};
+
+    EXPECT_EQ(expected, solutions.averageOfLevels(purgatory::buildTree(nums)));
+
+    // Edge Case:
+    nums = {};
+
+    expected = {};
+
+    EXPECT_EQ(expected, solutions.averageOfLevels(purgatory::buildTree(nums)));
+}
+
+TEST(X86_64Test, rightSideViewCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3, -1, 5, -1, 4};
+
+    vector<int> expected = {1, 3, 4};
+
+    EXPECT_EQ(expected, solutions.rightSideView(purgatory::buildTree(nums)));
+
+    // Edge Case:
+    nums = {};
+
+    expected = {};
+
+    EXPECT_EQ(expected, solutions.rightSideView(purgatory::buildTree(nums)));
+}
+
+TEST(X86_64Test, levelOrderCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {3, 9, 20, -1, -1, 15, 7};
+
+    vector<vector<int>> expected = {{3}, {9, 20}, {15, 7}};
+
+    EXPECT_EQ(expected, solutions.levelOrder(purgatory::buildTree(nums)));
+
+    // Edge Case:
+    nums = {};
+
+    expected = {};
+
+    EXPECT_EQ(expected, solutions.levelOrder(purgatory::buildTree(nums)));
+}
+
+TEST(X86_64Test, serializeCheck) {
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3, -1, -1, 4, 5};
+
+    string expected = "1,2,null,null,3,4,null,null,5,null,null,";
+
+    purgatory::Purgatory::Codec codec;
+
+    EXPECT_EQ(expected, codec.serialize(purgatory::buildTree(nums)));
+
+    // Edge Case:
+    nums = {};
+
+    expected = "null,";
+
+    EXPECT_EQ(expected, codec.serialize(purgatory::buildTree(nums)));
+}
+
+TEST(X86_64Test, isValidCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "()";
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.isValid(s));
+
+    // Edge Case:
+    s = "";
+
+    expected = true;
+
+    EXPECT_EQ(expected, solutions.isValid(s));
+}
+
+TEST(X86_64Test, simplifyPathCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string path = "/home/";
+
+    string expected = "/home";
+
+    EXPECT_EQ(expected, solutions.simplifyPath(path));
+
+    // Edge Case:
+    path = "/../";
+
+    expected = "/";
+
+    EXPECT_EQ(expected, solutions.simplifyPath(path));
+}
+
+TEST(X86_64Test, evalRPNCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<string> tokens = {"2", "1", "+", "3", "*"};
+
+    int expected = 9;
+
+    EXPECT_EQ(expected, solutions.evalRPN(tokens));
+
+    // Edge Case:
+    tokens = {"4", "13", "5", "/", "+"};
+
+    expected = 6;
+
+    EXPECT_EQ(expected, solutions.evalRPN(tokens));
+}
+
+TEST(X86_64Test, calculateCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "1 + (2 - 3)";
+
+    int expected = 0;
+
+    EXPECT_EQ(expected, solutions.calculate(s));
+
+    // Edge Case:
+    s = "0-5";
+
+    expected = -5;
+
+    EXPECT_EQ(expected, solutions.calculate(s));
 }
 
 #elif PURGATORY_ARM64LE
