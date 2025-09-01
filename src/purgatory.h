@@ -39,8 +39,27 @@ struct TreeNode {
     TreeNode(int x): val(x), left(nullptr), right(nullptr) {}
 };
 
+struct Node {
+    int val;
+    Node *left;
+    Node *right;
+    Node *next;
+
+    Node() : val(0), left(nullptr), right(nullptr), next(nullptr) {}
+
+    Node(int _val): val(_val), left(nullptr), right(nullptr), next(nullptr) {}
+
+    Node(int _val, Node* _left, Node* _right, Node* _next) : val(_val), left(_left), right(_right), next(_next) {}
+};
+
 // Build tree from level-order vector with INT_MIN as null
 TreeNode* buildTree(const vector<int>& arr);
+
+// Build node from level-order vector
+Node* buildNode(const vector<int>& arr); 
+
+// Convert connected node into vector
+vector<int> serializeWithNext(Node* root);
 
 class Purgatory {
 
@@ -140,6 +159,25 @@ public:
     int evalRPN(vector<string>& tokens);
 
     int calculate(string s);
+
+    // graph bfs
+    vector<vector<int>> levelOrderBottom(TreeNode* root); 
+
+    int minDepth(TreeNode *root);
+
+    Node* connect(Node* root);
+
+    vector<string> removevalidParentheses(string s);
+
+    // graph
+    int findJudge(int n, vector<vector<int>>& trust);
+
+    int numIslands(vector<vector<char>>& grid);
+
+    void solve(vector<vector<char>>& board);
+
+    int longestIncreasingPath(vector<vector<int>>& matrix);
+
 };
 
 template <typename E>

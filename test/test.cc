@@ -39,6 +39,56 @@ TreeNode* buildTree(const vector<int>& arr) {
     return root;
 }
 
+// Build node from level-order vector 
+Node* buildNode(const vector<int>& arr) {
+    if (arr.empty()) return nullptr;
+
+    vector<Node*> nodes(arr.size(), nullptr);
+
+    // Create nodes
+    for (int i = 0; i < arr.size(); ++i) {
+	if (arr[i] == -1) return nullptr;
+
+        nodes[i] = new Node(arr[i]);
+    }
+
+    // Link children
+    for (int i = 0; i < arr.size(); ++i) {
+        int leftIdx = 2 * i + 1;
+	int rightIdx = 2 * i + 2;
+
+	if (leftIdx < arr.size()) nodes[i]->left = nodes[leftIdx];
+
+	if (rightIdx < arr.size()) nodes[i]->right = nodes[rightIdx];
+    }
+
+    return nodes[0]; // root
+}
+
+// Convert connected node into vector
+vector<int> serializeWithNext(Node* root) {
+    vector<int> result;
+
+    if (!root) return result;
+
+    Node* leftmost = root;
+
+    while(leftmost) {
+        Node* cur = leftmost;
+
+	while (cur) {
+	    result.push_back(cur->val);
+	    cur = cur->next;
+	}
+
+	result.push_back(-1);
+	leftmost = leftmost->left;
+    }
+
+    return result;
+}
+
+
 }
 
 TEST(X86_64Test, BasicCheck) {
@@ -648,6 +698,156 @@ TEST(X86_64Test, calculateCheck) {
 
     EXPECT_EQ(expected, solutions.calculate(s));
 }
+
+TEST(X86_64Test, levelOrderBottomCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {3, 9, 20, -1, -1, 15, 7};
+
+    vector<vector<int>> expected = {{15, 7}, {9, 20}, {3}};
+
+    EXPECT_EQ(expected, solutions.levelOrderBottom(purgatory::buildTree(nums)));
+
+    // Edge Case:
+    nums = {};
+
+    expected = {};
+
+    EXPECT_EQ(expected, solutions.levelOrderBottom(purgatory::buildTree(nums)));
+}
+
+TEST(X86_64Test, minDepthCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3, 4, -1, -1, -1};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.minDepth(purgatory::buildTree(nums)));
+
+    // Edge Case:
+    nums = {};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.minDepth(purgatory::buildTree(nums)));
+}
+
+TEST(X86_64Test, connectCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3, 4, 5, 6, 7};
+
+    vector<int> expected = {1, -1, 2, 3, -1, 4, 5, 6, 7, -1};
+
+    EXPECT_EQ(expected, purgatory::serializeWithNext(solutions.connect(purgatory::buildNode(nums))));
+
+    // Edge Case:
+    nums = {};
+
+    expected = {};
+
+    EXPECT_EQ(expected, purgatory::serializeWithNext((solutions.connect(purgatory::buildNode(nums)))));
+}
+
+TEST(X86_64Test, removevalidParenthesesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "()())()";
+
+    vector<string> expected = {"(())()", "()()()"};
+
+    EXPECT_EQ(expected, solutions.removevalidParentheses(s));
+
+    // Edge Case:
+    s = ")(";
+
+    expected = {""};
+
+    EXPECT_EQ(expected, solutions.removevalidParentheses(s));
+}
+
+TEST(X86_64Test, findJudgeCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int n = 2;
+
+    vector<vector<int>> trust = {{1, 2}};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.findJudge(n, trust));
+
+    // Edge Case:
+    n = 3; trust = {{1, 3}, {2, 3}, {3, 1}};
+
+    expected = -1;
+
+    EXPECT_EQ(expected, solutions.findJudge(n, trust));
+}
+
+TEST(X86_64Test, numIslandsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<char>> grid = {{'1', '1', '1', '1', '0'}, {'1', '1', '0', '1', '0'}, {'1', '1', '0', '0', '0'}, {'0', '0', '0', '0', '0'}};
+
+    int expected = 1;
+
+    EXPECT_EQ(expected, solutions.numIslands(grid));
+
+    // Edge Case:
+    grid = {{'0', '0'}, {'0', '0'}};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.numIslands(grid));
+}
+
+TEST(X86_64Test, solveCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<char>> board = {{'X', 'X', 'X', 'X'}, {'X', 'O', 'O', 'X'}, {'X', 'X', 'O', 'X'}, {'X', 'O', 'X', 'X'}};
+    vector<vector<char>> expected = {{'X', 'X', 'X', 'X'}, {'X', 'X', 'X', 'X'}, {'X', 'X', 'X', 'X'}, {'X', 'O', 'X', 'X'}};
+
+    solutions.solve(board);
+
+    EXPECT_EQ(expected, board);
+
+    // Edge Case:
+    board = {{'O', 'O'}, {'O', 'O'}};
+
+    expected = {{'O', 'O'}, {'O', 'O'}};
+
+    solutions.solve(board);
+
+    EXPECT_EQ(expected, board);
+}
+
+TEST(X86_64Test, longestIncreasingPathCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> matrix = {{9, 9, 4}, {6, 6, 8}, {2, 1, 1}};
+
+    int expected = 4;
+
+    EXPECT_EQ(expected, solutions.longestIncreasingPath(matrix));
+
+    // Edge Case:
+    matrix = {{1}};
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.longestIncreasingPath(matrix));
+}
+
 
 #elif PURGATORY_ARM64LE
 

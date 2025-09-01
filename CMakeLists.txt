@@ -104,7 +104,9 @@ set(SOLUTIONS_FILES
 	src/slidingwindow.cc
 	src/prefixsum.cc
 	src/binarytree.cc
-	src/stack.cc)
+	src/stack.cc
+	src/graphbfs.cc
+	src/graph.cc)
 
 target_sources(purgatory PRIVATE
     ${SOLUTIONS_FILES}
