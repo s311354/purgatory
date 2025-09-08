@@ -135,7 +135,7 @@ TEST(X86_64Test, mergeCheck) {
 }
 
 TEST(X86_64Test, removeDuplicatesCheck) {
-	purgatory::Purgatory solutions;
+    purgatory::Purgatory solutions;
 
     // Basic Case:
     vector<int> nums = {1, 1, 1, 2, 2, 3};
@@ -846,6 +846,157 @@ TEST(X86_64Test, longestIncreasingPathCheck) {
     expected = 1;
 
     EXPECT_EQ(expected, solutions.longestIncreasingPath(matrix));
+}
+
+TEST(X86_64Test, lastStoneWeightCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> stones = {2, 7, 4, 1, 8, 1};
+
+    int expected = 1;
+
+    EXPECT_EQ(expected, solutions.lastStoneWeight(stones));
+
+    // Edge Case:
+    stones = {};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.lastStoneWeight(stones));
+}
+
+TEST(X86_64Test, nthUglyNumberCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int n = 10;
+
+    int expected = 12;
+
+    EXPECT_EQ(expected, solutions.nthUglyNumber(n));
+
+    // Edge Case:
+    n = 1;
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.nthUglyNumber(n));
+}
+
+TEST(X86_64Test, topKFrequentCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 1, 1, 2, 2, 3};
+
+    int k = 2;
+
+    vector<int> expected = {2, 1};
+
+    EXPECT_EQ(expected, solutions.topKFrequent(nums, k));
+
+    // Edge Case:
+    nums = {1}; k = 1;
+
+    expected = {1};
+
+    EXPECT_EQ(expected, solutions.topKFrequent(nums, k));
+}
+
+TEST(X86_64Test, maxSlidingWindowCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 3, -1, -3, 5, 3, 6, 7};
+
+    int k = 3;
+
+    vector<int> expected = {3, 3, 5, 5, 6, 7};
+
+    EXPECT_EQ(expected, solutions.maxSlidingWindow(nums, k));
+
+    // Edge Case:
+    nums = {}; k = 0;
+
+    expected = {};
+
+    EXPECT_EQ(expected, solutions.maxSlidingWindow(nums, k));
+
+}
+
+TEST(X86_64Test, summaryRangesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {0, 1, 2, 4, 5, 7};
+
+    vector<string> expected = {"0->2", "4->5", "7"};
+
+    EXPECT_EQ(expected, solutions.summaryRanges(nums));
+
+    // Edge Case:
+    nums = {};
+
+    expected = {};
+    
+    EXPECT_EQ(expected, solutions.summaryRanges(nums));
+}
+
+TEST(X86_64Test, mergeCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> intervals = {{1, 3}, {2, 6}, {8, 10}, {15, 18}};
+
+    vector<vector<int>> expected = {{1,6}, {8, 10}, {15, 18}};
+
+    EXPECT_EQ(expected, solutions.merge(intervals));
+
+    // Edge Case:
+    intervals = {};
+
+    expected = {};
+
+    EXPECT_EQ(expected, solutions.merge(intervals));
+}
+
+TEST(X86_64Test, insertCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> intervals = {{1, 3}, {6, 9}};
+
+    vector<int> newInterval = {2, 5};
+
+    vector<vector<int>> expected = {{1, 5}, {6, 9}};
+
+    EXPECT_EQ(expected, solutions.insert(intervals, newInterval));
+
+    // Edge  Case:
+    intervals = {}; newInterval = {5, 7};
+
+    expected{{5, 7}};
+
+    EXPECT_EQ(expected, solutions.insert(intervals, newInterval));
+}
+
+TEST(X86_64Test, findMinArrowShotsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> points = {{10, 16}, {2, 8}, {1, 6}, {7, 12}};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.findMinArrowShots(points));
+
+    // Edge Case:
+    points = {{1, 2}, {3, 4}, {5, 6}};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.findMinArrowShots(points));
 }
 
 

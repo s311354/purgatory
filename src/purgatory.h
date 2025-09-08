@@ -178,6 +178,23 @@ public:
 
     int longestIncreasingPath(vector<vector<int>>& matrix);
 
+    // heap
+    int lastStoneWeight(vector<int>& stones);
+    
+    int nthUglyNumber(int n);
+
+    vector<int> topKFrequent(vector<int>& nums, int k);
+
+    vector<int> maxSlidingWindow(vector<int>& nums, int k);
+
+    // intervals
+    vector<string> summaryRanges(vector<int>& nums);
+
+    vector<vector<int>> merge(vector<vector<int>> &intervals);
+
+    vector<vector<int>> insert(vector<vector<int>>& intervals, vector<int>& newInterval);
+
+    int findMinArrowShots(vector<vector<int>> & points);
 };
 
 template <typename E>

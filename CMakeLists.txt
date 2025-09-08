@@ -106,7 +106,8 @@ set(SOLUTIONS_FILES
 	src/binarytree.cc
 	src/stack.cc
 	src/graphbfs.cc
-	src/graph.cc)
+	src/graph.cc
+	src/heap.cc)
 
 target_sources(purgatory PRIVATE
     ${SOLUTIONS_FILES}
