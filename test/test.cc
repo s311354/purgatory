@@ -943,7 +943,7 @@ TEST(X86_64Test, summaryRangesCheck) {
     EXPECT_EQ(expected, solutions.summaryRanges(nums));
 }
 
-TEST(X86_64Test, mergeCheck) {
+TEST(X86_64Test, mergeIntervalsCheck) {
     purgatory::Purgatory solutions;
 
     // Basic Case:
@@ -976,7 +976,7 @@ TEST(X86_64Test, insertCheck) {
     // Edge  Case:
     intervals = {}; newInterval = {5, 7};
 
-    expected{{5, 7}};
+    expected = {{5, 7}};
 
     EXPECT_EQ(expected, solutions.insert(intervals, newInterval));
 }
@@ -994,7 +994,7 @@ TEST(X86_64Test, findMinArrowShotsCheck) {
     // Edge Case:
     points = {{1, 2}, {3, 4}, {5, 6}};
 
-    expected = 0;
+    expected = 3;
 
     EXPECT_EQ(expected, solutions.findMinArrowShots(points));
 }

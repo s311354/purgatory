@@ -11,13 +11,16 @@ vector<string> Purgatory::summaryRanges(vector<int>& nums) {
 
 	int start = nums[0];
 
-	for (int i = 1; i < nums.size(); ++i) {
+	for (int i = 1; i <= nums.size(); ++i) {
             if (i == nums.size() || nums[i] != nums[i - 1] + 1) {
-	        if (start == nums[i-1]) result.push_back(to_string(start));
-		else result.push_back(to_string(start) + "->" + to_string(nums[i-1]));
-	    }
+	        if (start == nums[i-1]) {
+	            result.push_back(to_string(start));
+		} else {
+		    result.push_back(to_string(start) + "->" + to_string(nums[i-1]));
+	        }
 
-	    if (i < nums.size()) start = nums[i];
+	        if (i < nums.size()) start = nums[i];
+	    }
 	}
 	return result;
 }
@@ -30,15 +33,16 @@ vector<string> Purgatory::summaryRanges(vector<int>& nums) {
 vector<vector<int>> Purgatory::merge(vector<vector<int>>& intervals) {
     if (intervals.empty()) return {};
 
-    sort(intervals.begin(). intervals.end());
+    sort(intervals.begin(), intervals.end());
 
     vector<vector<int>> merged;
 
     for (auto& interval: intervals) {
-        if (interval.empty() || merged.back()[1] < interval[0])
-		merged.push_back(interval);
-	else
-		merged.back()[1] = max(merged.back()[1], interval[1]);
+        if (merged.empty() || merged.back()[1] < interval[0]) {
+	    merged.push_back(interval);
+	} else {
+	    merged.back()[1] = max(merged.back()[1], interval[1]);
+	}
     }
 
     return merged;
@@ -83,10 +87,10 @@ vector<vector<int>> Purgatory::insert(vector<vector<int>>& intervals, vector<int
 int Purgatory::findMinArrowShots(vector<vector<int>>& points) {
         if (points.empty()) return 0;
 
-        sort(points.begin(), points.end(), [][const vector<int>& a, const vector<int>& b] {
+        sort(points.begin(), points.end(), [](const vector<int>& a, const vector<int>& b) {
 	    if (a[1] == b[1]) return a[0] < b[0];
 	    return a[1] < b[1];
-        };)
+        });
 
 	int arrows = 1;
 	long long arrowPos = points[0][1];

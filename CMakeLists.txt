@@ -107,7 +107,8 @@ set(SOLUTIONS_FILES
 	src/stack.cc
 	src/graphbfs.cc
 	src/graph.cc
-	src/heap.cc)
+	src/heap.cc
+	src/intervals.cc)
 
 target_sources(purgatory PRIVATE
     ${SOLUTIONS_FILES}
