@@ -108,7 +108,9 @@ set(SOLUTIONS_FILES
 	src/graphbfs.cc
 	src/graph.cc
 	src/heap.cc
-	src/intervals.cc)
+	src/intervals.cc
+	src/dp.cc
+	src/backtracking.cc)
 
 target_sources(purgatory PRIVATE
     ${SOLUTIONS_FILES}

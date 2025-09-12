@@ -195,6 +195,24 @@ public:
     vector<vector<int>> insert(vector<vector<int>>& intervals, vector<int>& newInterval);
 
     int findMinArrowShots(vector<vector<int>> & points);
+
+    // dp
+    int climbStairs(int n);
+
+    int rob(vector<int>& nums);
+
+    bool wordBreak(string s, vector<string>& wordDict);
+
+    bool isMatch(string s, string p);
+
+    // backtracking
+    vector<string> binaryTreePaths(TreeNode* root);
+
+    vector<string> letterCombinations(string digits);
+
+    vector<vector<int>> combine(int n, int k);
+
+    int totalNQueens(int n);
 };
 
 template <typename E>

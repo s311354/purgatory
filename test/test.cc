@@ -999,6 +999,155 @@ TEST(X86_64Test, findMinArrowShotsCheck) {
     EXPECT_EQ(expected, solutions.findMinArrowShots(points));
 }
 
+TEST(X86_64Test, climbStairsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int n = 2;
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.climbStairs(n));
+
+    // Edge Case:
+    n = 1;
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.climbStairs(n));
+}
+
+TEST(X86_64Test, robCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3, 1};
+
+    int expected = 4;
+
+    EXPECT_EQ(expected, solutions.rob(nums));
+
+    // Edge Case:
+    nums = {};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.rob(nums));
+}
+
+TEST(X86_64Test, wordBreakCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "leetcode";
+
+    vector<string> wordDict = {"leet", "code"};
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.wordBreak(s, wordDict));
+
+    // Edge Case:
+    s = "";
+
+    wordDict = {};
+
+    expected = true;
+
+    EXPECT_EQ(expected, solutions.wordBreak(s, wordDict));
+}
+
+TEST(X86_64Test, isMatchCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "aa", p = "a";
+
+    bool expected = false;
+
+    EXPECT_EQ(expected, solutions.isMatch(s, p));
+
+    // Edge Case:
+    s = "ab", p = ".*";
+
+    expected = true;
+
+    EXPECT_EQ(expected, solutions.isMatch(s, p));
+}
+
+TEST(X86_64Test, binaryTreePathsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3, -1, 5};
+
+    vector<string> expected = {"1->2->5", "1->3"};
+
+    EXPECT_EQ(expected, solutions.binaryTreePaths(purgatory::buildTree(nums)));
+
+    // Edge Case:
+    nums = {-1};
+
+    expected = {"-1"};
+
+    EXPECT_EQ(expected, solutions.binaryTreePaths(purgatory::buildTree(nums)));
+}
+
+
+TEST(X86_64Test, letterCombinationsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string digits = "23";
+
+    vector<string> expected = {"ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"};
+
+    EXPECT_EQ(expected, solutions.letterCombinations(digits));
+
+    // Edge Case:
+    digits = "";
+
+    expected = {};
+
+    EXPECT_EQ(expected, solutions.letterCombinations(digits));
+}
+
+TEST(X86_64Test, combineCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int n = 4, k = 2;
+
+    vector<vector<int>> expected = {{1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4}, {3, 4}};
+
+    EXPECT_EQ(expected, solutions.combine(n, k));
+
+    // Edge Case:
+    n = 0; k = 0;
+
+    expected = {{}};
+
+    EXPECT_EQ(expected, solutions.combine(n, k));
+}
+
+TEST(X86_64Test, totalNQueensCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int n = 4;
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.totalNQueens(n));
+
+    // Edge Case:
+    n = 1;
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.totalNQueens(n));
+}
+
 
 #elif PURGATORY_ARM64LE
 
