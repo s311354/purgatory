@@ -12,11 +12,14 @@ using namespace std;
 #include <queue>
 #include <set>
 #include <stack>
+#include <map>
 
 #include <string_view>
 #include <climits>
 #include <algorithm>
 #include <sstream>
+#include <memory>
+#include <fstream>
 
 namespace purgatory {
 
@@ -213,6 +216,15 @@ public:
     vector<vector<int>> combine(int n, int k);
 
     int totalNQueens(int n);
+
+    // binary search
+    int searchInsert(vector<int>& nums, int target);
+
+    bool searchMatric(vector<vector<int>>& matrix, int target);
+
+    int findPeakElement(vector<int>& nums);
+
+    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2);
 };
 
 template <typename E>

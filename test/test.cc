@@ -1148,6 +1148,82 @@ TEST(X86_64Test, totalNQueensCheck) {
     EXPECT_EQ(expected, solutions.totalNQueens(n));
 }
 
+TEST(X86_64Test, searchInsertCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 3, 5, 6};
+
+    int target = 5;
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.searchInsert(nums, target));
+
+    // Edge Case:
+    nums = {5}; target = 5;
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.searchInsert(nums, target));
+}
+
+TEST(X86_64Test, searchMatricCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> matrix = {{1, 3, 5, 7}, {10, 11, 16, 20}, {23, 30, 34, 60}};
+
+    int target = 3;
+
+    bool expected = true;
+    
+    EXPECT_EQ(expected, solutions.searchMatric(matrix, target));
+
+    // Edge Case:
+    matrix = {{1, 2, 3, 4}}; target = 4;
+
+    expected = true;
+
+    EXPECT_EQ(expected, solutions.searchMatric(matrix, target));
+}
+
+TEST(X86_64Test, findPeakElementCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3, 1};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.findPeakElement(nums));
+
+    // Edge Case:
+    nums = {1};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.findPeakElement(nums));
+}
+
+TEST(X86_64Test, findMedianSortedArraysCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums1 = {1, 3}, nums2 = {2};
+
+    double expected = 2;
+
+    EXPECT_EQ(expected, solutions.findMedianSortedArrays(nums1, nums2));
+
+    // Edge Case:
+    nums1 = {}; nums2 = {1};
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.findMedianSortedArrays(nums1, nums2));
+}
+
 
 #elif PURGATORY_ARM64LE
 

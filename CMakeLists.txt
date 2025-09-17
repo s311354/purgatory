@@ -98,6 +98,7 @@ foreach (SOURCE IN LISTS PURGATORY_FILES)
 endforeach()
 
 set(SOLUTIONS_FILES 
+	src/query.cc
 	src/array.cc
 	src/hashmap.cc
 	src/twopointers.cc
@@ -110,7 +111,8 @@ set(SOLUTIONS_FILES
 	src/heap.cc
 	src/intervals.cc
 	src/dp.cc
-	src/backtracking.cc)
+	src/backtracking.cc
+	src/binarysearch.cc)
 
 target_sources(purgatory PRIVATE
     ${SOLUTIONS_FILES}
