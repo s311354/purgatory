@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "purgatory.h"
+#include "query.h"
 
 #ifdef PURGATORY_X86_64
 
@@ -1224,12 +1225,27 @@ TEST(X86_64Test, findMedianSortedArraysCheck) {
     EXPECT_EQ(expected, solutions.findMedianSortedArrays(nums1, nums2));
 }
 
-
 #elif PURGATORY_ARM64LE
 
 TEST(ARM64LETest, BasicCheck) {
 	EXPECT_EQ(1 + 1, 2);
 }
+
+TEST(ARM64LETest, TextQueryCheck) {
+    using namespace query;
+
+    ifstream fin("test.txt");
+    TextQuery text(fin);
+
+    Query q = Query("hair") & Query("Alice");
+
+    QueryResult result = q.eval(text);
+
+    string expected = "(hair & Alice) occurs 1 time\n\t(line 1) Alice Emma has long flowing red hair.\n";
+
+    EXPECT_EQ(expected, printToString(result));
+}
+
 #elif PURGATORY_I386
 
 TEST(I386Test, BasicCheck) {

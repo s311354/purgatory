@@ -2,6 +2,8 @@
 #define PURGATORY_H
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 using namespace std;
 
 // STL Containers
@@ -17,9 +19,7 @@ using namespace std;
 #include <string_view>
 #include <climits>
 #include <algorithm>
-#include <sstream>
 #include <memory>
-#include <fstream>
 
 namespace purgatory {
 

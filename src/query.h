@@ -18,6 +18,8 @@ public:
 private:
     shared_ptr<vector<string>> file;
     map<string, shared_ptr<set<line_no>>> wm;
+
+    shared_ptr<vector<string>> handlePunct(const string&);
 };
 
 class QueryResult {
@@ -38,6 +40,7 @@ private:
     string sought;
     shared_ptr<set<TextQuery::line_no>> lines;
     shared_ptr<vector<string>> file;
+
 };
 
 /*
@@ -60,13 +63,14 @@ private:
  *  An interface class hides the hierarchy. It is the handle class that users interact with.
  */
 class Query {
-    friend Query operator~(const Query &);
+    friend Query operator~(const Query&);
     friend Query operator|(const Query&, const Query&);
     friend Query operator&(const Query&, const Query&);
 
 public:
     Query(const string&);
 
+    // call QueryResult's default copy constructor
     QueryResult eval(const TextQuery &t) const { return q->eval(t); }
     string rep() const { return q->rep(); }
 
@@ -120,6 +124,24 @@ class OrQuery: public BinaryQuery {
     
     QueryResult eval(const TextQuery&) const;
 };
+
+
+ostream &operator<<(ostream &os, const Query &query);
+string printToString(const QueryResult &qr);
+
+inline Query::Query(const string &s): q(new WordQuery(s)) { }
+
+inline Query operator~(const Query &operand) {
+    return shared_ptr<Query_base> (new NotQuery(operand));
+}
+
+inline Query operator&(const Query &lhs, const Query &rhs) {
+    return shared_ptr<Query_base> (new AndQuery(lhs, rhs)); 
+}
+
+inline Query operator|(const Query &lhs, const Query &rhs) {
+    return shared_ptr<Query_base> (new OrQuery(lhs, rhs));
+}
 
 }
 

@@ -2,12 +2,12 @@
 
 namespace query {
 
-string make_plural(size_t ctr, const string &word,
-		  const string &ending) {
+string make_plural(size_t ctr, const string &word, const string &ending) {
     return (ctr > 1) ? word + ending : word;
 }
 
 TextQuery::TextQuery(ifstream &is): file(new vector<string>) {
+
     string text;
     
     while (getline(is, text)) {
@@ -17,10 +17,16 @@ TextQuery::TextQuery(ifstream &is): file(new vector<string>) {
 	string word;
 
 	while ( line >> word ) {
-            auto &lines = wm[word];
 
-	    if (!lines) lines.reset(new set<line_no>);
-	    lines->insert(n);
+            auto p = handlePunct(word);
+
+	    for (auto w : *p) {
+
+                auto &lines = wm[w];
+
+	        if (!lines) lines.reset(new set<line_no>);
+	        lines->insert(n);
+	    }
 	}
     }
 
@@ -38,17 +44,31 @@ QueryResult TextQuery::query(const string &sought) const {
     }
 }
 
-inline Query::Query(const string &s): q(new WordQuery(s)) {
-}
+shared_ptr<vector<string>> TextQuery::handlePunct(const string &s) {
+    shared_ptr<vector<string>> p = make_shared<vector<string>>();
 
-inline Query operator~(const Query &operand) {
-    return shared_ptr<Query_base> (new NotQuery(operand));
-}
-inline Query operator&(const Query &lhs, const Query &rhs) {
-    return shared_ptr<Query_base> (new AndQuery(lhs, rhs)); 
-}
-inline Query operator|(const Query &lhs, const Query &rhs) {
-    return shared_ptr<Query_base> (new OrQuery(lhs, rhs));
+    size_t first = 0, index = 0;
+
+    while (index != s.size()) {
+        if (ispunct(s[index])) {
+            string word = s.substr(first, index - first);
+
+	    if (!word.empty()) p->push_back(word);
+
+	    p->push_back(s.substr(index, 1));
+
+	    ++index;
+	    first = index;
+	} else {
+	    ++index;
+	}
+    }
+
+    string trail = s.substr(first);
+
+    if (!trail.empty()) p->push_back(trail);
+
+    return p;
 }
 
 QueryResult OrQuery::eval(const TextQuery& text) const {
@@ -91,15 +111,21 @@ QueryResult AndQuery::eval(const TextQuery& text) const {
 }
 
 ostream &print(ostream& os, const QueryResult &qr) {
-    os << qr.sought << "occurs " << qr.lines->size() << " "
+    os << qr.sought << " occurs " << qr.lines->size() << " "
        << make_plural(qr.lines->size(), "time", "s") << endl;
 
-    for (auto num : *qr.lines) {
+    for (const auto &num : *qr.lines) {
         os << "\t(line " << num + 1 << ") "
 	   << *(qr.file->begin() + num) << endl;
     }
 
     return os;
+}
+
+string printToString(const QueryResult &qr) {
+    ostringstream oss;
+    print(oss, qr);
+    return oss.str();
 }
 
 ostream &operator<<(ostream &os, const Query &query) {
