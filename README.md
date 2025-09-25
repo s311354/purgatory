@@ -12,6 +12,7 @@ purgatory is a lightweight, modular C++11-based environment for prototyping, emb
 │   ├── main.cc            # Sandbox for quick experiments 
 │   ├── entry.cc           # Entry point or application driver
 │   ├── array.cc           # Algorithm implementation
+│   ├── query.cc / query.h # Text query functionality (searching, parsing, evaluation)
 │   └── purgatory.h        # Shared header/interfaces
 ├── test/
 │   ├── CMakeLists.txt     # CMake config for test targets
