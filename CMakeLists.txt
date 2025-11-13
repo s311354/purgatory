@@ -134,3 +134,9 @@ if(BUILD_TESTING)
 		add_subdirectory(test)
 	endif()
 endif()
+
+# Generate System.map after linking
+add_custom_command(TARGET purgatory POST_BUILD
+	COMMAND ${CMAKE_NM} -n $<TARGET_FILE:purgatory> > ${CMAKE_BINARY_DIR}/System.map
+        COMMENT "Generating System.map for purgatory"
+)

@@ -92,6 +92,11 @@ void Purgatory::rotate(vector<int> & nums, int k) {
     reverse(nums.begin() + k, nums.end());
 }
 
+/*
+ *  using two-pass greedy method here because we can break the problem into two directional constraints
+ *  - left to right handles increasing sequences
+ *  - right to left handles decreasing sequences
+ */
 int Purgatory::candy(vector<int>& ratings) {
 
     int n = ratings.size();
@@ -223,5 +228,134 @@ vector<string> Purgatory::fullJustify(vector<string>& words, int maxWidth) {
 
     return result;
 }
+
+/*
+ * using a bottom-up dynamic programming pattern here because we can break into each state row[i][j] depends only on two previous states from row[i - 1]
+ * T:O(n^2), S:O(n^2)
+ */
+vector<vector<int>> Purgatory::generate(int numRows) {
+    vector<vector<int>> triangle;
+
+    if (numRows <= 0) return triangle;
+
+    triangle.reserve(numRows);
+
+    for (int i = 0; i < numRows; ++i) {
+        vector<int> row(i + 1, 1);
+
+	for (int j = 0; j < i; ++j) {
+	    row[j] = triangle[i - 1][j - 1] + triangle[i - 1][j];
+	}
+
+	triangle.push_back(move(row));
+    }
+
+    return triangle;
+}
+
+/*
+ *  using an in-place lexicographical successor algorithm here because we can break the problem into finding a pivot that can increase without violating order, then minmize that tail part by reversing it.
+ *  T: O(n), S: O(1)
+ */
+void Purgatory::nextPermutation(vector<int>& nums) {
+    int n = nums.size();
+    int i = n - 2;
+
+    while (i >= 0 && nums[i] >= nums[i + 1]) i--;
+
+    if (i >= 0) {
+        int j = n - 1;
+	while (nums[j] <= nums[i]) j--;
+	swap(nums[i], nums[j]);
+    }
+
+    reverse(nums.begin() + i + 1, nums.end());
+}
+
+/*
+ *  using backtracking with pruning and duplicate skipping here because we can break the problem into
+ *  - sort the array to bring duplicates together
+ *  - skip same elements at the same recursive depth
+ *  - stop recursion early when sum exceeds target
+ *  T: O(2^n), S: O(n)
+ */
+void backtrackingCombinationSum2(vector<int>& nums, int remain, int start, vector<int>& path, vector<vector<int>>& res) {
+    if (remain == 0) {
+        res.push_back(path);
+	return;
+    }
+
+    for (int i = start; i < nums.size(); ++i) {
+        if (i > start && nums[i] == nums[i - 1])
+            continue;
+
+	if (nums[i] > remain) break;
+
+	path.push_back(nums[i]);
+
+	backtrackingCombinationSum2(nums, remain - nums[i], i + 1, path, res);
+
+	path.pop_back();
+    }
+}	
+
+vector<vector<int>> Purgatory::combinationSum2(vector<int>& candidates, int target) {
+    sort(candidates.begin(), candidates.end());
+
+    vector<vector<int>> res;
+    vector<int> path;
+
+    backtrackingCombinationSum2(candidates, target, 0, path, res);
+
+    return res;
+}
+
+/*
+ *  using recursive DFS with constraint pruning here because we can break the problem into combination of backtracking + constraint propagation
+ *  T: O(9^m), S: O(m)
+ */
+void Purgatory::solveSudoku(vector<vector<char>>& board) {
+    vector<vector<bool>> row(9, vector<bool>(10, false));
+    vector<vector<bool>> col(9, vector<bool>(10, false));
+    vector<vector<bool>> box(9, vector<bool>(10, false));
+
+    for (int i = 0; i < 9; ++i) {
+        for (int j = 0; j < 9; ++j) {
+            if (board[i][j] != '.') {
+                int d = board[i][j] - '0';
+		row[i][d] = col[j][d] = box[(i/3)*3 + j/3][d] = true;
+	    }
+	}
+    }
+
+    function<bool(int, int)> dfs = [&](int i, int j) -> bool {
+        if (i == 9) return true;
+
+	if (j == 9) return dfs(i + 1, 0);
+
+	if (board[i][j] != '.')
+	    return dfs(i, j + 1);
+
+	for (int d = 1; d <= 9; ++d) {
+            int b = (i/3)*3 + j/3;
+
+	    if (!row[i][d] && !col[j][d] && !box[b][d]) {
+	        board[i][j] = '0' + d;
+
+	        row[i][d] = col[j][d] = box[b][d] = true;
+
+	        if (dfs(i, j + 1)) return true;
+
+	        board[i][j] = '.';
+	        row[i][d] = col[j][d] = box[b][d] = false;
+	    }
+	}
+
+	return false;
+    };
+
+    dfs(0, 0);
+}
+
 
 }

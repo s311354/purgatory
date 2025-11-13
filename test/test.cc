@@ -1225,6 +1225,97 @@ TEST(X86_64Test, findMedianSortedArraysCheck) {
     EXPECT_EQ(expected, solutions.findMedianSortedArrays(nums1, nums2));
 }
 
+TEST(X86_64Test, generateCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int numRows = 3;
+
+    vector<vector<int>> expected = {{1}, {1, 1}, {1, 2, 1}};
+
+    EXPECT_EQ(expected, solutions.generate(numRows));
+
+    // Edge Case:
+    numRows = 0;
+
+    expected = {};
+
+    EXPECT_EQ(expected, solutions.generate(numRows));   
+}
+
+TEST(X86_64Test, nextPermutationCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3};
+    solutions.nextPermutation(nums);
+
+    vector<int> expected = {1, 3, 2};
+
+    EXPECT_EQ(expected, nums);
+
+    // Edge Case:
+    nums = {1};
+
+    solutions.nextPermutation(nums);
+
+    expected = {1};
+
+    EXPECT_EQ(expected, nums);
+}
+
+TEST(X86_64Test, combinationSum2Check) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> candidates = {10, 1, 2, 7, 6, 1, 5};
+
+    int target = 8;
+
+    vector<vector<int>> expected = {{1, 1, 6}, {1, 2, 5}, {1, 7}, {2, 6}};
+
+    EXPECT_EQ(expected, solutions.combinationSum2(candidates, target));
+
+    // Edge Case:
+    candidates = {};
+
+    target = 0;
+
+    expected = {{}};
+
+    EXPECT_EQ(expected, solutions.combinationSum2(candidates, target));
+}
+
+TEST(X86_64Test, solveSudokuCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<char>> board = {{'5', '3', '.', '.', '7', '.', '.', '.', '.'}, 
+	    {'6', '.', '.', '1', '9', '5', '.', '.', '.'},
+            {'.', '9', '8', '.', '.', '.', '.', '6', '.'},
+            {'8', '.', '.', '.', '6', '.', '.', '.', '3'},
+	    {'4', '.', '.', '8', '.', '3', '.', '.', '1'},
+            {'7', '.', '.', '.', '2', '.', '.', '.', '6'},
+	    {'.', '6', '.', '.', '.', '.', '2', '8', '.'},
+	    {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
+	    {'.', '.', '.', '.', '8', '.', '.', '7', '9'}};
+
+    vector<vector<char>> expected = {{'5', '3', '4', '6', '7', '8', '9', '1', '2'}, 
+	    {'6', '7', '2', '1', '9', '5', '3', '4', '8'},
+            {'1', '9', '8', '3', '4', '2', '5', '6', '7'},
+            {'8', '5', '9', '7', '6', '1', '4', '2', '3'},
+	    {'4', '2', '6', '8', '5', '3', '7', '9', '1'},
+            {'7', '1', '3', '9', '2', '4', '8', '5', '6'},
+	    {'9', '6', '1', '5', '3', '7', '2', '8', '4'},
+	    {'2', '8', '7', '4', '1', '9', '6', '3', '5'},
+	    {'3', '4', '5', '2', '8', '6', '1', '7', '9'}};
+
+    solutions.solveSudoku(board);
+
+    EXPECT_EQ(expected, board);
+
+}
+
 #elif PURGATORY_ARM64LE
 
 TEST(ARM64LETest, BasicCheck) {

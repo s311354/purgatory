@@ -92,6 +92,14 @@ public:
 
     vector<string> fullJustify(vector<string>& words, int maxWidth);
 
+    vector<vector<int>> generate(int numRows);
+
+    void nextPermutation(vector<int> &nums);
+
+    vector<vector<int>> combinationSum2(vector<int>& candidates, int target);
+
+    void solveSudoku(vector<vector<char>>& board);
+
     // hashmap
     bool canConstruct(string ransomNot, string magazine);
 
