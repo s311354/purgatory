@@ -638,6 +638,12 @@ TEST(X86_64Test, isValidCheck) {
 
     EXPECT_EQ(expected, solutions.isValid(s));
 
+    s = "(]";
+
+    expected = false;
+
+    EXPECT_EQ(expected, solutions.isValid(s));
+
     // Edge Case:
     s = "";
 
@@ -700,6 +706,24 @@ TEST(X86_64Test, calculateCheck) {
     EXPECT_EQ(expected, solutions.calculate(s));
 }
 
+TEST(X86_64Test, nextGreaterElementCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums1 = {4, 1, 2}, nums2 = {1, 3, 4, 2};
+
+    vector<int> expected = {-1, 3, -1};
+
+    EXPECT_EQ(expected, solutions.nextGreaterElement(nums1, nums2));
+
+    // Edge Case:
+    nums1 = {2, 4}; nums2 = {4, 3, 2, 1};
+
+    expected = {-1, -1};
+
+    EXPECT_EQ(expected, solutions.nextGreaterElement(nums1, nums2));
+}
+
 TEST(X86_64Test, levelOrderBottomCheck) {
     purgatory::Purgatory solutions;
 
@@ -716,6 +740,60 @@ TEST(X86_64Test, levelOrderBottomCheck) {
     expected = {};
 
     EXPECT_EQ(expected, solutions.levelOrderBottom(purgatory::buildTree(nums)));
+}
+
+TEST(X86_64Test, removeDuplicateLettersCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case: 
+    string s = "bcabc";
+
+    string expected = "abc";
+
+    EXPECT_EQ(expected, solutions.removeDuplicateLetters(s));
+
+    // Edge Case:
+    s = "a";
+
+    expected = "a";
+
+    EXPECT_EQ(expected, solutions.removeDuplicateLetters(s));
+}
+
+TEST(X86_64Test, calculateIICheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "3+2*2";
+
+    int expected = 7;
+
+    EXPECT_EQ(expected, solutions.calculateII(s));
+
+    // Edge Case:
+    s = "3/2";
+    
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.calculateII(s));
+}
+
+TEST(X86_64Test, longestValidParenthesesCheck) {
+    purgatory::Purgatory solutions;
+    
+    // Basic Case:
+    string s = "(()";
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.longestValidParentheses(s));
+
+    // Edge Case:
+    s = "";
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.longestValidParentheses(s));
 }
 
 TEST(X86_64Test, minDepthCheck) {

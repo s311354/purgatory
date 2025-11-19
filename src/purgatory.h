@@ -171,6 +171,14 @@ public:
 
     int calculate(string s);
 
+    vector<int> nextGreaterElement(vector<int>& nums1, vector<int>& nums2);
+
+    string removeDuplicateLetters(string s);
+
+    int calculateII(string s);
+
+    int longestValidParentheses(string s);
+
     // graph bfs
     vector<vector<int>> levelOrderBottom(TreeNode* root); 
 
