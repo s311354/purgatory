@@ -357,5 +357,28 @@ void Purgatory::solveSudoku(vector<vector<char>>& board) {
     dfs(0, 0);
 }
 
+string Purgatory::getEncryptedString(string s) {
+    int n = s.size();
+    vector<char> minSuffix(n);
+
+    minSuffix[n - 1] = s[n - 1];
+    for (int i = n - 2; i >= 0; --i) {
+        minSuffix[i] = min(minSuffix[i + 1], s[i]);
+    }
+
+    string temp, result;
+
+    for (int i = 0; i < n; ++i) {
+        temp.push_back(s[i]);
+
+	while(!temp.empty() && (i == n - 1 || temp.back() <= minSuffix[i + 1]) ) {
+            result.push_back(temp.back());
+	    temp.pop_back();
+	}
+    }
+
+    return result;
+
+}
 
 }

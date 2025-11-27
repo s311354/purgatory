@@ -114,7 +114,8 @@ set(SOLUTIONS_FILES
 	src/intervals.cc
 	src/dp.cc
 	src/backtracking.cc
-	src/binarysearch.cc)
+	src/binarysearch.cc
+	src/linkedlist.cc)
 
 target_sources(purgatory PRIVATE
     ${SOLUTIONS_FILES}

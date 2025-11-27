@@ -55,11 +55,21 @@ struct Node {
     Node(int _val, Node* _left, Node* _right, Node* _next) : val(_val), left(_left), right(_right), next(_next) {}
 };
 
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x): val(x), next(nullptr) {}
+};
+
 // Build tree from level-order vector with INT_MIN as null
 TreeNode* buildTree(const vector<int>& arr);
 
 // Build node from level-order vector
 Node* buildNode(const vector<int>& arr); 
+
+// Build linked list from level-order
+ListNode* buildLinkedList(const vector<int>& values, int pos);
+ListNode* buildLinkedList(const vector<int>& values);
 
 // Convert connected node into vector
 vector<int> serializeWithNext(Node* root);
@@ -99,6 +109,8 @@ public:
     vector<vector<int>> combinationSum2(vector<int>& candidates, int target);
 
     void solveSudoku(vector<vector<char>>& board);
+
+    string getEncryptedString(string s);
 
     // hashmap
     bool canConstruct(string ransomNot, string magazine);
@@ -241,6 +253,15 @@ public:
     int findPeakElement(vector<int>& nums);
 
     double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2);
+
+    // linked list
+    bool hasCycle(ListNode* head);
+
+    ListNode* addTwoNumber(ListNode* l1, ListNode* l2);
+
+    ListNode* removeNthFromEnd(ListNode* head, int n);
+
+    ListNode* reverseKGroup(ListNode* head, int k);
 };
 
 template <typename E>

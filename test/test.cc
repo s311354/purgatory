@@ -66,6 +66,44 @@ Node* buildNode(const vector<int>& arr) {
     return nodes[0]; // root
 }
 
+ListNode* buildLinkedList(const vector<int>& values, int pos) {
+    if (values.empty())
+        return nullptr;
+
+    ListNode dummy(0);
+    ListNode* head = &dummy;
+
+    ListNode* cycleNode = nullptr;
+
+    for (int i = 0; i < values.size(); ++i) {
+        head->next = new ListNode(values[i]);
+	head = head->next;
+
+	if (i == pos)
+	    cycleNode = head;
+    }
+
+    if (pos >= 0)
+        head->next = cycleNode;
+
+    return dummy.next;
+}
+
+ListNode* buildLinkedList(const vector<int>& values) {
+    if (values.empty())
+        return nullptr;
+
+    ListNode dummy(0);
+    ListNode* head = &dummy;
+
+    for (int x : values) {
+        head->next = new ListNode(x);
+	head = head->next;
+    }
+
+    return dummy.next;
+}
+
 // Convert connected node into vector
 vector<int> serializeWithNext(Node* root) {
     vector<int> result;
@@ -89,6 +127,16 @@ vector<int> serializeWithNext(Node* root) {
     return result;
 }
 
+// Convert connected Linked List node into vector
+vector<int> toVector(ListNode* head) {
+    vector<int> result;
+
+    for (ListNode* curr = head; curr != nullptr; curr = curr->next) {
+        result.push_back(curr->val);
+    }
+
+    return result;
+}
 
 }
 
@@ -1392,6 +1440,112 @@ TEST(X86_64Test, solveSudokuCheck) {
 
     EXPECT_EQ(expected, board);
 
+}
+
+TEST(X86_64Test, getEncryptedStringCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "zyxw";
+
+    string expected = "wxyz";
+
+    EXPECT_EQ(expected, solutions.getEncryptedString(s));
+
+    // Edge Case:
+    s = "vgxgpu";
+
+    expected = "ggpuxv";
+
+    EXPECT_EQ(expected, solutions.getEncryptedString(s));
+}
+
+TEST(X86_64Test, hasCycleCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {3, 2, 0, -4};
+    int pos = 1;
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.hasCycle(purgatory::buildLinkedList(head, pos)));
+
+    // Edge Case:
+    head = {1};
+    pos = -1;
+
+    expected = false;
+
+    EXPECT_EQ(expected, solutions.hasCycle(purgatory::buildLinkedList(head, pos)));
+}
+
+TEST(X86_64Test, addTwoNumberCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> l1 = {2, 4, 3}, l2 = {5, 6, 4};
+
+    vector<int> result = purgatory::toVector(solutions.addTwoNumber(purgatory::buildLinkedList(l1), purgatory::buildLinkedList(l2)));
+
+    vector<int> expected = {7, 0, 8};
+
+    EXPECT_EQ(expected, result);
+
+    // Edge Case:
+    l1 = {0}, l2 = {0};
+
+    result = purgatory::toVector(solutions.addTwoNumber(purgatory::buildLinkedList(l1), purgatory::buildLinkedList(l2)));
+
+    expected = {0};
+
+    EXPECT_EQ(expected, result);
+}
+
+TEST(X86_64Test, removeNthFromEndCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {1, 2, 3, 4, 5};
+    int n = 2;
+
+    vector<int> result = purgatory::toVector(solutions.removeNthFromEnd(purgatory::buildLinkedList(head), n));
+
+    vector<int> expected = {1, 2, 3, 5};
+
+    EXPECT_EQ(expected, result);
+
+    // Edge Case:
+    head = {1, 2}; n = 1;
+
+    result = purgatory::toVector(solutions.removeNthFromEnd(purgatory::buildLinkedList(head), n));
+
+    expected = {1};
+   
+    EXPECT_EQ(expected, result);
+}
+
+TEST(X86_64Test, reverseKGroupCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {1, 2, 3, 4, 5};
+    int k = 2;
+
+    vector<int> result = purgatory::toVector(solutions.reverseKGroup(purgatory::buildLinkedList(head), k)); 
+
+    vector<int> expected = {2, 1, 4, 3, 5};
+
+    EXPECT_EQ(expected, result);
+
+    // Edge Case:
+    head = {1}; k = 1;
+
+    result = purgatory::toVector(solutions.reverseKGroup(purgatory::buildLinkedList(head), k)); 
+
+    expected = {1};
+
+    EXPECT_EQ(expected, result);
 }
 
 #elif PURGATORY_ARM64LE
