@@ -410,6 +410,60 @@ TEST(X86_64Test, findSubstringCheck) {
     EXPECT_EQ(expected, solutions.findSubstring(s, words));
 }
 
+TEST(X86_64Test, containsDuplicateCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3, 1};
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.containsDuplicate(nums));
+
+    // Edge Case:
+    nums = {1};
+
+    expected = false;
+
+    EXPECT_EQ(expected, solutions.containsDuplicate(nums));
+}
+
+TEST(X86_64Test, fractionToDecimalCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int numerator = 2, denominator = 1;
+
+    string expected = "2";
+
+    EXPECT_EQ(expected, solutions.fractionToDecimal(numerator, denominator));
+
+    // Edge Case:
+    numerator = 1; denominator = 6;
+
+    expected = "0.1(6)";
+
+    EXPECT_EQ(expected, solutions.fractionToDecimal(numerator, denominator));
+}
+
+TEST(X86_64Test, firstMissingPositiveCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {3, 4, -1, 1};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.firstMissingPositive(nums));
+
+    // Edge Case:
+    nums = {1, 1};
+
+    expected = 2;
+
+    EXPECT_EQ(expected, solutions.firstMissingPositive(nums));
+}
+
 TEST(X86_64Test, isPalindromeCheck) {
     purgatory::Purgatory solutions;
 

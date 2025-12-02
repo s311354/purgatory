@@ -121,6 +121,12 @@ public:
 
     vector<int> findSubstring(string s, vector<string>& words);
 
+    bool containsDuplicate(vector<int>& nums);
+
+    string fractionToDecimal(int numerator, int denominator);
+
+    int firstMissingPositive(vector<int>& nums);
+
     // two pointers
     bool isPalindrome(string s); 
     

@@ -50,14 +50,14 @@ int Purgatory::longestConsecutive(vector<int> & nums) {
     unordered_set<int> numSet(nums.begin(), nums.end());
     int longest = 0;
 
-    for (int num : nums) {
+    for (int num : numSet) {
         if (!numSet.count(num - 1)) {
             int currentNum = num;
 	    int currentSteak = 1;
 
 	    while (numSet.count(currentNum + 1)) {
-                currentNum++;
-		currentSteak++;
+                currentNum += 1;
+		currentSteak += 1;
 	    }
 
 	    longest = max(longest, currentSteak);
@@ -82,7 +82,7 @@ vector<int> Purgatory::findSubstring(string s, vector<string>& words) {
         int left = i, count = 0;
 	unordered_map<string, int> seen;
 
-        for (int j = i; j + wordLen < s.size(); j+= wordLen) {
+        for (int j = i; j + wordLen <= s.size(); j+= wordLen) {
             string word = s.substr(j, wordLen);
 
 	    if (wordCount.count(word)) {
@@ -97,7 +97,9 @@ vector<int> Purgatory::findSubstring(string s, vector<string>& words) {
 
 		}
 	    
-		if ( count == numWords ) result.push_back(left);
+		if ( count == numWords )
+		    result.push_back(left);
+
 	    } else {
 		    seen.clear();
                     count = 0;
@@ -107,6 +109,90 @@ vector<int> Purgatory::findSubstring(string s, vector<string>& words) {
     }
 
     return result;
+}
+
+/*
+ *  using a hash-set approach here because we can break the problem into a membership detection.
+ *  T: O(n), S: O(n)
+ */
+bool Purgatory::containsDuplicate(vector<int>& nums) {
+    unordered_set<int> seen;
+
+    for (int x: nums) {
+        if (seen.count(x)) {
+            return true;
+	}
+
+	seen.insert(x);
+    }
+
+    return false;
+}
+
+/*
+ *  using a hash map to record remainders here because we can break the problem into
+ *  - handling sign and integer division
+ *  - generating fractional digits while tracking remainders
+ *  - detecting repetition to insert parentheses
+ *  T: O(k), S: O(k)
+ */
+string Purgatory::fractionToDecimal(int numerator, int denominator) {
+    if (numerator == 0) return "0";
+
+    string result;
+
+    if ((numerator < 0) ^ (denominator < 0)) result += '-';
+
+    long long n = llabs((long long) numerator);
+    long long d = llabs((long long) denominator);
+
+    long long integerPart = n / d;
+    result += to_string(integerPart);
+
+    long long remainder = n % d;
+
+    if (remainder == 0) return result;
+
+    result += '.';
+
+    unordered_map<long long, int> seen;
+
+    while (remainder) {
+        if (seen.count(remainder)) {
+            result.insert(seen[remainder], "(");
+	    result += ')';
+	    break;
+	}
+
+	seen[remainder] = result.size();
+	remainder *= 10;
+	result += to_string(remainder/d);
+	remainder %= d;
+    }
+
+    return result;
+}
+
+/*
+ *  using index mapping here because we can break the problem into an implicit hash. The state we define is: each index I should ideally hold i + 1. The first index that breaks this invariant gives the missing positive.
+ *  T: O(n), S: O(1)
+ */
+int Purgatory::firstMissingPositive(vector<int>& nums) {
+    int n = nums.size();
+
+    for (int i = 0; i < n; ++i) {
+        while (nums[i] > 0 && nums[i] <= n && nums[nums[i]- 1] != nums[i]) {
+	    swap(nums[i], nums[nums[i] - 1]);
+	}
+    }
+
+    for (int i = 0; i < n; ++i) {
+        if (nums[i] != i + 1) {
+	    return i + 1;
+	}
+    }
+
+    return n + 1;
 }
 
 }
