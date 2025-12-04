@@ -136,6 +136,14 @@ public:
 
     int trap(vector<int> & height);
 
+    void reverseString(vector<char>& s);
+
+    void sortColors(vector<int>& nums);
+
+    int compareVersion(string version1, string version2);
+
+    vector<int> maxNumber(vector<int>& nums1, vector<int>& nums2, int k);
+
     // sliding window
     bool containsNearbyDuplicate(vector<int>& nums, int k);
 

@@ -96,4 +96,127 @@ int Purgatory::trap(vector<int> & height) {
     return water;
 }
 
+/*
+ *  using symmetry-based in-place here because we can break the problem into pairwise swapping from both ends
+ *  T: O(n), S: O(1)
+ */
+void Purgatory::reverseString(vector<char>& s) {
+    int left = 0, right = s.size() - 1;
+
+    while (left < right) {
+        swap(s[left], s[right]);
+	left++; right--;
+    }
+}
+
+/*
+ * using the dutch national flag algorithm here because we can break the problem into three regions
+ * T: O(n), S: O(1)
+ */
+void Purgatory::sortColors(vector<int>& nums) {
+    int low = 0, mid = 0;
+    int high = nums.size() - 1;
+
+    while (mid <= high) {
+        if (nums[mid] == 0) {
+            swap(nums[low], nums[mid]);
+	    low++; mid++;
+	} else if (nums[mid] == 1) {
+            mid++;
+	} else {
+	    swap(nums[mid], nums[high]);
+	    high--;
+	}
+    }
+}
+
+/*
+ *  using two-pointer parsing method here because we can break the problem into small numeric segments without splitting strings
+ *  T: O(n + m), S: O(1)
+ */
+int Purgatory::compareVersion(string version1, string version2) {
+    int i = 0, j = 0;
+    int n = version1.size(), m = version2.size();
+
+    while (i < n || j < m) {
+        long num1 = 0, num2 = 0;
+
+	while (i < n && version1[i] != '.') {
+            num1 = num1*10 + (version1[i] - '0');
+	    i++;
+	}
+
+	while (j < m && version2[j] != '.') {
+             num2 = num2*10 + (version2[j] - '0');
+	     j++;
+	}
+
+
+	if (num1 > num2) return 1;
+	if (num1 < num2) return -1;
+
+	i++; j++;
+    }
+
+    return 0;
+}
+
+vector<int> maxSubsequence(vector<int>& nums, int k) {
+    vector<int> st;
+
+    int drop = nums.size() - k;
+
+    for (int num : nums) {
+        while (!st.empty() && drop > 0 && st.back() < num) {
+            st.pop_back();
+	    drop--;
+	}
+
+	st.push_back(num);
+    } 
+
+    st.resize(k);
+    return st;
+}
+
+vector<int> mergeMaxNumber(vector<int>& a, vector<int>& b) {
+    vector<int> result;
+
+    while (!a.empty() || !b.empty()) {
+        if ( a > b) {
+            result.push_back(a.front());
+	    a.erase(a.begin());
+	} else {
+            result.push_back(b.front());
+	    b.erase(b.begin());
+	}
+    }
+
+    return result;
+}
+
+/*
+ *  using greedy monotonic stack + lexicographic merge hear because we can break the problem into 
+ *  - selecting best subsequence from each array
+ *  - merging them optimally
+ *  - trying all possible divisons
+ *  T:((M + N)^2), S:O(K)
+ */
+vector<int> Purgatory::maxNumber(vector<int>& nums1, vector<int>& nums2, int k) {
+    vector<int> best;
+
+    int m = nums1.size(), n = nums2.size();
+
+    for (int i = max(0, k - n); i <= min(k, m); ++i) {
+        vector<int> part1 = maxSubsequence(nums1, i);
+	vector<int> part2 = maxSubsequence(nums2, k - i);
+
+	vector<int> candidate = mergeMaxNumber(part1, part2);
+
+	best = max(best, candidate);
+    }
+
+    return best;
+}
+
 }

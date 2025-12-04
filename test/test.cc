@@ -538,6 +538,86 @@ TEST(X86_64Test, trapCheck) {
     EXPECT_EQ(expected, solutions.trap(height));
 }
 
+TEST(X86_64Test, reverseStringCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<char> s = {'h', 'e', 'l', 'l', 'o'};
+
+    vector<char> expected = {'o', 'l', 'l', 'e', 'h'};
+
+    solutions.reverseString(s);
+
+    EXPECT_EQ(expected, s);
+
+    // Edge Case:
+    s = {'a'};
+
+    expected = {'a'};
+
+    EXPECT_EQ(expected, s);
+}
+
+TEST(X86_64Test, sortColorsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {2, 0, 2, 1, 1, 0};
+
+    vector<int> expected = {0, 0, 1, 1, 2, 2};
+
+    solutions.sortColors(nums);
+
+    EXPECT_EQ(expected, nums);
+
+    // Edge Case:
+    nums = {0, 2, 1};
+
+    expected = {0, 1, 2};
+
+    solutions.sortColors(nums);
+
+    EXPECT_EQ(expected, nums);
+}
+
+TEST(X86_64Test, compareVersionCheck) {
+   purgatory::Purgatory solutions;
+
+   // Basic Case:
+   string version1 = "1.0", version2 = "1.0.0";
+
+   int expected = 0;
+
+   EXPECT_EQ(expected, solutions.compareVersion(version1, version2));
+
+   // Edge Case:
+   version1 = "1.0.1"; version2 = "1";
+
+   expected = 1;
+
+   EXPECT_EQ(expected, solutions.compareVersion(version1, version2));
+}
+
+TEST(X86_64Test, maxNumberCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums1 = {3, 4, 6, 5}, nums2 = {9, 1, 2, 5, 8, 3};
+
+    int k = 5;
+
+    vector<int> expected = {9, 8, 6, 5, 3};
+
+    EXPECT_EQ(expected, solutions.maxNumber(nums1, nums2, k));
+
+    // Edge Case:
+    nums1 = {3, 9}; nums2 = {8,9};
+    k = 3;
+
+    expected = {9, 8, 9};
+
+    EXPECT_EQ(expected, solutions.maxNumber(nums1, nums2, k));
+}
 
 TEST(X86_64Test, containsNearbyDuplicateCheck) {
     purgatory::Purgatory solutions;
