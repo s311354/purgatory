@@ -61,4 +61,103 @@ int Purgatory::lengthOfLongestSubstring(string s) {
     return maxLen;
 }
 
+/*
+ *  using divide-and-conquer
+ *  T: O(n), S: O(n)
+ */
+string Purgatory::longestNiceSubstring(string s) {
+    if (s.size() < 2) return "";
+    
+    unordered_set<char> seen(s.begin(), s.end());
+
+    for (int i = 0; i < (int) s.size(); ++i) {
+        char c = s[i];
+
+	if (seen.count(tolower(c)) && seen.count(toupper(c)))
+	    continue;
+
+	string left = longestNiceSubstring(s.substr(0, i));
+	string right = longestNiceSubstring(s.substr(i + 1));
+	return (left.size() >= right.size() ? left : right);
+    }
+ 
+    return s;
+}
+
+/*
+ *  using frequency-based divide pattern here because we can break the problem into invalid characters as natural boundaries.
+ *  T: O(n log n), S: O(n)
+ */
+int Purgatory::longestSubstring(string s, int k) {
+    if (s.empty() || k > s.size()) return 0;
+
+    if (k <= 1) return s.size();
+
+    vector<int> freq(26, 0);
+
+    for (char c: s) freq[c - 'a']++;
+
+    for (int i = 0; i < s.size(); ++i) {
+        if (freq[s[i] - 'a'] < k) {
+            string left = s.substr(0, i);
+	    string right = s.substr(i + 1);
+
+	    return max(longestSubstring(left, k), longestSubstring(right, k));
+	}
+    }
+
+    return s.size();
+}
+
+/*
+ *  using recurrence dynamic idea here because we can break the problem into the cumulative native of extending arithmetic subarrays.
+ *  T: O(n), S: O(1)
+ */
+int Purgatory::numberOfArithmeticSlices(vector<int>& nums) {
+    if (nums.size() < 3) return 0;
+
+    int count = 0, curr = 0;
+
+    for (int i = 2; i < (int) nums.size(); ++i) {
+        if (nums[i] - nums[i - 1] == nums[i - 1] - nums[i - 2]) {
+            curr += 1;
+	    count += curr;
+	} else {
+	    curr = 0;
+	}
+    }
+
+    return count;
+}
+
+/*
+ *  using multiset median-tracking approach here because we can break the problem into median partitioning
+ *  T: O(n log k), S: O(k)
+ */
+vector<double> Purgatory::medianSlidingWindow(vector<int>& nums, int k) {
+    vector<double> res;
+    multiset<int> window(nums.begin(), nums.begin() + k);
+
+    auto mid = next(window.begin(), k/2);
+
+    for (int i = k;; ++i) {
+        if (k % 2 == 1)
+	    res.push_back(*mid);
+	else
+	    res.push_back(((double) * mid + *prev(mid))/ 2.0);
+
+	if (i == nums.size()) break;
+
+	window.insert(nums[i]);
+	if (nums[i] < *mid)
+	    mid--;
+
+	if (nums[i - k] <= *mid)
+	    mid++;
+	window.erase(window.lower_bound(nums[i - k]));
+    }
+
+    return res;
+}
+
 }

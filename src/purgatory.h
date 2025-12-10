@@ -151,6 +151,14 @@ public:
 
     int lengthOfLongestSubstring(string s);
 
+    string longestNiceSubstring(string s);
+
+    int longestSubstring(string s, int k);
+
+    int numberOfArithmeticSlices(vector<int>& nums);
+
+    vector<double> medianSlidingWindow(vector<int>& nums, int k);
+
     // prefix sum
     class NumArray {
     private:

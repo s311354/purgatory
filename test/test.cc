@@ -677,6 +677,83 @@ TEST(X86_64Test, lengthOfLongestSubstringCheck) {
     EXPECT_EQ(expected, solutions.lengthOfLongestSubstring(s));
 }
 
+
+TEST(X86_64Test, longestNiceSubstringCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "YazaAay";
+
+    string expected = "aAa";
+
+    EXPECT_EQ(expected, solutions.longestNiceSubstring(s));
+
+    // Edge Case:
+    s = "c";
+
+    expected = "";
+
+    EXPECT_EQ(expected, solutions.longestNiceSubstring(s));
+}
+
+TEST(X86_64Test, longestSubstringCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "aaabb";
+    int k = 3;
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.longestSubstring(s, k));
+
+    // Edge Case:
+    s = "a";
+    k = 2;
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.longestSubstring(s, k));
+}
+
+TEST(X86_64Test, numberOfArithmeticSlicesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3, 4};
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.numberOfArithmeticSlices(nums));
+
+    // Edge Case:
+    nums = {1};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.numberOfArithmeticSlices(nums));
+}	
+
+TEST(X86_64Test, medianSlidingWindowCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3, 4};
+    int k = 2;
+
+    vector<double> expected = {1.5, 2.5, 3.5};
+
+    EXPECT_EQ(expected, solutions.medianSlidingWindow(nums, k));
+
+    // Edge Case:
+    nums = {5};
+    k = 1;
+
+    expected = {5.0};
+
+    EXPECT_EQ(expected, solutions.medianSlidingWindow(nums, k));
+}
+
 TEST(X86_64Test, NumArrayCheck) {
 
     vector<int> nums = {-2, 0, 3, -5, 2, -1};
