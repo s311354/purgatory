@@ -1759,6 +1759,91 @@ TEST(X86_64Test, reverseKGroupCheck) {
     EXPECT_EQ(expected, result);
 }
 
+TEST(X86_64Test, islandPerimeterCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> grid = {{0, 1, 0, 0}, 
+	                        {1, 1, 1, 0},
+                                {0, 1, 0, 0},
+                                {1, 1, 0, 0}};
+
+    int expected = 16;
+
+    EXPECT_EQ(expected, solutions.islandPerimeter(grid));
+
+    // Edge Case:
+    grid = {{1,0}};
+
+    expected = 4;
+
+    EXPECT_EQ(expected, solutions.islandPerimeter(grid));
+}
+
+TEST(X86_64Test, kthSmallestCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> matrix = {{1, 5, 9},
+                                  {10, 11, 13},
+                                  {12, 13, 15}};
+    int k = 8;
+
+    int expected = 13;
+
+    EXPECT_EQ(expected, solutions.kthSmallest(matrix, k));
+
+    // Edge Cas:
+    matrix = {{-5}};
+    k = 1;
+
+    expected = -5;
+
+    EXPECT_EQ(expected, solutions.kthSmallest(matrix, k));
+}
+
+TEST(X86_64Test, countBattleshipsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<char>> board = {{'X', '.', '.', 'X'},
+                                  {'.', '.', '.', 'X'},
+                                  {'.', '.', '.', 'X'}};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.countBattleships(board));
+
+    // Edge Case:
+    board = {{'X', 'X', 'X'}};
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.countBattleships(board));
+}
+
+TEST(X86_64Test, maximalRectangleCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<char>> matrix = {{'1', '0', '1', '0', '0'},
+                                   {'1', '0', '1', '1', '1'},
+                                   {'1', '1', '1', '1', '1'},
+                                   {'1', '0', '0', '1', '0'}};
+
+    int expected = 6;
+
+    EXPECT_EQ(expected, solutions.maximalRectangle(matrix));
+
+    // Edge Case:
+    matrix = {{'0'}};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.maximalRectangle(matrix));
+}
+
+
 #elif PURGATORY_ARM64LE
 
 TEST(ARM64LETest, BasicCheck) {

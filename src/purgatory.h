@@ -284,6 +284,15 @@ public:
     ListNode* removeNthFromEnd(ListNode* head, int n);
 
     ListNode* reverseKGroup(ListNode* head, int k);
+
+    // matrix
+    int islandPerimeter(vector<vector<int>>& grid);
+
+    int kthSmallest(vector<vector<int>>& matrix, int k);
+
+    int countBattleships(vector<vector<char>>& board);
+
+    int maximalRectangle(vector<vector<char>>& matrix);
 };
 
 template <typename E>
