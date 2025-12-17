@@ -868,6 +868,80 @@ TEST(X86_64Test, levelOrderCheck) {
     EXPECT_EQ(expected, solutions.levelOrder(purgatory::buildTree(nums)));
 }
 
+TEST(X86_64Test, sumOfLeftLeavesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {3, 9, 20, -1, -1, 15, 7};
+
+    int expected = 24;
+
+    EXPECT_EQ(expected, solutions.sumOfLeftLeaves(purgatory::buildTree(nums)));
+
+    // Edge Case:
+    nums = {1};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.sumOfLeftLeaves(purgatory::buildTree(nums)));
+}
+
+TEST(X86_64Test, numSquaresCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int n = 12;
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.numSquares(n));
+
+    // Edge Case:
+    n = 0;
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.numSquares(n));
+}
+
+TEST(X86_64Test, canMeasureWaterCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int x = 3, y = 5, target = 4;
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.canMeasureWater(x, y, target));
+
+    // Edge Case:
+    x = 2; y = 6; target = 5;
+
+    expected = false;
+
+    EXPECT_EQ(expected, solutions.canMeasureWater(x, y, target));
+}
+
+TEST(X86_64Test, findLaddersCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string beginWord = "hit", endWord = "cog";
+    vector<string> wordList = {"hot", "dot", "dog", "lot", "log", "cog"};
+
+    vector<vector<string>> expected = {{"hit", "hot", "dot", "dog", "cog"}, 
+                              {"hit", "hot", "lot", "log", "cog"}};
+
+    EXPECT_EQ(expected, solutions.findLadders(beginWord, endWord, wordList));
+
+    // Edge Case:
+    beginWord = "hit"; endWord = "cog";
+    wordList = {"hot", "dot", "dog", "lot", "log"};
+    expected = {};   
+
+    EXPECT_EQ(expected, solutions.findLadders(beginWord, endWord, wordList));  
+}
+
 TEST(X86_64Test, serializeCheck) {
 
     // Basic Case:
@@ -1091,7 +1165,7 @@ TEST(X86_64Test, connectCheck) {
     EXPECT_EQ(expected, purgatory::serializeWithNext((solutions.connect(purgatory::buildNode(nums)))));
 }
 
-TEST(X86_64Test, removevalidParenthesesCheck) {
+TEST(X86_64Test, removeInvalidParenthesesCheck) {
     purgatory::Purgatory solutions;
 
     // Basic Case:
@@ -1099,14 +1173,14 @@ TEST(X86_64Test, removevalidParenthesesCheck) {
 
     vector<string> expected = {"(())()", "()()()"};
 
-    EXPECT_EQ(expected, solutions.removevalidParentheses(s));
+    EXPECT_EQ(expected, solutions.removeInvalidParentheses(s));
 
     // Edge Case:
     s = ")(";
 
     expected = {""};
 
-    EXPECT_EQ(expected, solutions.removevalidParentheses(s));
+    EXPECT_EQ(expected, solutions.removeInvalidParentheses(s));
 }
 
 TEST(X86_64Test, findJudgeCheck) {

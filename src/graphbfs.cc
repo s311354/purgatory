@@ -94,7 +94,7 @@ bool isValid(const string &s) {
 /*
  *  using BFS here because it naturally guarantees minimum removals, once we find valid strings, we don't need to go deeper.
  */
-vector<string> Purgatory::removevalidParentheses(string s) {
+vector<string> Purgatory::removeInvalidParentheses(string s) {
     vector<string> result;
 
     if (s.empty()) return {""};

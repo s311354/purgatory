@@ -20,6 +20,7 @@ using namespace std;
 #include <climits>
 #include <algorithm>
 #include <memory>
+#include <numeric>
 
 namespace purgatory {
 
@@ -220,7 +221,15 @@ public:
 
     Node* connect(Node* root);
 
-    vector<string> removevalidParentheses(string s);
+    vector<string> removeInvalidParentheses(string s);
+
+    int sumOfLeftLeaves(TreeNode* root);
+
+    int numSquares(int n);
+
+    bool canMeasureWater(int x, int y, int target);
+
+    vector<vector<string>> findLadders(string beginWord, string endWord, vector<string>& wordList);
 
     // graph
     int findJudge(int n, vector<vector<int>>& trust);
