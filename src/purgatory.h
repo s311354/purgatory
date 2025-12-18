@@ -240,6 +240,12 @@ public:
 
     int longestIncreasingPath(vector<vector<int>>& matrix);
 
+    int findCenter(vector<vector<int>>& edges);
+
+    bool isBipartite(vector<vector<int>>& graph);
+
+    int numberOfComponents(vector<vector<int>>& properties, int k);
+
     // heap
     int lastStoneWeight(vector<int>& stones);
     

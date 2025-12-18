@@ -1183,6 +1183,63 @@ TEST(X86_64Test, removeInvalidParenthesesCheck) {
     EXPECT_EQ(expected, solutions.removeInvalidParentheses(s));
 }
 
+TEST(X86_64Test, findCenterCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> edges = {{1, 2}, {2, 3}, {4, 2}};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.findCenter(edges));
+
+    // Edge Case:
+    edges = {{1, 2}, {5, 1}, {1, 3}, {1, 4}};
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.findCenter(edges));
+}
+
+TEST(X86_64Test, isBipartiteCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> graph = {{1, 3}, {0, 2}, {1, 3}, {0, 2}};
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.isBipartite(graph));
+
+    // Edge Case:
+    graph = {{1, 2, 3}, {0, 2}, {0, 1, 3}, {0, 2}};
+
+    expected = false;
+
+    EXPECT_EQ(expected, solutions.isBipartite(graph));
+}
+
+TEST(X86_64Test, numberOfComponentsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> properties = {{1, 2}, {1, 1}, {3, 4}, {4, 5}, {5, 6}, {7, 7}};
+
+    int k = 1;
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.numberOfComponents(properties, k));
+
+    // Edge Case:
+    properties = {{1, 1}, {1, 1}};
+    k = 2;
+
+    expected = 2;
+
+    EXPECT_EQ(expected, solutions.numberOfComponents(properties, k));
+}
+
 TEST(X86_64Test, findJudgeCheck) {
     purgatory::Purgatory solutions;
 

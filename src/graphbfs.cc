@@ -130,8 +130,87 @@ vector<string> Purgatory::removeInvalidParentheses(string s) {
     return result;
 }
 
+int Purgatory::findCenter(vector<vector<int>>& edges) {
+    int a = edges[0][0], b = edges[0][1];
+    int c = edges[1][0], d = edges[1][1];
 
+    if (a == c || a == d) return a;
 
+    return b;
+}
+
+bool Purgatory::isBipartite(vector<vector<int>>& graph) {
+    int n = graph.size();
+
+    vector<int> color(n, -1);
+
+    for (int i = 0; i < n; ++i) {
+        if (color[i] != -1)
+	    continue;
+
+	queue<int> q;
+	q.push(i);
+	color[i] = 0;
+
+	while (!q.empty()) {
+            int node = q.front(); q.pop();
+
+	    for (int nei: graph[node]) {
+                if (color[nei] == -1) {
+		    color[nei] = 1 - color[node];
+		    q.push(nei);
+		} else if (color[nei] == color[node]) {
+                    return false;
+		}
+	    }
+	}
+    }
+
+    return true;
+}
+
+int Purgatory::numberOfComponents(vector<vector<int>>& properties, int k) {
+    int n = properties.size();
+    vector<unordered_set<int>> sets(n);
+
+    for (int i = 0; i < n; ++i) {
+        for (int x: properties[i])
+	    sets[i].insert(x);
+    }
+
+    vector<int> parent(n);
+    iota(parent.begin(), parent.end(), 0);
+
+    function<int (int)> find = [&](int x) {
+        return parent[x] == x ? x : parent[x] = find(parent[x]);
+    };
+
+    auto unit = [&](int a, int b) {
+        a = find(a); b = find(b);
+	if (a != b) parent[a] = b;
+    };
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+	    int cnt = 0;
+	    for (int val : sets[i]) {
+                if (sets[j].count(val))
+		    if (++cnt >= k) {
+		        unit(i, j);
+			break;
+		    }
+	    }
+	}
+    }
+
+    unordered_set<int> roots;
+
+    for (int i = 0; i < n; ++i) {
+        roots.insert(find(i));
+    }
+
+    return roots.size();
+}
 
 }
 
