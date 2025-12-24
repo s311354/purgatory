@@ -1617,6 +1617,78 @@ TEST(X86_64Test, totalNQueensCheck) {
     EXPECT_EQ(expected, solutions.totalNQueens(n));
 }
 
+TEST(X86_64Test, readBinaryWatchCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int turnedOn = 1;
+
+    vector<string> expected = {"0:01", "0:02", "0:04", "0:08", "0:16", "0:32", "1:00", "2:00", "4:00", "8:00"};
+
+    EXPECT_EQ(expected, solutions.readBinaryWatch(turnedOn));
+
+    // Edge Case:
+    turnedOn = 9;
+
+    expected = {};
+
+    EXPECT_EQ(expected, solutions.readBinaryWatch(turnedOn));
+}
+
+TEST(X86_64Test, subsetsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3};
+
+    vector<vector<int>> expected = {{}, {1}, {1, 2}, {1, 2, 3}, {1, 3}, {2}, {2, 3}, {3}};
+    
+    EXPECT_EQ(expected, solutions.subsets(nums));
+
+    // Edge Case:
+    nums = {0};
+
+    expected = {{}, {0}};
+
+    EXPECT_EQ(expected, solutions.subsets(nums));
+}
+
+TEST(X86_64Test, grayCodeCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int n = 3;
+
+    vector<int> expected = {0, 1, 3, 2, 6, 7, 5, 4};
+
+    EXPECT_EQ(expected, solutions.grayCode(n));
+
+    // Edge Case:
+    n = 0;
+
+    expected = {0};
+
+    EXPECT_EQ(expected, solutions.grayCode(n));
+}
+
+TEST(X86_64Test, judgePoint24Check) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> cards = {4, 1, 8, 7};
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.judgePoint24(cards));
+
+    // Edge Case:
+    cards = {1, 2, 1, 2};
+
+    expected = false;
+
+    EXPECT_EQ(expected, solutions.judgePoint24(cards));
+}
+
 TEST(X86_64Test, searchInsertCheck) {
     purgatory::Purgatory solutions;
 

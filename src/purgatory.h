@@ -21,6 +21,8 @@ using namespace std;
 #include <algorithm>
 #include <memory>
 #include <numeric>
+#include <bitset>
+#include <cmath>
 
 namespace purgatory {
 
@@ -281,6 +283,14 @@ public:
     vector<vector<int>> combine(int n, int k);
 
     int totalNQueens(int n);
+
+    vector<string> readBinaryWatch(int turnedOn);
+
+    vector<vector<int>> subsets(vector<int>& nums);
+ 
+    vector<int> grayCode(int n);
+
+    bool judgePoint24(vector<int>& cards); 
 
     // binary search
     int searchInsert(vector<int>& nums, int target);
