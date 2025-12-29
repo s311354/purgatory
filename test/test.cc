@@ -1765,6 +1765,80 @@ TEST(X86_64Test, findMedianSortedArraysCheck) {
     EXPECT_EQ(expected, solutions.findMedianSortedArrays(nums1, nums2));
 }
 
+TEST(X86_64Test, missingNumberCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {3, 0, 1};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.missingNumber(nums));
+
+    // Edge Case:
+    nums = {0, 1};
+
+    expected = 2;
+
+    EXPECT_EQ(expected, solutions.missingNumber(nums));
+}
+
+TEST(X86_64Test, findDuplicateCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 3, 4, 2, 2};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.findDuplicate(nums));
+
+    // Edge Case:
+    nums = {1, 1};
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.findDuplicate(nums));
+}
+
+TEST(X86_64Test, searchCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {2, 5, 6, 0, 0, 1, 2};
+    int target = 0;
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.search(nums, target));
+
+    // Edge Case:
+    nums = {1, 3, 1, 1, 1};
+    target = 3;
+
+    expected = true;
+
+    EXPECT_EQ(expected, solutions.search(nums, target));
+}
+
+TEST(X86_64Test, findMinCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {3, 4, 5, 1, 2};
+
+    int expected = 1;
+
+    EXPECT_EQ(expected, solutions.findMin(nums));
+
+    // Edge Case:
+    nums = {1, 1, 1, 1, 1, 1};
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.findMin(nums));
+}
+
 TEST(X86_64Test, generateCheck) {
     purgatory::Purgatory solutions;
 

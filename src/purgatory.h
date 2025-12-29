@@ -301,6 +301,14 @@ public:
 
     double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2);
 
+    int missingNumber(vector<int>& nums);
+
+    int findDuplicate(vector<int>& nums);
+
+    bool search(vector<int>& nums, int target);
+
+    int findMin(vector<int>& nums);
+
     // linked list
     bool hasCycle(ListNode* head);
 

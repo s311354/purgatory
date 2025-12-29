@@ -88,6 +88,98 @@ double Purgatory::findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2)
     return 0.0;
 }
 
+/*
+ *  using XOR here because we can break the problem into elimination pairs symmetrically
+ *  T: O(n), S: O(1)
+ */
+int Purgatory::missingNumber(vector<int>& nums) {
+    int n = nums.size();
+    int xorAll = 0, xorNums = 0;
+
+    for (int i = 0; i <= n; ++i) {
+        xorAll ^= i;
+    }
+
+    for (int num: nums) xorNums ^= num;
+
+    return xorAll  ^ xorNums;
+}
+
+/*
+ *  using Floy'd algorithm here because we can break the problem into the array into a function f(i) = nums[i]
+ *   T: O(n), S: O(1)
+ */
+int Purgatory::findDuplicate(vector<int>& nums) {
+    int slow = nums[0], fast = nums[0];
+
+    do{
+        slow = nums[slow];
+	fast = nums[nums[fast]];
+    } while (slow != fast);
+
+    slow = nums[0];
+    
+    while (slow != fast) {
+        slow = nums[slow];
+	fast = nums[fast];
+    }
+
+    return slow;
+}
+
+/*
+ *  using binary search with duplicate-skip shrink here because we can break the problem into the array as two sorted parts separated by rotation
+ *  T: O(log n), S: O(1)
+ */
+bool Purgatory::search(vector<int>& nums, int target) {
+    int l = 0, r = nums.size() - 1;
+
+    while (l <= r) {
+        int mid = l + (r - l)/2;
+
+	if (nums[mid] == target) return true;
+
+	if (nums[l] == nums[mid] && nums[r] == nums[mid]) { // equality case
+	    l++;
+	    r--;
+	} else if (nums[l] <= nums[mid]) { // left sorted case
+            if (nums[l] <= target && target < nums[mid]) {
+	        r = mid - 1;
+	    } else {
+	        l = mid + 1;
+	    }
+	} else { // right sorted case
+            if (nums[mid] < target && target <= nums[r]) {
+	        l = mid + 1;
+	    } else {
+	        r = mid - 1;
+	    }
+	}
+    }
+    return false;
+}
+
+/*
+ *  using binary search with duplicate handling here because we can break the problem into in a rotated sorted array, the direction of mod relative to right tell us which half is unsorted.
+ *  T: O(log n), S: O(n)
+ */
+int Purgatory::findMin(vector<int>& nums) {
+    int left = 0, right = nums.size() - 1;
+
+    while (left < right) {
+        int mid = left + (right - left)/2;
+
+	if (nums[mid] > nums[right]) {
+            left = mid + 1;
+	} else if (nums[mid] < nums[right]) {
+	    right = mid;
+	} else {
+            right--;
+	}
+    }
+
+    return nums[left];
+}
 
 
 }
