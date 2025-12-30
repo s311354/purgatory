@@ -1934,18 +1934,20 @@ TEST(X86_64Test, getEncryptedStringCheck) {
     purgatory::Purgatory solutions;
 
     // Basic Case:
-    string s = "zyxw";
+    string s = "dart";
+    int k = 3;
 
-    string expected = "wxyz";
+    string expected = "tdar";
 
-    EXPECT_EQ(expected, solutions.getEncryptedString(s));
+    EXPECT_EQ(expected, solutions.getEncryptedString(s, k));
 
     // Edge Case:
-    s = "vgxgpu";
+    s = "aaa";
+    k = 1;
 
-    expected = "ggpuxv";
+    expected = "aaa";
 
-    EXPECT_EQ(expected, solutions.getEncryptedString(s));
+    EXPECT_EQ(expected, solutions.getEncryptedString(s, k));
 }
 
 TEST(X86_64Test, hasCycleCheck) {

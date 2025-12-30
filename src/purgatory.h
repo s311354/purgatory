@@ -113,7 +113,7 @@ public:
 
     void solveSudoku(vector<vector<char>>& board);
 
-    string getEncryptedString(string s);
+    string getEncryptedString(string s, int k);
 
     // hashmap
     bool canConstruct(string ransomNot, string magazine);

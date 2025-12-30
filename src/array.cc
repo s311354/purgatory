@@ -13,6 +13,7 @@ Purgatory::~Purgatory() {};
  *  - update first to smallest
  *  - update second if it's larger than first
  *  - if a third number is larger than second, we're done
+ *  T: O(n), S: O(1)
  */
 bool Purgatory::increasingTriplet(vector<int>& nums) {
     // initalize: first and second 
@@ -35,24 +36,21 @@ bool Purgatory::increasingTriplet(vector<int>& nums) {
  *  - comparing elements from the back
  *  - inserting in-place from the end of nums1
  *  - only copying remaining nums2 if needed
+ *  T: O(n), S: O(1)
  */
 void Purgatory::merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
     int p1 = m - 1, p2 = n - 1, p = m + n - 1;
 
     while ( p1 >= 0 && p2 >= 0 ) {
         if (nums1[p1] > nums2[p2]) {
-	    nums1[p] = nums1[p1];
-	    --p1;
+	    nums1[p--] = nums1[p1--];
 	} else {
-	    nums1[p] = nums2[p2];
-	    --p2;
+	    nums1[p--] = nums2[p2--];
 	}
-	--p;
     }
 
     while ( p2 >= 0 ) {
-        nums1[p] = nums2[p2];
-	--p;--p2;
+        nums1[p--] = nums2[p2--];
     }
 }
 
@@ -60,6 +58,7 @@ void Purgatory::merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
  *  using two pointer technique here because we can break the problem into
  *  1. one pointer to read each element, read
  *  2. one pointer to write valid entries, write
+ *  T:O(n), S:O(1)
  */
 int Purgatory::removeDuplicates(vector<int>& nums) {
     if (nums.size() < 2) return nums.size();
@@ -81,6 +80,7 @@ int Purgatory::removeDuplicates(vector<int>& nums) {
  *  - reverse full array
  *  - reverse prefix
  *  - reverse suffix
+ *  T: O(n), S: O(1)
  */
 void Purgatory::rotate(vector<int> & nums, int k) {
     int n = nums.size();
@@ -96,6 +96,7 @@ void Purgatory::rotate(vector<int> & nums, int k) {
  *  using two-pass greedy method here because we can break the problem into two directional constraints
  *  - left to right handles increasing sequences
  *  - right to left handles decreasing sequences
+ *  T: O(n), S: O(n)
  */
 int Purgatory::candy(vector<int>& ratings) {
 
@@ -126,6 +127,7 @@ int Purgatory::candy(vector<int>& ratings) {
 
 /*
  *  using two pointers here because it helps us process the array in-place without needing extra memory.
+ *  T: O(n), S: O(1)
  */
 int Purgatory::removeElemet(vector<int>& nums, int val) {
     int write = 0;
@@ -143,14 +145,17 @@ int Purgatory::removeElemet(vector<int>& nums, int val) {
 
 /*
  *  using a greedy strategy here because each step we only care about the farthest we can reach from all previous positions
+ *  T: O(n), S: O(1)
  */
 bool Purgatory::canJump(vector<int>& nums) {
-    int maxReach = 0;
+    int maxReach = 0, n = nums.size();
 
-    for ( int i = 0; i < nums.size(); ++i ) {
+    for ( int i = 0; i < n; ++i ) {
         if ( i > maxReach ) return false;
     
 	maxReach = max(maxReach, i + nums[i]);
+
+	if ( maxReach >= n - 1) return true;
     }
 
     return true;
@@ -158,19 +163,22 @@ bool Purgatory::canJump(vector<int>& nums) {
 
 /*
  *  using two-pass scan strategy
+ *  T: O(n), S: O(1)
  */
 vector<int> Purgatory::productExceptSelf(vector<int>& nums) {
     int n = nums.size();
     vector<int> answer(n, 1);
 
-    for ( int i = 1; i < n; ++i ) {
-        answer[i] = answer[i - 1] * nums[i - 1];
+    int prefix = 1;
+    for (int i = 0; i < n; ++i ) {
+        answer[i] = prefix;
+        prefix *= nums[i];
     }
 
-    int right = 1;
+    int suffix = 1;
     for ( int i = n - 1; i >=0 ; --i ) {
-        answer[i] *= right;
-	right *= nums[i];
+        answer[i] *= suffix;
+	suffix *= nums[i];
     }
 
     return answer;
@@ -178,6 +186,7 @@ vector<int> Purgatory::productExceptSelf(vector<int>& nums) {
 
 /*
  *  using greedy approach + space counting here because we can break the problem into lines one by one
+ *  T: O(n), S: O(n)
  */
 vector<string> Purgatory::fullJustify(vector<string>& words, int maxWidth) {
     
@@ -185,16 +194,15 @@ vector<string> Purgatory::fullJustify(vector<string>& words, int maxWidth) {
     int i = 0, n = words.size();
 
     while ( i < n ) {
-        int lineLen = words[i].length();
-	int j = i + 1;
+        int j = i, lineLen = 0;
 
-	while ( j < n && (lineLen + 1 + words[j].length() <= maxWidth) ) {
-	    lineLen += 1 + words[j].length();
+	while ( j < n && lineLen + words[j].length() + (j - i) <= maxWidth ) {
+	    lineLen += words[j].length();
 	    ++j;
 	}
 
         int wordCount = j - i;
-	int totalSpace = maxWidth - (lineLen - (wordCount - 1));
+	int totalSpace = maxWidth - lineLen;
 
 	string line;
         
@@ -202,7 +210,7 @@ vector<string> Purgatory::fullJustify(vector<string>& words, int maxWidth) {
             for (int k = i; k < j; ++k) {
 	        line += words[k];
 
-		if (k < j - 1) line += " ";
+		if (k < j - 1) line += ' ';
 	    }
 
 	    line += string(maxWidth - line.size(), ' ');
@@ -218,7 +226,6 @@ vector<string> Purgatory::fullJustify(vector<string>& words, int maxWidth) {
 		    line += string(spaces, ' ');
 		}
 	    }
-	
 	}
 
         result.push_back(line);
@@ -236,15 +243,16 @@ vector<string> Purgatory::fullJustify(vector<string>& words, int maxWidth) {
 vector<vector<int>> Purgatory::generate(int numRows) {
     vector<vector<int>> triangle;
 
-    if (numRows <= 0) return triangle;
+    if (numRows == 0) return triangle;
 
-    triangle.reserve(numRows);
+    triangle.push_back({1});
 
-    for (int i = 0; i < numRows; ++i) {
+    for (int i = 1; i < numRows; ++i) {
+	vector<int> prev = triangle.back();
         vector<int> row(i + 1, 1);
 
-	for (int j = 0; j < i; ++j) {
-	    row[j] = triangle[i - 1][j - 1] + triangle[i - 1][j];
+	for (int j = 1; j < i; ++j) {
+	    row[j] = prev[j - 1] + prev[j];
 	}
 
 	triangle.push_back(move(row));
@@ -286,14 +294,16 @@ void backtrackingCombinationSum2(vector<int>& nums, int remain, int start, vecto
     }
 
     for (int i = start; i < nums.size(); ++i) {
+	int num = nums[i];
+
         if (i > start && nums[i] == nums[i - 1])
             continue;
 
-	if (nums[i] > remain) break;
+	if (num > remain) break;
 
-	path.push_back(nums[i]);
+	path.push_back(num);
 
-	backtrackingCombinationSum2(nums, remain - nums[i], i + 1, path, res);
+	backtrackingCombinationSum2(nums, remain - num, i + 1, path, res);
 
 	path.pop_back();
     }
@@ -357,28 +367,21 @@ void Purgatory::solveSudoku(vector<vector<char>>& board) {
     dfs(0, 0);
 }
 
-string Purgatory::getEncryptedString(string s) {
+/*
+ *  using simple indexing
+ *  T: O(n), S:O(n)
+ */
+string Purgatory::getEncryptedString(string s, int k) {
     int n = s.size();
-    vector<char> minSuffix(n);
 
-    minSuffix[n - 1] = s[n - 1];
-    for (int i = n - 2; i >= 0; --i) {
-        minSuffix[i] = min(minSuffix[i + 1], s[i]);
-    }
-
-    string temp, result;
+    string result(n, ' ');
 
     for (int i = 0; i < n; ++i) {
-        temp.push_back(s[i]);
-
-	while(!temp.empty() && (i == n - 1 || temp.back() <= minSuffix[i + 1]) ) {
-            result.push_back(temp.back());
-	    temp.pop_back();
-	}
+        int newIndex = (i + k) % n;
+	result[i] = s[newIndex];
     }
 
     return result;
-
 }
 
 }
