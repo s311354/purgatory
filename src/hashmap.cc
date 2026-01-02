@@ -4,6 +4,7 @@ namespace purgatory {
 
 /*
  *  using frequency array here because we can break the problem into how many times each letter is available
+ *  T: O(n), S: O(1)
  */
 bool Purgatory::canConstruct(string rasomNote, string magazine) {
     int count[26] = {0};
@@ -23,6 +24,7 @@ bool Purgatory::canConstruct(string rasomNote, string magazine) {
  *  using hash map + sorting approach here because we can break the problem into
  *  - find a way to identify anagram groups -> use sorted string as group key
  *  - use a hash table to accumulate groups efficiently
+ *  T: O(N * k log k), S: O(N*k)
  */
 vector<vector<string>> Purgatory::groupAnagrams(vector<string> & strs) {
     unordered_map<string, vector<string>> groups;
@@ -45,6 +47,7 @@ vector<vector<string>> Purgatory::groupAnagrams(vector<string> & strs) {
  *  using hashSet-based algorithm here because we want 
  *  - constant-time lookup
  *  - skip unnecessary checks by only starting from smallest elements
+ *  T: O(n), S: O(n)
  */
 int Purgatory::longestConsecutive(vector<int> & nums) {
     unordered_set<int> numSet(nums.begin(), nums.end());
@@ -69,12 +72,16 @@ int Purgatory::longestConsecutive(vector<int> & nums) {
 
 /*
  *  using sliding window here because we can break the problem into checking fixed-length segments
+ *  T: O(n), S: O(m)
  */
 vector<int> Purgatory::findSubstring(string s, vector<string>& words) {
+    vector<int> result;
+
+    if (words.empty() || s.empty()) return result;
+
     unordered_map<string, int> wordCount;
     int wordLen = words[0].size();
     int numWords = words.size();
-    vector<int> result;
 
     for(string & word : words) ++wordCount[word];
 
@@ -146,8 +153,7 @@ string Purgatory::fractionToDecimal(int numerator, int denominator) {
     long long n = llabs((long long) numerator);
     long long d = llabs((long long) denominator);
 
-    long long integerPart = n / d;
-    result += to_string(integerPart);
+    result += to_string(n/d);
 
     long long remainder = n % d;
 
