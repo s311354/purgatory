@@ -4,6 +4,7 @@ namespace purgatory {
 
 /*
  *  using a stack-based solution here because parentheses matching is naturally Last In First Out
+ *  T: O(n), S: O(n)
  */
 bool Purgatory::isValid(string s) {
     stack<char> st;
@@ -28,6 +29,7 @@ bool Purgatory::isValid(string s) {
 
 /*
  *  using a stack-based solution here because it naturally models directory traversal. This problem can be broken down into tokenizing by /, then applying rules for ".", "..", and normal names.
+ *  T: O(n), S: O(n)
  */
 string Purgatory::simplifyPath(string path) {
     vector<string> stack;
@@ -45,17 +47,20 @@ string Purgatory::simplifyPath(string path) {
 	}
     }
 
-    string result = "/";
-    for (int i = 0; i < (int) stack.size(); ++i) {
-        result += stack[i];
+    if (stack.empty()) return "/";
 
-	if (i != stack.size() -1) result += "/";
+    string result;
+
+    for (string &dir : stack) {
+        result += "/" + dir;
     }
+
     return result;
 }
 
 /*
  *  using a stack-based evaluation here because RPN naturally maps to push/pop operations
+ *  T: O(n), S: O(n)
  */
 int Purgatory::evalRPN(vector<string>& tokens) {
     stack<int> st;
@@ -82,28 +87,25 @@ int Purgatory::evalRPN(vector<string>& tokens) {
 
 /*
  *  using a stack to store cotext when entering parentheses here because this allows linear traversal.
+ *  T: O(n), S: O(n)
  */
 int Purgatory::calculate(string s) {
     stack<int> st;
     int result = 0;
+    long long number = 0;
     int sign = 1;
     int n = s.size();
 
-    for (int i = 0; i < n; ++i) {
-        char c = s[i];
-
+    for(char c : s) {
 	if (isdigit(c)) {    
-            int num = 0;
-
-	    while (i < n && isdigit(s[i])) {
-	        num = num*10 + (s[i] - '0');
-	        i++;
-	    }
-	    i--;
-	    result += sign*num;
+            number = number * 10 + (c - '0'); 
 	} else if (c == '+') {
+	    result += sign* number;
+	    number = 0;
 	    sign = 1;
 	} else if (c == '-') {
+	    result += sign* number;
+	    number = 0;
 	    sign = -1;
 	} else if (c == '(') {
             st.push(result);
@@ -111,6 +113,9 @@ int Purgatory::calculate(string s) {
 	    result = 0;
 	    sign = 1;
 	} else if (c == ')') {
+	    result += sign* number;
+	    number = 0;
+
             int prevSign = st.top(); st.pop();
 	    int prevResult = st.top(); st.pop();
 
@@ -120,7 +125,9 @@ int Purgatory::calculate(string s) {
 	}	
     }
 
-    return result;
+    result += sign * number;
+
+    return static_cast<int>(result);
 }
 
 /*
@@ -131,19 +138,18 @@ vector<int> Purgatory::nextGreaterElement(vector<int>& nums1, vector<int>& nums2
     unordered_map<int, int> nge;
     stack<int> st;
 
-    for (int num : nums2) {
-        while(!st.empty() && st.top() < num) {
-	    nge[st.top()] = num;
+    for (int i = nums2.size() - 1; i >= 0; --i ) {
+        int current = nums2[i];
+	    
+        while(!st.empty() && st.top() <= current) {
 	    st.pop();
 	}
-	st.push(num);
-    }
 
-    while (!st.empty()) {
-        nge[st.top()] = -1;
-	st.pop();
-    }
+        nge[current] = st.empty() ? -1: st.top();
 
+	st.push(current);
+    }
+    
     vector<int> result;
     result.reserve(nums1.size());
 
