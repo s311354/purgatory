@@ -490,14 +490,22 @@ TEST(X86_64Test, twoSumCheck) {
 
     int target = 9;
 
-    vector<int> expected = {1, 2};
+    vector<int> expected = {0, 1};
+
+    EXPECT_EQ(expected, solutions.twoSum(numbers, target));
+
+    numbers = {3, 2, 4};
+
+    target = 6;
+
+    expected = {1, 2};
 
     EXPECT_EQ(expected, solutions.twoSum(numbers, target));
 
     // Edge Case:
     numbers = {2, 3, 4}; target = 6;
 
-    expected = {1, 3};
+    expected = {0, 2};
 
     EXPECT_EQ(expected, solutions.twoSum(numbers, target));
 }

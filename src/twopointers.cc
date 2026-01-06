@@ -6,6 +6,7 @@ namespace purgatory {
  *  using two-pointer method here becuase
  *  - we can skip non-alphanumeric characters in-place without building a new filtered string
  *  - this reduce extra memory usage to O(1)
+ *  T: O(n), S: O(1)
  */
 bool Purgatory::isPalindrome(string s) {
     int left = 0, right = s.size() - 1;
@@ -25,27 +26,27 @@ bool Purgatory::isPalindrome(string s) {
 
 /*
  *  using two pointers here because the input is sorted
+ *  T: O(n), S: O(n)
  */
 vector<int> Purgatory::twoSum(vector<int>& numbers, int target) {
-    int left = 0, right = numbers.size() - 1;
+    unordered_map<int, int> seen;
 
-    while (left < right) {
-        int sum = numbers[left] + numbers[right];
+    for (int i = 0; i < numbers.size(); ++i) {
+        int complement = target - numbers[i];
 
-	if (sum == target) {
-            return {left + 1, right + 1};
-	} else if (sum < target) {
-            left++;
-	} else {
-	    right--;
+	if (seen.count(complement)) {
+	    return {seen[complement], i};
 	}
-    }
 
+	seen[numbers[i]] = i;
+    }
+    
     return {};
 }
 
 /*
  *  using two pointers here because we can break the problme into repeatedly eliminating impossible pairs. We always move the pointer at the shorter height inward because that's the only way to potentially increase area.
+ *  T: O(n), S: O(1)
  */
 int Purgatory::maxArea(vector<int> &height) {
     int left = 0, right = height.size() - 1;
@@ -67,6 +68,7 @@ int Purgatory::maxArea(vector<int> &height) {
 
 /*
  *  using two pointers here becuase we can break the problem into continuously shrinking the search space from both ends, while keeping track of the max heights seen so far.
+ *  T: O(n), S: O(1)
  */
 int Purgatory::trap(vector<int> & height) {
     int left = 0, right = height.size() - 1;
