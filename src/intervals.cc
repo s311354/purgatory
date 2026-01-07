@@ -4,9 +4,11 @@ namespace purgatory {
 
 /*
  *  using a two-pointer style approach here because the array is sorted, we just need to find where a consecutive run starts and ends.
+ *  T: O(n), S: O(n)
  */
 vector<string> Purgatory::summaryRanges(vector<int>& nums) {
 	vector<string> result;
+
 	if (nums.empty()) return result;
 
 	int start = nums[0];
@@ -29,6 +31,7 @@ vector<string> Purgatory::summaryRanges(vector<int>& nums) {
  *  using sorting + linear scan here because we can break the problem into
  *  - first align intervals in order
  *  - then merge only when overlap happens
+ *  T: O(n), S: O(n)
  */
 vector<vector<int>> Purgatory::merge(vector<vector<int>>& intervals) {
     if (intervals.empty()) return {};
@@ -38,10 +41,12 @@ vector<vector<int>> Purgatory::merge(vector<vector<int>>& intervals) {
     vector<vector<int>> merged;
 
     for (auto& interval: intervals) {
-        if (merged.empty() || merged.back()[1] < interval[0]) {
+	vector<int>& last = merged.back();
+
+        if (merged.empty() || last[1] < interval[0]) {
 	    merged.push_back(interval);
 	} else {
-	    merged.back()[1] = max(merged.back()[1], interval[1]);
+	    last[1] = max(last[1], interval[1]);
 	}
     }
 
@@ -53,6 +58,7 @@ vector<vector<int>> Purgatory::merge(vector<vector<int>>& intervals) {
  *  - append non-overlapped before part
  *  - merge overlaps
  *  - append non-overlapped after part
+ *  T: O(n), S: O(n)
  */
 vector<vector<int>> Purgatory::insert(vector<vector<int>>& intervals, vector<int>& newInterval) {
 	vector<vector<int>> result;
@@ -83,6 +89,7 @@ vector<vector<int>> Purgatory::insert(vector<vector<int>>& intervals, vector<int
  *  using greedy + sorting method here because we can break the problem into
  *  - sort by end
  *  - always shoot at the current end to maximize coverage
+ *  T: O(n log n), S: O(1)
  */
 int Purgatory::findMinArrowShots(vector<vector<int>>& points) {
         if (points.empty()) return 0;
@@ -95,10 +102,10 @@ int Purgatory::findMinArrowShots(vector<vector<int>>& points) {
 	int arrows = 1;
 	long long arrowPos = points[0][1];
 
-	for (int i = 1; i < points.size(); ++i) {
-            if (points[i][0] > arrowPos) {
+	for (auto &balloon : points) {
+            if (balloon[0] > arrowPos) {
                 arrows++;
-		arrowPos = points[i][1];
+		arrowPos = balloon[1];
 	    }
 	}
 
