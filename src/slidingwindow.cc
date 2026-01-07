@@ -4,6 +4,7 @@ namespace purgatory {
 
 /*
  *  using unordered_map to store the last seen index of each value here because this let me check O(1) time whether the current element has appeared within distance k.
+ *  T: O(n), S: O(n)
  */
 bool Purgatory::containsNearbyDuplicate(vector<int>& nums, int k) {
     unordered_map<int, int> lastIndex;
@@ -22,6 +23,7 @@ bool Purgatory::containsNearbyDuplicate(vector<int>& nums, int k) {
 
 /*
  *  using a sliding window approach here because all numbers are positive, ensuring that once the sum exceeds the target, moving left forward will only reduce the sum.
+ *  T: O(n), S: O(1)
  */
 int Purgatory::minSubArrayLen(int target, vector<int>& nums) {
     int left = 0, sum = 0;
@@ -42,6 +44,7 @@ int Purgatory::minSubArrayLen(int target, vector<int>& nums) {
 
 /*
  *  using a sliding window with a hash map to track the last scene index of each character here because whenever a duplicate is found within the current window, left jumps past its previous occurrence. This ensure we always have a substring with unique characters.
+ *  T: O(n), S: O(n, charset_size)
  */
 int Purgatory::lengthOfLongestSubstring(string s) {
     unordered_map<char, int> charIndex;
@@ -63,7 +66,7 @@ int Purgatory::lengthOfLongestSubstring(string s) {
 
 /*
  *  using divide-and-conquer
- *  T: O(n), S: O(n)
+ *  T: O(n log n), S: O(n)
  */
 string Purgatory::longestNiceSubstring(string s) {
     if (s.size() < 2) return "";
