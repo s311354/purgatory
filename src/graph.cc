@@ -6,8 +6,11 @@ namespace purgatory {
  *  using a degree-based counting method here because we can break the problem into
  *  - outgoing edges -> disqualify judge
  *  - incoming edges -> candidate for judge
+ *  T: O(m + n), S: O(n)
  */
 int Purgatory::findJudge(int n , vector<vector<int>>& trust) {
+    if (n == 1 && trust.empty()) return 1;
+
     vector<int> score(n + 1, 0);
 
     for (auto &t: trust) {
@@ -40,6 +43,7 @@ void dfsNumIslands(vector<vector<char>>& grid, int i, int j) {
  *  using DFS here because we can break the problem into
  *  - treat every '1' as a potential start of an island
  *  - once we find it, mark the whole island to avoid reconnecting
+ *  T: O(m*n), S: O(1)
  */
 int Purgatory::numIslands(vector<vector<char>>& grid) {
     if (grid.empty()) return 0;
@@ -76,6 +80,7 @@ void dfsSolve(vector<vector<char>>& board, int i, int j) {
  *  using DFS here because we can break the problem into two phases
  *  - identify safe O's from border
  *  - flip the rest
+ *  T: O(m * n), S: O(1)
  */
 void Purgatory::solve(vector<vector<char>> & board) {
     if (board.empty()) return;
@@ -87,9 +92,9 @@ void Purgatory::solve(vector<vector<char>> & board) {
 	dfsSolve(board, i, n - 1);
     }
 
-    for (int i = 0; i < n; ++i) {
-        dfsSolve(board, 0, i);
-	dfsSolve(board, m - 1, i);
+    for (int j = 0; j < n; ++j) {
+        dfsSolve(board, 0, j);
+	dfsSolve(board, m - 1, j);
     }
 
     for(int i = 0; i < m; ++i) {
@@ -124,6 +129,7 @@ int dfsLongestIncreasingPath(vector<vector<int>>& matrix, int i, int j) {
 
 /*
  *  using DFS + memorization here because we can break the problem into overlapping subproblems: each cell's longest path depends only on its neighbors
+ *  T: O(m*n), S: O(m*n)
  */
 int Purgatory::longestIncreasingPath(vector<vector<int>>& matrix) {
     if (matrix.empty() || matrix[0].empty()) return 0;
