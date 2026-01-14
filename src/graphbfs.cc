@@ -4,6 +4,7 @@ namespace purgatory {
 
 /*
  *  using BFS level order traversal here because we can break the problem into layers. The trick is: instead of reversing at the end, we insert each new level at the begining of the result vector.
+ *  T: O(n), S: O(n)
  */
 vector<vector<int>> Purgatory::levelOrderBottom(TreeNode *root) {
     if (!root) return {};
@@ -33,6 +34,7 @@ vector<vector<int>> Purgatory::levelOrderBottom(TreeNode *root) {
 
 /*
  *  using BFS here because we can break the problem into levels.
+ *  T: O(n), S: O(w)
  */
 int Purgatory::minDepth(TreeNode *root) {
     if (!root) return 0;
@@ -54,6 +56,7 @@ int Purgatory::minDepth(TreeNode *root) {
 
 /*
  *  using a constant space solution by exploiting the perfect binary tree property here because next pointers already built to traverse levels
+ *  T: O(n), S: O(1)
  */
 Node* Purgatory::connect(Node* root) {
     if (!root) return nullptr;
@@ -93,6 +96,7 @@ bool isValid(const string &s) {
 
 /*
  *  using BFS here because it naturally guarantees minimum removals, once we find valid strings, we don't need to go deeper.
+ *  T: O(n * 2 ^n), S: O(n * 2^n)
  */
 vector<string> Purgatory::removeInvalidParentheses(string s) {
     vector<string> result;
@@ -139,6 +143,10 @@ int Purgatory::findCenter(vector<vector<int>>& edges) {
     return b;
 }
 
+/*
+ * using BFS 
+ *  T: O(n + v), S: O(n)
+ */
 bool Purgatory::isBipartite(vector<vector<int>>& graph) {
     int n = graph.size();
 
