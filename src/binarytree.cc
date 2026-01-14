@@ -120,8 +120,8 @@ int Purgatory::numSquares(int n) {
 
     for (int i = 1; i <= n; ++i) {
         for (int j = 1; j*j <= i; ++j) {
-            int suqare = j * j;
-	        dp[i] = min(dp[i], dp[i - square] + 1);
+            int square = j * j;
+            dp[i] = min(dp[i], dp[i - square] + 1);
     	}
     }
 
