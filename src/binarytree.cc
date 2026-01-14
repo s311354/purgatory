@@ -3,7 +3,9 @@
 namespace purgatory {
 
 /*
- *  using BFS here because it naturally breaks the problem into levels, by keeping track and count per level, we compute averages efficiently in O(N) time
+ *  using BFS here because it naturally breaks the problem into levels, by keeping track and count per level, 
+ *  we compute averages efficiently in O(N) time
+ *  T: O(n), S: O(n)
  */
 vector<double> Purgatory::averageOfLevels(TreeNode* root) {
     vector<double> result;
@@ -16,16 +18,16 @@ vector<double> Purgatory::averageOfLevels(TreeNode* root) {
     while(!q.empty()) {
         int size = q.size();
 
-	long long sum = 0;
+	    long long sum = 0;
 
-	for (int i = 0; i < size; ++i) {
+	    for (int i = 0; i < size; ++i) {
             TreeNode* node = q.front(); q.pop();
-	    sum += node->val;
-	    if (node->left) q.push(node->left);
-	    if (node->right) q.push(node->right);
-	}
+	        sum += node->val;
+	        if (node->left) q.push(node->left);
+	        if (node->right) q.push(node->right);
+	    }
 
-	result.push_back((double) sum/size);
+	    result.push_back((double) sum/size);
     }
 
     return result;
@@ -33,6 +35,7 @@ vector<double> Purgatory::averageOfLevels(TreeNode* root) {
 
 /*
  *  using BFS here because it cleanly captures the last node at each level
+ *  T: O(n), S: O(n)
  */
 vector<int> Purgatory::rightSideView(TreeNode* root) {
     vector<int> res;
@@ -45,20 +48,21 @@ vector<int> Purgatory::rightSideView(TreeNode* root) {
     while(!q.empty()) {
         int size = q.size();
 
-	for (int i = 0; i < size; ++i) {
+	    for (int i = 0; i < size; ++i) {
             TreeNode* node = q.front(); q.pop();
 
-	    if (i == size - 1) res.push_back(node->val);
+	        if (i == size - 1) res.push_back(node->val);
 
-	    if (node->left) q.push(node->left);
-	    if (node->right) q.push(node->right);
-	}
+	        if (node->left) q.push(node->left);
+	        if (node->right) q.push(node->right);
+	    }
     }
     return res;
 }
 
 /*
  *  using BFS here because the problem naturally maps to level-order traversal
+ *  T: O(n), S: O(n)
  */
 vector<vector<int>> Purgatory::levelOrder(TreeNode* root) {
     vector<vector<int>> res;
@@ -70,16 +74,16 @@ vector<vector<int>> Purgatory::levelOrder(TreeNode* root) {
 
     while(!q.empty()) {
         int size = q.size();
-	vector<int> level;
+	    vector<int> level;
 
-	for (int i = 0; i < size ; ++i) {
+	    for (int i = 0; i < size ; ++i) {
             TreeNode* node = q.front(); q.pop();
 
-	    level.push_back(node->val);
+	        level.push_back(node->val);
 
-	    if (node->left) q.push(node->left);
-	    if (node->right) q.push(node->right);
-	}
+	        if (node->left) q.push(node->left);
+	        if (node->right) q.push(node->right);
+	    }
         res.push_back(level);
     }
 
@@ -106,30 +110,28 @@ int Purgatory::sumOfLeftLeaves(TreeNode* root) {
 }
 
 /*
- *  using dynamic programming here becuase we can break the problem into smaller subproblems, relying only on already computed smaller states.
+ *  using dynamic programming here becuase we can break the problem into smaller subproblems, 
+ *  relying only on already computed smaller states.
  *  T: O(n), S: O(n)
  */
 int Purgatory::numSquares(int n) {
     vector<int> dp(n + 1, INT_MAX);
     dp[0] = 0;
 
-    vector<int> squares;
-
-    for (int i = 1; i*i <= n; ++i)
-        squares.push_back(i * i);
-
     for (int i = 1; i <= n; ++i) {
-        for (int sq : squares) {
-	    if (sq > i)
-                break;
-
-	    dp[i] = min(dp[i], dp[i - sq] + 1);
-	}
+        for (int j = 1; j*j <= i; ++j) {
+            int suqare = j * j;
+	        dp[i] = min(dp[i], dp[i - square] + 1);
+    	}
     }
 
     return dp[n];
 }
 
+
+int gcdCanMeasureWater(int a, int b) {
+    return b == 0 ? a : gcd(b, a % b);
+}
 /*
  *  using Bezout's identity here because we can break the problem into multiple of gcd
  *  T: O(n), S: O(1)
@@ -141,23 +143,19 @@ bool Purgatory::canMeasureWater(int x, int y, int target) {
     if (target == 0)
         return true;
 
-    int g = gcd(x, y);
-
-    return (target % g == 0);
+    return target % gcdCanMeasureWater(x, y) == 0;
 }
 
 void backtrackFindLadders(string& word, string& beginWord, unordered_map<string, vector<string>>& parents, vector<string>& path, vector<vector<string>>& res) {
     if (word == beginWord) {
-        reverse(path.begin(), path.end());
-	res.push_back(path);
-	reverse(path.begin(), path.end());
-	return;
+	    res.push_back(path);
+	    return;
     }
 
     for (auto& p: parents[word]) {
         path.push_back(p);
-	backtrackFindLadders(p, beginWord, parents, path, res);
-	path.pop_back();
+	    backtrackFindLadders(p, beginWord, parents, path, res);
+	    path.pop_back();
     }
 }
 
@@ -180,39 +178,39 @@ vector<vector<string>> Purgatory::findLadders(string beginWord, string endWord, 
 
     while (!current.empty() && !found) {
         for (auto& w: current)
-	    dict.erase(w);
+	        dict.erase(w);
 
-	for (auto& w: current) {
+	    for (auto& w: current) {
             string word = w;
-	    for (int j = 0; j < word.size(); ++j) {
+	        for (int j = 0; j < word.size(); ++j) {
                 char old = word[j];
 
-		for (char c = 'a'; c <= 'z'; ++c) {
+		        for (char c = 'a'; c <= 'z'; ++c) {
                     if (c == old)
-		        continue;
+					    continue;
+					
+					word[j] = c;
+					if (dict.count(word)) {
+						if (word == endWord)
+							found = true;
 
-		    word[j] = c;
-
-		    if (dict.count(word)) {
-			if (word == endWord)
-		            found = true;
-
-			next.insert(word);
-			parents[word].push_back(w);
-		    }
-		}
-		word[j] = old;
+						next.insert(word);
+						parents[word].push_back(w);
+			        }
+	            }
+		        word[j] = old;
+	        }
 	    }
-	}
-
-	current.swap(next);
-	next.clear();
+	    current.swap(next);
+	    next.clear();
     }
 
     if (found) {
         vector<string> path = {endWord};
-	backtrackFindLadders(endWord, beginWord, parents, path, res);
+	    backtrackFindLadders(endWord, beginWord, parents, path, res);
     }
+
+	for (auto &p : res) reverse(p.begin(), p.end());
 
     return res;
 }
