@@ -4,6 +4,7 @@ namespace purgatory {
 
 /*
  *  using binary search here because the problem reduces to finding the first index where nums[i] >= target. Binary search guarantees O(log n) complexity. The final left variable naturally gives us the correct insertion index, whether the target is found or not.
+ *  T:O(log n), S: O(1)
  */
 int Purgatory::searchInsert(vector<int>& nums, int target) {
     int left = 0, right = nums.size() - 1;
@@ -21,6 +22,7 @@ int Purgatory::searchInsert(vector<int>& nums, int target) {
 
 /*
  *  using binary search across the flattened matrix here because the matrix properties let us treat it as a sotred 1D array. The state is defined by the search range [left, right]. Mapping mid back into (row, col) allows us to compare correctly. This give O(log m * n) complexity.
+ *  T: O(log (m * n)), S: O(1)
  */
 bool Purgatory::searchMatric(vector<vector<int>>& matrix, int target) {
     int m = matrix.size(), n = matrix[0].size();
@@ -41,6 +43,7 @@ bool Purgatory::searchMatric(vector<vector<int>>& matrix, int target) {
 
 /*
  *  using binary search on slope property here
+ *  T: O(log n), S: O(1)
  */
 int Purgatory::findPeakElement(vector<int>& nums) {
     int left = 0, right = nums.size() - 1;
@@ -59,13 +62,13 @@ int Purgatory::findPeakElement(vector<int>& nums) {
 
 /*
  *  using binary search on partitions here because we can break the problem into finding the correct split point
+ *  T: O(log min(m, n)), S: O(1)
  */
 double Purgatory::findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
     if (nums1.size() > nums2.size()) return findMedianSortedArrays(nums2, nums1);
 
     int m = nums1.size(), n = nums2.size();
-    int total = m + n;
-    int half = (total + 1)/2;
+    int half = (m + n + 1)/2;
 
     int left = 0, right = m;
 
@@ -79,7 +82,7 @@ double Purgatory::findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2)
 	int right2 = ( j < n ) ? nums2[j] : INT_MAX;
 
 	if (left1 < right2 && left2 <= right1) {
-            if (total%2 == 0) return (max(left1, left2) + min(right1, right2)) / 2.0;
+            if ((m + n) % 2 == 0) return (max(left1, left2) + min(right1, right2)) / 2.0;
 	    else return max(left1, left2);
 	} else if (left1 > right2) right = i - 1;
 	else left = i + 1;
@@ -94,15 +97,15 @@ double Purgatory::findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2)
  */
 int Purgatory::missingNumber(vector<int>& nums) {
     int n = nums.size();
-    int xorAll = 0, xorNums = 0;
+    int xorAll = 0;
 
     for (int i = 0; i <= n; ++i) {
         xorAll ^= i;
     }
 
-    for (int num: nums) xorNums ^= num;
+    for (int num: nums) xorAll ^= num;
 
-    return xorAll  ^ xorNums;
+    return xorAll;
 }
 
 /*
@@ -143,7 +146,7 @@ bool Purgatory::search(vector<int>& nums, int target) {
 	    l++;
 	    r--;
 	} else if (nums[l] <= nums[mid]) { // left sorted case
-            if (nums[l] <= target && target < nums[mid]) {
+            if (nums[mid] > target && nums[l] <= target) {
 	        r = mid - 1;
 	    } else {
 	        l = mid + 1;
@@ -171,10 +174,8 @@ int Purgatory::findMin(vector<int>& nums) {
 
 	if (nums[mid] > nums[right]) {
             left = mid + 1;
-	} else if (nums[mid] < nums[right]) {
-	    right = mid;
 	} else {
-            right--;
+	    right = mid;
 	}
     }
 
