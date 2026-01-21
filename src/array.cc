@@ -169,10 +169,8 @@ vector<int> Purgatory::productExceptSelf(vector<int>& nums) {
     int n = nums.size();
     vector<int> answer(n, 1);
 
-    int prefix = 1;
-    for (int i = 0; i < n; ++i ) {
-        answer[i] = prefix;
-        prefix *= nums[i];
+    for (int i = 1; i < n; ++i ) {
+        answer[i] = answer[i - 1] * nums[i - 1];
     }
 
     int suffix = 1;
@@ -241,21 +239,17 @@ vector<string> Purgatory::fullJustify(vector<string>& words, int maxWidth) {
  * T:O(n^2), S:O(n^2)
  */
 vector<vector<int>> Purgatory::generate(int numRows) {
-    vector<vector<int>> triangle;
+    vector<vector<int>> triangle(numRows);
 
     if (numRows == 0) return triangle;
 
-    triangle.push_back({1});
-
-    for (int i = 1; i < numRows; ++i) {
-	vector<int> prev = triangle.back();
-        vector<int> row(i + 1, 1);
+    for (int i = 0; i < numRows; ++i) {
+        triangle[i].resize(i + 1);
+	triangle[i][0] = triangle[i][i] = 1;
 
 	for (int j = 1; j < i; ++j) {
-	    row[j] = prev[j - 1] + prev[j];
+	    triangle[i][j] = triangle[i - 1][j - 1] + triangle[i - 1][j];
 	}
-
-	triangle.push_back(move(row));
     }
 
     return triangle;
@@ -294,16 +288,14 @@ void backtrackingCombinationSum2(vector<int>& nums, int remain, int start, vecto
     }
 
     for (int i = start; i < nums.size(); ++i) {
-	int num = nums[i];
-
         if (i > start && nums[i] == nums[i - 1])
             continue;
 
-	if (num > remain) break;
+	if (nums[i]> remain) break;
 
-	path.push_back(num);
+	path.push_back(nums[i]);
 
-	backtrackingCombinationSum2(nums, remain - num, i + 1, path, res);
+	backtrackingCombinationSum2(nums, remain - nums[i], i + 1, path, res);
 
 	path.pop_back();
     }
@@ -346,9 +338,8 @@ void Purgatory::solveSudoku(vector<vector<char>>& board) {
 	if (board[i][j] != '.')
 	    return dfs(i, j + 1);
 
+	int b = (i/3)*3 + j/3;
 	for (int d = 1; d <= 9; ++d) {
-            int b = (i/3)*3 + j/3;
-
 	    if (!row[i][d] && !col[j][d] && !box[b][d]) {
 	        board[i][j] = '0' + d;
 
@@ -375,10 +366,10 @@ string Purgatory::getEncryptedString(string s, int k) {
     int n = s.size();
 
     string result(n, ' ');
+    k = k % n;
 
     for (int i = 0; i < n; ++i) {
-        int newIndex = (i + k) % n;
-	result[i] = s[newIndex];
+	result[i] = s[(i + k) % n];
     }
 
     return result;
