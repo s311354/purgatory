@@ -104,9 +104,13 @@ vector<int> Purgatory::findSubstring(string s, vector<string>& words) {
 
 		}
 	    
-		if ( count == numWords )
+		if ( count == numWords ) {
 		    result.push_back(left);
-
+                    string leftWord = s.substr(left, wordLen);
+		    --seen[leftWord];
+		    --count;
+		    left += wordLen;
+		}
 	    } else {
 		    seen.clear();
                     count = 0;
@@ -150,8 +154,8 @@ string Purgatory::fractionToDecimal(int numerator, int denominator) {
 
     if ((numerator < 0) ^ (denominator < 0)) result += '-';
 
-    long long n = llabs((long long) numerator);
-    long long d = llabs((long long) denominator);
+    long long n = llabs( numerator);
+    long long d = llabs( denominator);
 
     result += to_string(n/d);
 
