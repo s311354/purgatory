@@ -70,14 +70,11 @@ int Purgatory::evalRPN(vector<string>& tokens) {
             int b = st.top(); st.pop();
 	    int a = st.top(); st.pop();
 
-	    int res = 0;
+	    if (tok == "+") st.push(a + b);
+	    else if (tok == "-") st.push(a - b);
+	    else if (tok == "*") st.push(a * b);
+	    else if (tok == "/") st.push(a / b);
 
-	    if (tok == "+") res = a + b;
-	    else if (tok == "-") res = a - b;
-	    else if (tok == "*") res = a * b;
-	    else if (tok == "/") res = a / b;
-
-	    st.push(res);
 	} else {
 	    st.push(stoi(tok));
 	}
@@ -90,44 +87,39 @@ int Purgatory::evalRPN(vector<string>& tokens) {
  *  T: O(n), S: O(n)
  */
 int Purgatory::calculate(string s) {
-    stack<int> st;
+    stack<int> signs;
+    signs.push(1);
+
     int result = 0;
-    long long number = 0;
     int sign = 1;
     int n = s.size();
 
-    for(char c : s) {
+    for(int i = 0; i < n ; ++i) {
+	char c = s[i];
+	
 	if (isdigit(c)) {    
-            number = number * 10 + (c - '0'); 
+            long long number = 0;
+            
+	    while (i < n && isdigit(s[i])) {
+                number = number * 10 + (s[i] - '0');
+	        ++i;
+	    }	
+	    --i;
+	    result += sign*number;
 	} else if (c == '+') {
-	    result += sign* number;
-	    number = 0;
-	    sign = 1;
+	    sign = signs.top();
 	} else if (c == '-') {
-	    result += sign* number;
-	    number = 0;
-	    sign = -1;
+	    sign = -signs.top();
 	} else if (c == '(') {
-            st.push(result);
-	    st.push(sign);
-	    result = 0;
-	    sign = 1;
+	    signs.push(sign);
 	} else if (c == ')') {
-	    result += sign* number;
-	    number = 0;
-
-            int prevSign = st.top(); st.pop();
-	    int prevResult = st.top(); st.pop();
-
-	    result = prevResult + prevSign*result;
+	    signs.pop();
 	} else if (c == ' ') {
 	    continue;
 	}	
     }
 
-    result += sign * number;
-
-    return static_cast<int>(result);
+    return result;
 }
 
 /*
@@ -135,26 +127,28 @@ int Purgatory::calculate(string s) {
  *  T: O(m + n), S: O(n)
  */
 vector<int> Purgatory::nextGreaterElement(vector<int>& nums1, vector<int>& nums2) {
-    unordered_map<int, int> nge;
+    unordered_map<int, int> next;
     stack<int> st;
 
-    for (int i = nums2.size() - 1; i >= 0; --i ) {
-        int current = nums2[i];
+    for (int x : nums2 ) {
 	    
-        while(!st.empty() && st.top() <= current) {
+        while(!st.empty() && x > st.top()) {
+	    next[st.top()] = x;
 	    st.pop();
 	}
 
-        nge[current] = st.empty() ? -1: st.top();
-
-	st.push(current);
+	st.push(x);
     }
     
+    while (!st.empty()) {
+        next[st.top()]= -1;
+	st.pop();
+    }
+
     vector<int> result;
-    result.reserve(nums1.size());
 
     for (int x : nums1) {
-        result.push_back(nge[x]);
+        result.push_back(next[x]);
     }
 
     return result;
