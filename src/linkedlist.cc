@@ -64,11 +64,11 @@ ListNode* Purgatory::addTwoNumber(ListNode* l1, ListNode* l2) {
  *  T: O(n), S: O(1)
  */
 ListNode* Purgatory::removeNthFromEnd(ListNode* head, int n) {
-    ListNode* dummy = new ListNode(0);
-    dummy->next = head;
+    ListNode dummy(0);
+    dummy.next = head;
 
-    ListNode* fast = dummy;
-    ListNode* slow = dummy;
+    ListNode *fast = &dummy;
+    ListNode *slow = &dummy;
 
     for (int i = 0; i < n; ++i) {
         fast = fast->next;
@@ -83,7 +83,7 @@ ListNode* Purgatory::removeNthFromEnd(ListNode* head, int n) {
     slow->next = slow->next->next;
     delete toDelete;
 
-    return dummy->next;
+    return dummy.next;
 }
 
 /*
