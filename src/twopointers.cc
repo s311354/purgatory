@@ -77,20 +77,12 @@ int Purgatory::trap(vector<int> & height) {
 
     while (left < right) {
         if (height[left] < height[right]) {
-            if (height[left] > leftMax) {
-                leftMax = height[left];
-	    } else {
-	        water += leftMax - height[left];
-	    }
-
+	    leftMax = max(leftMax, height[left]);
+            water += leftMax - height[left];
 	    left++;
 	} else {
-            if (height[right] >rightMax) {
-	        rightMax = height[right];
-	    } else {
-		water += rightMax - height[right];
-	    }
-
+            rightMax = max(rightMax, height[right]);
+	    water += rightMax - height[right];
 	    right--;
 	}
     }
@@ -106,7 +98,9 @@ void Purgatory::reverseString(vector<char>& s) {
     int left = 0, right = s.size() - 1;
 
     while (left < right) {
-        swap(s[left], s[right]);
+	char temp = s[left];
+	s[left] = s[right];
+	s[right] = temp;
 	left++; right--;
     }
 }
