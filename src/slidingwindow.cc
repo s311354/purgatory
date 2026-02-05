@@ -11,9 +11,8 @@ bool Purgatory::containsNearbyDuplicate(vector<int>& nums, int k) {
 
     for (int i = 0; i < nums.size(); ++i) {
         if (lastIndex.find(nums[i]) != lastIndex.end()) {
-             int prev = lastIndex[nums[i]];
-
-	     if (i - prev <= k) return true;
+	     if (i - lastIndex[nums[i]] <= k)
+                 return true;
 	}
 	lastIndex[nums[i]] = i;
     }
@@ -47,11 +46,11 @@ int Purgatory::minSubArrayLen(int target, vector<int>& nums) {
  *  T: O(n), S: O(n, charset_size)
  */
 int Purgatory::lengthOfLongestSubstring(string s) {
-    unordered_map<char, int> charIndex;
+    unordered_map<unsigned char, int> charIndex;
     int left = 0, maxLen = 0;
 
     for (int right = 0; right < s.size(); ++right) {
-        char c = s[right];
+        unsigned char c = s[right];
 
 	if (charIndex.count(c) && charIndex[c] >= left) {
             left = charIndex[c] + 1;
@@ -102,10 +101,10 @@ int Purgatory::longestSubstring(string s, int k) {
 
     for (int i = 0; i < s.size(); ++i) {
         if (freq[s[i] - 'a'] < k) {
-            string left = s.substr(0, i);
-	    string right = s.substr(i + 1);
+            int left = longestSubstring(s.substr(0, i), k);
+	    int right = longestSubstring(s.substr(i + 1), k);
 
-	    return max(longestSubstring(left, k), longestSubstring(right, k));
+	    return max(left, right);
 	}
     }
 
