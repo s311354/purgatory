@@ -34,11 +34,11 @@ vector<string> Purgatory::summaryRanges(vector<int>& nums) {
  *  T: O(n), S: O(n)
  */
 vector<vector<int>> Purgatory::merge(vector<vector<int>>& intervals) {
-    if (intervals.empty()) return {};
+    vector<vector<int>> merged;
+
+    if (intervals.empty()) return merged;
 
     sort(intervals.begin(), intervals.end());
-
-    vector<vector<int>> merged;
 
     for (auto& interval: intervals) {
 	vector<int>& last = merged.back();
