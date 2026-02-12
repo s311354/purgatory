@@ -100,10 +100,13 @@ int Purgatory::sumOfLeftLeaves(TreeNode* root) {
 
     int sum = 0;
 
-    if (root->left && !root->left->left && !root->left->right) 
-        sum += root->left->val;
+    if (root->left) {
+        if (!root->left->left && !root->left->right)
+            sum += root->left->val;
+        else
+	    sum += sumOfLeftLeaves(root->left);
+    }    
 
-    sum += sumOfLeftLeaves(root->left);
     sum += sumOfLeftLeaves(root->right);
 
     return sum;
@@ -120,8 +123,7 @@ int Purgatory::numSquares(int n) {
 
     for (int i = 1; i <= n; ++i) {
         for (int j = 1; j*j <= i; ++j) {
-            int square = j * j;
-            dp[i] = min(dp[i], dp[i - square] + 1);
+            dp[i] = min(dp[i], dp[i - j * j] + 1);
     	}
     }
 
@@ -130,7 +132,12 @@ int Purgatory::numSquares(int n) {
 
 
 int gcdCanMeasureWater(int a, int b) {
-    return b == 0 ? a : gcd(b, a % b);
+    while (b != 0) {
+        int r = a % b;
+	a = b;
+	b = r;
+    }
+    return a;
 }
 /*
  *  using Bezout's identity here because we can break the problem into multiple of gcd
@@ -146,16 +153,47 @@ bool Purgatory::canMeasureWater(int x, int y, int target) {
     return target % gcdCanMeasureWater(x, y) == 0;
 }
 
+
+void findLaddersbfs(const string &beginWord, const string &endWord, unordered_set<string> &dict, unordered_map<string, vector<string>> &parents, unordered_map<string, int> &dist) {
+
+    queue<string> q;
+    q.push(beginWord);
+    dist[beginWord] = 0;
+
+    while (!q.empty()) {
+        string cur = q.front(); q.pop();
+	int step = dist[cur];
+
+	for (int i = 0; i < cur.size(); ++i) {
+	    string next = cur;
+
+	    for (char c = 'a'; c <= 'z' ; ++c) {
+                next[i] = c;
+
+		if (!dict.count(next)) continue;
+
+		if (!dist.count(next)) {
+                    dist[next] = step + 1;
+		    q.push(next);
+		    parents[next].push_back(cur);
+		} else if (dist[next] == step + 1) {
+                    parents[next].push_back(cur);
+		}
+	    }
+	}
+    }
+}
+
 void backtrackFindLadders(string& word, string& beginWord, unordered_map<string, vector<string>>& parents, vector<string>& path, vector<vector<string>>& res) {
     if (word == beginWord) {
-	    res.push_back(path);
-	    return;
+        res.push_back(vector<string>(path.rbegin(), path.rend()));
+	return;
     }
 
     for (auto& p: parents[word]) {
         path.push_back(p);
-	    backtrackFindLadders(p, beginWord, parents, path, res);
-	    path.pop_back();
+        backtrackFindLadders(p, beginWord, parents, path, res);
+        path.pop_back();
     }
 }
 
@@ -171,46 +209,12 @@ vector<vector<string>> Purgatory::findLadders(string beginWord, string endWord, 
         return res;
 
     unordered_map<string, vector<string>> parents;
-    unordered_set<string> current, next;
-    current.insert(beginWord);
+    unordered_map<string, int> dist;
 
-    bool found = false;
-
-    while (!current.empty() && !found) {
-        for (auto& w: current)
-	        dict.erase(w);
-
-	    for (auto& w: current) {
-            string word = w;
-	        for (int j = 0; j < word.size(); ++j) {
-                char old = word[j];
-
-		        for (char c = 'a'; c <= 'z'; ++c) {
-                    if (c == old)
-					    continue;
-					
-					word[j] = c;
-					if (dict.count(word)) {
-						if (word == endWord)
-							found = true;
-
-						next.insert(word);
-						parents[word].push_back(w);
-			        }
-	            }
-		        word[j] = old;
-	        }
-	    }
-	    current.swap(next);
-	    next.clear();
-    }
-
-    if (found) {
-        vector<string> path = {endWord};
-	    backtrackFindLadders(endWord, beginWord, parents, path, res);
-    }
-
-	for (auto &p : res) reverse(p.begin(), p.end());
+    findLaddersbfs(beginWord, endWord, dict, parents, dist);
+    
+    vector<string> path = {endWord};
+    backtrackFindLadders(endWord, beginWord, parents, path, res);
 
     return res;
 }
