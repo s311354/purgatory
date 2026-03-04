@@ -25,6 +25,9 @@ int Purgatory::searchInsert(vector<int>& nums, int target) {
  *  T: O(log (m * n)), S: O(1)
  */
 bool Purgatory::searchMatric(vector<vector<int>>& matrix, int target) {
+    if (matrix.empty() || matrix[0].empty())
+        return false;
+
     int m = matrix.size(), n = matrix[0].size();
 
     int left = 0, right = m*n - 1;
@@ -73,7 +76,7 @@ double Purgatory::findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2)
     int left = 0, right = m;
 
     while ( left <= right ) {
-        int i = (left + right)/ 2;
+        int i = left + (right - left)/ 2;
 	int j = half - i;
 
 	int left1 = ( i > 0 ) ? nums1[i - 1] : INT_MIN;
@@ -81,7 +84,7 @@ double Purgatory::findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2)
 	int left2 = ( j > 0 ) ? nums2[j - 1] : INT_MIN;
 	int right2 = ( j < n ) ? nums2[j] : INT_MAX;
 
-	if (left1 < right2 && left2 <= right1) {
+	if (left1 <= right2 && left2 <= right1) {
             if ((m + n) % 2 == 0) return (max(left1, left2) + min(right1, right2)) / 2.0;
 	    else return max(left1, left2);
 	} else if (left1 > right2) right = i - 1;
