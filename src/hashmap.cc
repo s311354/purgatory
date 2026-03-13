@@ -59,8 +59,8 @@ int Purgatory::longestConsecutive(vector<int> & nums) {
 	    int currentSteak = 1;
 
 	    while (numSet.count(currentNum + 1)) {
-                currentNum += 1;
-		currentSteak += 1;
+                currentNum++;
+		currentSteak++;
 	    }
 
 	    longest = max(longest, currentSteak);
@@ -112,9 +112,9 @@ vector<int> Purgatory::findSubstring(string s, vector<string>& words) {
 		    left += wordLen;
 		}
 	    } else {
-		    seen.clear();
-                    count = 0;
-		    left = j + wordLen;
+                seen.clear();
+                count = 0;
+                left = j + wordLen;
 	    }
 	}
     }

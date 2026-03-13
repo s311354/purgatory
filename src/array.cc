@@ -169,14 +169,14 @@ vector<int> Purgatory::productExceptSelf(vector<int>& nums) {
     int n = nums.size();
     vector<int> answer(n, 1);
 
-    for (int i = 1; i < n; ++i ) {
-        answer[i] = answer[i - 1] * nums[i - 1];
-    }
+    int prefix = 1, suffix = 1;
 
-    int suffix = 1;
-    for ( int i = n - 1; i >=0 ; --i ) {
-        answer[i] *= suffix;
-	suffix *= nums[i];
+    for (int i = 0; i < n; ++i ) {
+        answer[i] *= prefix;
+	prefix *= nums[i];
+
+	answer[n - 1- i] *= suffix;
+	suffix *= nums[n - 1 - i];
     }
 
     return answer;
@@ -192,38 +192,42 @@ vector<string> Purgatory::fullJustify(vector<string>& words, int maxWidth) {
     int i = 0, n = words.size();
 
     while ( i < n ) {
-        int j = i, lineLen = 0;
+        int lineLen = words[i].size(), j = i + 1;
 
-	while ( j < n && lineLen + words[j].length() + (j - i) <= maxWidth ) {
-	    lineLen += words[j].length();
+	while ( j < n && lineLen + 1 + words[j].size() <= maxWidth ) {
+	    lineLen += 1 + words[j].length();
 	    ++j;
 	}
 
         int wordCount = j - i;
-	int totalSpace = maxWidth - lineLen;
+        int totalChars = 0;
 
+        for (int k = i; k < j; ++k) {
+	    totalChars += words[k].size();
+	}
+
+	int totalSpaces = maxWidth - totalChars;
 	string line;
         
 	if ( j == n || wordCount == 1) {
-            for (int k = i; k < j; ++k) {
-	        line += words[k];
+	    line += words[i];
 
-		if (k < j - 1) line += ' ';
+            for (int k = i + 1; k < j; ++k) {
+	        line += " " + words[k];
 	    }
 
 	    line += string(maxWidth - line.size(), ' ');
 	} else {
-	    int spaceBetween = totalSpace / (wordCount - 1);
-	    int extraSpace = totalSpace % (wordCount - 1);
+	    int gaps = wordCount - 1;
+	    int spaceBetween = totalSpaces / gaps;
+	    int extraSpace = totalSpaces % gaps;
 
-	    for (int k = i; k < j; ++k) {
+	    for (int k = i; k < j - 1; ++k) {
 		line += words[k];
-		
-		if (k < j - 1) {
-	            int spaces = spaceBetween + (extraSpace-- > 0 ? 1 : 0);
-		    line += string(spaces, ' ');
-		}
+	        line += string(spaceBetween + (k - i < extraSpace ? 1 : 0), ' ');    	
 	    }
+
+	    line += words[j - 1];
 	}
 
         result.push_back(line);
@@ -239,17 +243,18 @@ vector<string> Purgatory::fullJustify(vector<string>& words, int maxWidth) {
  * T:O(n^2), S:O(n^2)
  */
 vector<vector<int>> Purgatory::generate(int numRows) {
-    vector<vector<int>> triangle(numRows);
+    vector<vector<int>> triangle;
 
     if (numRows == 0) return triangle;
 
     for (int i = 0; i < numRows; ++i) {
-        triangle[i].resize(i + 1);
-	triangle[i][0] = triangle[i][i] = 1;
+	vector<int> currentRow(i + 1, 1);
 
 	for (int j = 1; j < i; ++j) {
-	    triangle[i][j] = triangle[i - 1][j - 1] + triangle[i - 1][j];
+	    currentRow[j] = triangle[i - 1][j - 1] + triangle[i - 1][j];
 	}
+
+	triangle.push_back(currentRow);
     }
 
     return triangle;
