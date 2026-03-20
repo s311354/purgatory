@@ -194,8 +194,8 @@ int Purgatory::calculateII(string s) {
     int n = s.size();
     long current = 0;
     char lastOp = '+';
-
-    vector<long> st;
+    long result = 0;
+    long last = 0;
 
     for (int i = 0; i < n; ++i) {
         char c = s[i];
@@ -205,13 +205,15 @@ int Purgatory::calculateII(string s) {
 
 	if ( (!isdigit(c) && c != ' ') || i == n - 1) {
             if (lastOp == '+') {
-	        st.push_back(current);
+                result += last;
+		last = current;
 	    } else if (lastOp == '-') {
-                st.push_back(-current);
+	        result += last;
+		last = -current;
 	    } else if (lastOp == '*') {
-                st.back() = st.back() * current;
+	        last = last * current;
 	    } else if (lastOp == '/') {
-                st.back() = st.back() / current;
+                last = last / current;
 	    }
 
 	    current = 0;
@@ -219,11 +221,8 @@ int Purgatory::calculateII(string s) {
 	}
     }
 
-    long result = 0;
-    for (long x : st)
-        result += x;
 
-    return (int) result;
+    return (int) result + last;
 }
 
 /*

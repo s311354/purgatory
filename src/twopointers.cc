@@ -59,8 +59,7 @@ int Purgatory::maxArea(vector<int> &height) {
 
 	maxWater = max(maxWater, area);
 
-	if (height[left] < height[right]) left++;
-	else right--;
+	height[left] < height[right] ? left++ : right--;
     }
 
     return maxWater;
@@ -75,14 +74,16 @@ int Purgatory::trap(vector<int> & height) {
     int leftMax = 0, rightMax = 0;
     int water = 0;
 
+    // memory vs register
     while (left < right) {
-        if (height[left] < height[right]) {
-	    leftMax = max(leftMax, height[left]);
-            water += leftMax - height[left];
+        int hl = height[left], hr = height[right];
+        if (hl < hr) {
+	    leftMax = max(leftMax, hl);
+            water += leftMax - hl;
 	    left++;
 	} else {
-            rightMax = max(rightMax, height[right]);
-	    water += rightMax - height[right];
+            rightMax = max(rightMax, hr);
+	    water += rightMax - hr;
 	    right--;
 	}
     }

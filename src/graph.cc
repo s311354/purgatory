@@ -107,20 +107,22 @@ void Purgatory::solve(vector<vector<char>> & board) {
     }
 }
 
-vector<vector<int>> memo;
-vector<vector<int>> dir = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
-int dfsLongestIncreasingPath(vector<vector<int>>& matrix, int i, int j) {
+
+
+int dfsLongestIncreasingPath(vector<vector<int>>& matrix, vector<vector<int>> &memo, int i, int j) {
     if (memo[i][j] != 0) return memo[i][j];
 
     int m = matrix.size(), n = matrix[0].size();
 
     int best = 1;
 
+    vector<vector<int>> dir = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
     for(auto & d : dir) {
         int x = i + d[0], y = j + d[1];
 	if (x >= 0 && y >= 0 && x < m && y < n && matrix[x][y] > matrix[i][j])
-	    best = max(best, 1 + dfsLongestIncreasingPath(matrix, x, y));
+	    best = max(best, 1 + dfsLongestIncreasingPath(matrix, memo, x, y));
     }
 
     memo[i][j] = best;
@@ -135,14 +137,14 @@ int Purgatory::longestIncreasingPath(vector<vector<int>>& matrix) {
     if (matrix.empty() || matrix[0].empty()) return 0;
 
     int m = matrix.size(), n = matrix[0].size();
-
+    vector<vector<int>> memo;
     memo.assign(m, vector<int>(n, 0));
 
     int ans = 0;
 
     for(int i = 0; i < m; ++i) {
         for (int j = 0; j < n; ++j) {
-            ans = max(ans, dfsLongestIncreasingPath(matrix, i, j));
+            ans = max(ans, dfsLongestIncreasingPath(matrix, memo, i, j));
 	}
     }
     return ans;

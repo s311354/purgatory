@@ -116,11 +116,18 @@ int Purgatory::candy(vector<int>& ratings) {
 	}
     }
 
-    int total = 0;
-
-    for(auto c : candies) {
-        total += c;
+    // instruction-level larallelism (ILP)
+    int s0 = 0, s1 = 0;
+    size_t i = 0;
+    for(; i < candies.size() - 1; i += 2) {
+        s0 += candies[i];
+	s1 += candies[i + 1];
     }
+   
+    int total = s0 + s1;
+
+    for (; i < candies.size(); ++i)
+        total += candies[i]; 
 
     return total;
 }

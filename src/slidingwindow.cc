@@ -28,8 +28,12 @@ int Purgatory::minSubArrayLen(int target, vector<int>& nums) {
     int left = 0, sum = 0;
     int minLen = INT_MAX;
 
-    for (int right = 0; right < nums.size(); ++right) {
-        sum += nums[right];
+    // memory vs register
+    int n = nums.size();
+    for (int right = 0; right < n; ++right) {
+	 
+	int val = nums[right];
+        sum += val;
 
 	while (sum >= target) {
             minLen = min(minLen, right - left + 1);
@@ -121,12 +125,13 @@ int Purgatory::numberOfArithmeticSlices(vector<int>& nums) {
     int count = 0, curr = 0;
 
     for (int i = 2; i < (int) nums.size(); ++i) {
-        if (nums[i] - nums[i - 1] == nums[i - 1] - nums[i - 2]) {
-            curr += 1;
-	    count += curr;
-	} else {
-	    curr = 0;
-	}
+	// memory vs register
+	int diff1 = nums[i] - nums[i - 1], diff2 = nums[i - 1] - nums[i - 2];
+        int is_arith = (diff1 == diff2);
+	
+	// branch prediction
+	curr = is_arith ? curr + 1 : 0;
+	count += curr;
     }
 
     return count;
