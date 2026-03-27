@@ -41,16 +41,24 @@ bool Purgatory::increasingTriplet(vector<int>& nums) {
 void Purgatory::merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
     int p1 = m - 1, p2 = n - 1, p = m + n - 1;
 
-    while ( p1 >= 0 && p2 >= 0 ) {
-        if (nums1[p1] > nums2[p2]) {
-	    nums1[p--] = nums1[p1--];
-	} else {
-	    nums1[p--] = nums2[p2--];
-	}
-    }
-
+    // Loop optimization
     while ( p2 >= 0 ) {
-        nums1[p--] = nums2[p2--];
+	// branch prediction
+        if ( p1 >= 0) {
+	    // register vs memory
+	    int x = nums1[p1];
+	    int y = nums2[p2];
+
+	    bool take_p1 = x > y;
+
+	    nums1[p] = take_p1 ? x : y;
+	    p1 -= take_p1;
+	    p2 -= !take_p1;
+	} else {
+	    nums1[p] = nums2[p2];
+	    --p2;
+	}
+	--p;
     }
 }
 
@@ -61,14 +69,28 @@ void Purgatory::merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
  *  T:O(n), S:O(1)
  */
 int Purgatory::removeDuplicates(vector<int>& nums) {
-    if (nums.size() < 2) return nums.size();
+    // register vs memory
+    int n = nums.size();
+    if (n < 2) return n;
 
     int write = 2;
 
-    for (int read = 2; read < nums.size(); ++read) {
-        if (nums[read] != nums[write - 2]) {
-	    nums[write] = nums[read];
-	    ++write;
+    // register vs memory
+    int last2 = nums[0];
+    int last1 = nums[1];
+
+    for (int read = 2; read < n; ++read) {
+
+        int curr = nums[read];
+        // branch prediction
+	int keep = (curr != last2);
+
+	nums[write] = curr;
+	write += keep;
+
+	if (keep) {
+	    last2 = last1;
+	    last1 = curr;
 	}
     }
 
@@ -82,14 +104,27 @@ int Purgatory::removeDuplicates(vector<int>& nums) {
  *  - reverse suffix
  *  T: O(n), S: O(1)
  */
+inline void reverse_int(int *l, int *r) {
+    while (l < r) {
+        int tmp = *l;
+	*l++ = *r;
+	*r-- = tmp;
+    }
+}
+
 void Purgatory::rotate(vector<int> & nums, int k) {
     int n = nums.size();
 
-    k = k % n;
+    k %= n;
 
-    reverse(nums.begin(), nums.end());
-    reverse(nums.begin(), nums.begin() + k);
-    reverse(nums.begin() + k, nums.end());
+    if (k == 0) return;
+
+    // cache behavior
+    int *base = nums.data();
+
+    reverse_int(base, base + n - 1);
+    reverse_int(base, base + k - 1);
+    reverse_int(base + k, base + n - 1);
 }
 
 /*
@@ -99,35 +134,31 @@ void Purgatory::rotate(vector<int> & nums, int k) {
  *  T: O(n), S: O(n)
  */
 int Purgatory::candy(vector<int>& ratings) {
-
     int n = ratings.size();
+    if (n == 0) return 0;
 
     vector<int> candies(n, 1);
 
+    // branch prediction
+    int prev = 1;
+    candies[0] = 1;
+
     for (int i = 1; i < n; ++i) {
-        if (ratings[i] > ratings[i - 1]) {
-	    candies[i] = candies[i - 1] + 1;
-	}
+	// cache behavior
+        prev = (ratings[i] > ratings[i - 1]) ? prev + 1 : 1;
+	candies[i] = prev;
     }
+
+    // loop optimization
+    int total = candies[n - 1];
 
     for (int i = n - 2; i >= 0; --i) {
         if (ratings[i] > ratings[i + 1]) {
 	    candies[i] = max(candies[i], candies[i + 1] + 1);
 	}
-    }
 
-    // instruction-level larallelism (ILP)
-    int s0 = 0, s1 = 0;
-    size_t i = 0;
-    for(; i < candies.size() - 1; i += 2) {
-        s0 += candies[i];
-	s1 += candies[i + 1];
+	total += candies[i];
     }
-   
-    int total = s0 + s1;
-
-    for (; i < candies.size(); ++i)
-        total += candies[i]; 
 
     return total;
 }
@@ -138,12 +169,14 @@ int Purgatory::candy(vector<int>& ratings) {
  */
 int Purgatory::removeElemet(vector<int>& nums, int val) {
     int write = 0;
+    // register vs memory
+    int n = nums.size();
 
-    for (int read = 0; read < nums.size(); ++read) {
-        if ( nums[read] != val ) {
-	    nums[write] = nums[read];
-	    ++write;
-	}
+    for (int read = 0; read < n; ++read) {
+	// branch prediction
+        int keep = (nums[read] != val );
+	nums[write] = nums[read];
+	write += keep;
     }
 
     return write;
@@ -158,14 +191,19 @@ bool Purgatory::canJump(vector<int>& nums) {
     int maxReach = 0, n = nums.size();
 
     for ( int i = 0; i < n; ++i ) {
-        if ( i > maxReach ) return false;
+	// breach prediction
+        if ( i > maxReach )
+	    break;
     
-	maxReach = max(maxReach, i + nums[i]);
+	// register vs memory
+	int reach = i + nums[i];
+	maxReach = (reach > maxReach) ? reach : maxReach;
 
-	if ( maxReach >= n - 1) return true;
+	if ( maxReach >= n - 1)
+	    return true;
     }
 
-    return true;
+    return maxReach >= n - 1;
 }
 
 /*
@@ -176,14 +214,17 @@ vector<int> Purgatory::productExceptSelf(vector<int>& nums) {
     int n = nums.size();
     vector<int> answer(n, 1);
 
-    int prefix = 1, suffix = 1;
-
+    int prefix = 1;
     for (int i = 0; i < n; ++i ) {
-        answer[i] *= prefix;
+        answer[i] = prefix;
 	prefix *= nums[i];
+    }
 
-	answer[n - 1- i] *= suffix;
-	suffix *= nums[n - 1 - i];
+    // cache behavior
+    int suffix = 1;
+    for (int i = n - 1; i >= 0; --i) {
+	answer[i] *= suffix;
+	suffix *= nums[i];
     }
 
     return answer;
@@ -196,50 +237,60 @@ vector<int> Purgatory::productExceptSelf(vector<int>& nums) {
 vector<string> Purgatory::fullJustify(vector<string>& words, int maxWidth) {
     
     vector<string> result;
-    int i = 0, n = words.size();
+    int i = 0;
+    int n = words.size();
 
     while ( i < n ) {
-        int lineLen = words[i].size(), j = i + 1;
+        int lineLen = words[i].size();
+	// register vs memory
+        int totalChars = words[i].size();
+        int j = i + 1;
 
+	// loop optimization
 	while ( j < n && lineLen + 1 + words[j].size() <= maxWidth ) {
-	    lineLen += 1 + words[j].length();
+	    lineLen += 1 + words[j].size();
+	    totalChars += words[j].size();
 	    ++j;
 	}
 
         int wordCount = j - i;
-        int totalChars = 0;
-
-        for (int k = i; k < j; ++k) {
-	    totalChars += words[k].size();
-	}
-
 	int totalSpaces = maxWidth - totalChars;
+
 	string line;
+	// cache behavior
+	line.reserve(maxWidth);
         
 	if ( j == n || wordCount == 1) {
-	    line += words[i];
+	    // compiler optimization
+	    line.append(words[i]);
 
             for (int k = i + 1; k < j; ++k) {
-	        line += " " + words[k];
+	        line.push_back(' ');
+	        line.append(words[k]);
 	    }
 
-	    line += string(maxWidth - line.size(), ' ');
+	    line.append(maxWidth - line.size(), ' ');
 	} else {
 	    int gaps = wordCount - 1;
 	    int spaceBetween = totalSpaces / gaps;
 	    int extraSpace = totalSpaces % gaps;
 
 	    for (int k = i; k < j - 1; ++k) {
-		line += words[k];
-	        line += string(spaceBetween + (k - i < extraSpace ? 1 : 0), ' ');    	
+		line.append(words[k]);
+                int spaces = spaceBetween;
+		
+		// branch prediction
+		if (k - i < extraSpace)
+		    spaces++;
+
+	        line.append(spaces, ' ');    	
 	    }
 
-	    line += words[j - 1];
+	    line.append(words[j - 1]);
 	}
 
-        result.push_back(line);
+        result.push_back(move(line));
 	i = j;
-
     }
 
     return result;
@@ -250,18 +301,26 @@ vector<string> Purgatory::fullJustify(vector<string>& words, int maxWidth) {
  * T:O(n^2), S:O(n^2)
  */
 vector<vector<int>> Purgatory::generate(int numRows) {
-    vector<vector<int>> triangle;
+    // cache behavior
+    vector<vector<int>> triangle(numRows);
 
     if (numRows == 0) return triangle;
 
     for (int i = 0; i < numRows; ++i) {
-	vector<int> currentRow(i + 1, 1);
+	// cache behavior
+	triangle[i].resize(i + 1);
 
-	for (int j = 1; j < i; ++j) {
-	    currentRow[j] = triangle[i - 1][j - 1] + triangle[i - 1][j];
+	// register vs memory
+	auto &curr = triangle[i];
+	curr[0] = curr[i] = 1;
+
+	if (i > 0) {
+	    // register vs memory
+	    auto &prev = triangle[i - 1];
+
+	    for (int j = 1; j < i; ++j)
+	        curr[j] = prev[j - 1] + prev[j];
 	}
-
-	triangle.push_back(currentRow);
     }
 
     return triangle;
@@ -275,15 +334,34 @@ void Purgatory::nextPermutation(vector<int>& nums) {
     int n = nums.size();
     int i = n - 2;
 
-    while (i >= 0 && nums[i] >= nums[i + 1]) i--;
+    // branch prediction
+    while (i >= 0) {
+        if (nums[i] < nums[i + 1])
+            break;
+	i--;
+    }
 
     if (i >= 0) {
         int j = n - 1;
-	while (nums[j] <= nums[i]) j--;
-	swap(nums[i], nums[j]);
+	// register vs memory
+	int pivot = nums[i];
+
+	while (nums[j] <= pivot)
+            j--;
+
+	// cache behavior
+	int tmp = nums[i];
+	nums[i] = nums[j];
+	nums[j] = tmp;
     }
 
-    reverse(nums.begin() + i + 1, nums.end());
+    // branch prediction
+    int l = i + 1, r = n - 1;
+    while (l < r) {
+        int tmp = nums[l];
+	nums[l++] = nums[r];
+	nums[r--] = tmp;
+    }
 }
 
 /*
@@ -300,14 +378,17 @@ void backtrackingCombinationSum2(vector<int>& nums, int remain, int start, vecto
     }
 
     for (int i = start; i < nums.size(); ++i) {
-        if (i > start && nums[i] == nums[i - 1])
+	// register vs memory
+	int candidate = nums[i];
+
+        if (i > start && candidate == nums[i - 1])
             continue;
 
-	if (nums[i]> remain) break;
+	if (candidate > remain) break;
 
-	path.push_back(nums[i]);
+	path.push_back(candidate);
 
-	backtrackingCombinationSum2(nums, remain - nums[i], i + 1, path, res);
+	backtrackingCombinationSum2(nums, remain - candidate, i + 1, path, res);
 
 	path.pop_back();
     }
@@ -318,6 +399,8 @@ vector<vector<int>> Purgatory::combinationSum2(vector<int>& candidates, int targ
 
     vector<vector<int>> res;
     vector<int> path;
+    // cache behavior
+    path.reserve(candidates.size());
 
     backtrackingCombinationSum2(candidates, target, 0, path, res);
 
@@ -329,15 +412,21 @@ vector<vector<int>> Purgatory::combinationSum2(vector<int>& candidates, int targ
  *  T: O(9^m), S: O(m)
  */
 void Purgatory::solveSudoku(vector<vector<char>>& board) {
-    vector<vector<bool>> row(9, vector<bool>(10, false));
-    vector<vector<bool>> col(9, vector<bool>(10, false));
-    vector<vector<bool>> box(9, vector<bool>(10, false));
+    // CPU pipeline
+    int row[9] = {0}, col[9] = {0}, box[9] = {0};
+
+    auto getBox = [](int i, int j) {return (i/3)*3 + (j/3);};
 
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 9; ++j) {
             if (board[i][j] != '.') {
-                int d = board[i][j] - '0';
-		row[i][d] = col[j][d] = box[(i/3)*3 + j/3][d] = true;
+                int d = board[i][j] - '1';
+		int mask = 1 << d;
+
+                // branch prediction
+		row[i] |= mask;
+		col[j] |= mask;
+		box[getBox(i, j)] |= mask;
 	    }
 	}
     }
@@ -350,18 +439,27 @@ void Purgatory::solveSudoku(vector<vector<char>>& board) {
 	if (board[i][j] != '.')
 	    return dfs(i, j + 1);
 
-	int b = (i/3)*3 + j/3;
-	for (int d = 1; d <= 9; ++d) {
-	    if (!row[i][d] && !col[j][d] && !box[b][d]) {
-	        board[i][j] = '0' + d;
+	int b = getBox(i, j);
 
-	        row[i][d] = col[j][d] = box[b][d] = true;
+	// register vs memory
+        int used = row[i] | col[j] | box[b];
 
-	        if (dfs(i, j + 1)) return true;
+	for (int d = 0; d < 9; ++d) {
+	    int mask = 1 << d;
 
-	        board[i][j] = '.';
-	        row[i][d] = col[j][d] = box[b][d] = false;
-	    }
+	    if (used & mask)
+                continue;
+
+	    board[i][j] = '1' + d;
+
+	    // cache behavior
+	    row[i] |= mask; col[j] |= mask; box[b] |= mask;
+
+	    if (dfs(i, j + 1))
+                return true;
+
+	    board[i][j] = '.';
+	    row[i] ^= mask; col[j] ^= mask; box[b] ^= mask;
 	}
 
 	return false;
@@ -376,13 +474,15 @@ void Purgatory::solveSudoku(vector<vector<char>>& board) {
  */
 string Purgatory::getEncryptedString(string s, int k) {
     int n = s.size();
-
     string result(n, ' ');
-    k = k % n;
 
-    for (int i = 0; i < n; ++i) {
-	result[i] = s[(i + k) % n];
-    }
+    k %= n;
+    // register vs memory
+    int split = n - k;
+
+    // cache behavior
+    memcpy(&result[0], &s[k], split);
+    memcpy(&result[split], &s[0], k);
 
     return result;
 }

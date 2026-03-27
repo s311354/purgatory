@@ -8,15 +8,41 @@ namespace purgatory {
  *  - this reduce extra memory usage to O(1)
  *  T: O(n), S: O(1)
  */
+
+// function call & branch prediction
+inline bool isAlnum(char c) {
+    return (c >= 'a' && c <= 'z') ||
+	   (c >= 'A' && c <= 'Z') ||
+	   (c >= '0' && c <= '9');
+}
+
+inline char toLower(char c) {
+    return (c >= 'A' && c <= 'Z') ? c + 32 : c;
+}
+
 bool Purgatory::isPalindrome(string s) {
     int left = 0, right = s.size() - 1;
 
     while (left < right) {
-        while (left < right && !isalnum(s[left])) left++;
+	// register vs memory
+        while (left < right) {
+	    char l = s[left];
+	    if (isAlnum(l))
+	        break;
+	    ++left;
+	}
 
-	while (left < right && !isalnum(s[right])) right--;
+	while (left < right) {
+	    char r = s[right];
+	    if (isAlnum(r))
+	        break;
+	    right--;
+	}
 
-	if (tolower(s[left]) != tolower(s[right])) return false;
+	// register vs memory
+	char l = toLower(s[left]), r = toLower(s[right]);
+
+	if (l != r) return false;
 
 	left++; right--;
     }
@@ -29,16 +55,24 @@ bool Purgatory::isPalindrome(string s) {
  *  T: O(n), S: O(n)
  */
 vector<int> Purgatory::twoSum(vector<int>& numbers, int target) {
+    // register vs memory
+    int n = numbers.size();
     unordered_map<int, int> seen;
+    // cache behavior
+    seen.reserve(n);
 
-    for (int i = 0; i < numbers.size(); ++i) {
-        int complement = target - numbers[i];
+    for (int i = 0; i < n; ++i) {
+	// register vs memory
+	int num = numbers[i];
+        int complement = target - num;
 
-	if (seen.count(complement)) {
-	    return {seen[complement], i};
+	// branch prediction
+	auto it = seen.find(complement);
+	if (it != seen.end()) {
+	    return {it->second, i};
 	}
 
-	seen[numbers[i]] = i;
+	seen[num] = i;
     }
     
     return {};
@@ -53,13 +87,21 @@ int Purgatory::maxArea(vector<int> &height) {
     int maxWater = 0;
 
     while (left < right) {
-        int h = min(height[left], height[right]);
+	// register vs memory
+	int hl = height[left];
+	int hr = height[right];
+
 	int width = right - left;
-	int area = h * width;
+	int area = (hl < hr ? hl : hr) * width;
+        
+	// function call
+	if (area > maxWater) maxWater = area;
 
-	maxWater = max(maxWater, area);
-
-	height[left] < height[right] ? left++ : right--;
+	// branch prediction
+	if (hl < hr)
+	    ++left;
+        else
+	    --right;
     }
 
     return maxWater;
@@ -74,15 +116,20 @@ int Purgatory::trap(vector<int> & height) {
     int leftMax = 0, rightMax = 0;
     int water = 0;
 
-    // memory vs register
     while (left < right) {
+	// register vs memory
         int hl = height[left], hr = height[right];
         if (hl < hr) {
-	    leftMax = max(leftMax, hl);
+	    // function call
+	    if (hl > leftMax)
+	        leftMax = hl;
+
             water += leftMax - hl;
 	    left++;
 	} else {
-            rightMax = max(rightMax, hr);
+	    if (hr > rightMax)
+	        rightMax = hr;
+
 	    water += rightMax - hr;
 	    right--;
 	}
@@ -96,13 +143,15 @@ int Purgatory::trap(vector<int> & height) {
  *  T: O(n), S: O(1)
  */
 void Purgatory::reverseString(vector<char>& s) {
-    int left = 0, right = s.size() - 1;
+    // register vs memory
+    char *l = &s[0];
+    char *r = &s[s.size() - 1];
 
-    while (left < right) {
-	char temp = s[left];
-	s[left] = s[right];
-	s[right] = temp;
-	left++; right--;
+    // cache behavior
+    while (l < r) {
+	char temp = *l;
+	*l++ = *r;
+	*r-- = temp;
     }
 }
 

@@ -11,43 +11,70 @@ int Purgatory::islandPerimeter(vector<vector<int>>& grid) {
     int rows = grid.size(), cols = grid[0].size();
 
     for (int i = 0; i < rows; ++i) {
+	// register vs memory
+	const vector<int> &row = grid[i];
+	const vector<int> &prevRow = (i > 0) ? grid[i - 1] : row;
+
         for (int j = 0; j < cols; ++j) {
-            if (grid[i][j] == 1) {
-                perimeter += 4;
+            int cell = row[j];
 
-		if (i > 0 && grid[i - 1][j] == 1)
-		    perimeter -= 2;
+	    // cpu pipeline
+	    int up = (i > 0) ? prevRow[j] : 0;
+	    int left = (j > 0) ? row[j - 1] : 0;
 
-		if (j > 0 && grid[i][j - 1] == 1)
-		    perimeter -= 2;
-	    }
+	    perimeter += cell * 4;
+	    perimeter -= (cell & up) * 2;
+	    perimeter -= (cell & left) * 2;
 	}
     }
+
     return perimeter;
 }
+
 
 /*
  *  using heap-based merge of sorted lists here because we can break the problem into n sorted lists.
  *  T: O(k log n), S: O(n)
  */
+// cache behavior
+struct NodekthSmallest {
+    int val;
+    int row;
+    int col;
+};
+
+struct Compare {
+    bool operator()(const NodekthSmallest &a, const NodekthSmallest &b) {
+        return a.val > b.val;
+    }
+};
+
 int Purgatory::kthSmallest(vector<vector<int>>& matrix, int k) {
     int n = matrix.size();
 
-    priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, greater<tuple<int, int, int>>> minHeap;
+    priority_queue<NodekthSmallest, vector<NodekthSmallest>, Compare> minHeap;
 
     for (int i = 0; i < n; ++i) {
-        minHeap.emplace(matrix[i][0], i, 0);
+        minHeap.emplace(NodekthSmallest{matrix[i][0], i, 0});
     }
 
     int val = 0;
 
     for (int count = 0; count < k ; ++count) {
-        auto [num, r, c] = minHeap.top(); minHeap.pop();
+        const NodekthSmallest &top = minHeap.top();
+	// register vs memory
+	val = top.val;
+	int row = top.row;
+	int col = top.col;
 
-	val = num;
+	minHeap.pop();
 
-	if (c + 1 < n)
-	    minHeap.emplace(matrix[r][c+1], r, c+1);
+        int nextCol = col + 1;
+	if (nextCol < n) {
+	    // register vs memory
+            const auto &rowRef = matrix[row];
+            minHeap.emplace(NodekthSmallest{rowRef[nextCol], row, nextCol});
+	}
     }
 
     return val;
@@ -66,12 +93,15 @@ int Purgatory::countBattleships(vector<vector<char>>& board) {
     int count = 0;
 
     for (int i = 0; i < m; ++i) {
+	// register vs memory
+	auto &row = board[i];
+	auto &prev = (i > 0) ? board[i - 1] : row;
         for (int j = 0; j < n; ++j) {
-            if (board[i][j] != 'X') continue;
-
-	    if (i > 0 && board[i - 1][j] == 'X') continue;
-	    if (j > 0 && board[i][j - 1] == 'X') continue;
-	    ++count;
+	    // branch prediction
+            if (board[i][j] == 'X' &&
+	       (i == 0 || row[j] != 'X') &&
+	       (j == 0 || prev[j - 1] != 'X'))
+	        ++count;
 	}
     }
 
@@ -80,20 +110,31 @@ int Purgatory::countBattleships(vector<vector<char>>& board) {
 
 
 int largestRectangleArea(vector<int>& h) {
-    stack<int> st;
+    
+    int n = h.size();
+    // cache behavior
+    vector<int> st;
+    st.reserve(n);
 
-    h.push_back(0);
     int maxA = 0;
 
-    for(int i = 0; i < (int) h.size(); ++i) {
-        while (!st.empty() && h[st.top()] > h[i]) {
-            int height = h[st.top()]; st.pop();
-	    int width = st.empty() ? i : i - st.top() - 1;
-	    maxA = max(maxA, height * width);
+    for(int i = 0; i <= n; ++i) {
+	// cache behavior
+	int currHeight = (i == n ? 0 : h[i]);
+
+        while (!st.empty() && h[st.back()] > currHeight) {
+	    // register vs memory
+	    int topIndex = st.back();
+	    st.pop_back();
+
+            int height = h[topIndex];
+	    int width = st.empty() ? i : i - st.back() - 1;
+
+	    int area = height * width;
+	    if (area > maxA) maxA = area;
 	}
-	st.push(i);
+	st.push_back(i);
     }
-    h.pop_back();
     return maxA;
 }
 
@@ -107,18 +148,17 @@ int Purgatory::maximalRectangle(vector<vector<char>>& matrix) {
 
     int rows = matrix.size(), cols = matrix[0].size();
 
-    vector<int> height(cols, 0);
+    vector<int> heights(cols, 0);
 
     int maxArea = 0;
 
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-            if (matrix[i][j] == '1')
-                ++height[j];
-	    else
-                height[j] = 0;
+	    // branch predication
+            heights[j] = (matrix[i][j] == '1') * (heights[j] + 1);
 	}
-        maxArea = max(maxArea, largestRectangleArea(height));
+	int area = largestRectangleArea(heights);
+	if (area > maxArea) maxArea = area;
     }
     return maxArea;
 }

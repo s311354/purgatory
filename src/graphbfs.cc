@@ -16,6 +16,7 @@ vector<vector<int>> Purgatory::levelOrderBottom(TreeNode *root) {
     while (!q.empty()) {
         vector<int> level;
 	int size = q.size();
+        level.reserve(size);
 
 	for (int i = 0; i < size; ++i) {
             TreeNode* node = q.front(); q.pop();
@@ -25,9 +26,11 @@ vector<vector<int>> Purgatory::levelOrderBottom(TreeNode *root) {
 	    if (node->left) q.push(node->left);
 	    if (node->right) q.push(node->right);
 	} 
-
-	result.insert(result.begin(), level);
+        // register vs memory
+	result.push_back(std::move(level));
     }
+
+    reverse(result.begin(), result.end());
 
     return result;
 }
@@ -39,19 +42,37 @@ vector<vector<int>> Purgatory::levelOrderBottom(TreeNode *root) {
 int Purgatory::minDepth(TreeNode *root) {
     if (!root) return 0;
 
-    queue<pair<TreeNode*, int>> q;
-    q.push({root, 1});
+    // cache behavior
+    vector<TreeNode *> q;
+    q.reserve(1024);
+    q.push_back(root);
 
-    while(!q.empty()) {
-        auto [node, depth] = q.front(); q.pop();
+    int depth = 1;
+    int head = 0;
 
-	if (!node->left && !node->right) return depth;
+    while (head < q.size()) {
+        int size = q.size() - head;
 
-	if (node->left) q.push({node->left, depth + 1});
-	if (node->right) q.push({node->right, depth + 1});
+	for (int i = size; i > 0; --i) {
+	    TreeNode *node = q[head++];
+
+	    // register vs memory
+	    TreeNode *left = node->left;
+	    TreeNode *right = node->right;
+
+	    // branch prediction
+	    if (left == nullptr)
+                if (right == nullptr)
+	            return depth;
+
+	    if (left) q.push_back(left);
+	    if (right) q.push_back(right);
+	}
+
+	depth++;
     }
 
-    return 0;
+    return depth;
 }
 
 /*
@@ -61,20 +82,31 @@ int Purgatory::minDepth(TreeNode *root) {
 Node* Purgatory::connect(Node* root) {
     if (!root) return nullptr;
 
-    Node *leftmode = root;
+    Node *level_start = root;
 
-    while(leftmode->left) {
-        Node *head = leftmode;
+    while(true) {
+	// register vs memory
+	Node *next_level = level_start->left;
+	if (!next_level)
+	    break;
 
-	while (head) {
-            head->left->next = head->right;
+        Node *current = level_start;
 
-	    if (head->next) head->right->next = head->next->left;
+	while (current) {
+	    // register vs memory
+	    Node *left = current->left;
+	    Node *right = current->right;
+	    Node *next = current->next;
 
-	    head = head->next;
+            left->next = right;
+
+	    if (next)
+                right->next = next->left;
+
+	    current = next;
 	}
 
-	leftmode = leftmode->left;
+	level_start = next_level;
     }
 
     return root;
@@ -83,8 +115,12 @@ Node* Purgatory::connect(Node* root) {
 bool isValid(const string &s) {
     int count = 0;
 
-    for (char c: s) {
-        if (c == '(') count++;
+    // register vs memory
+    for (int i = 0, n = s.size(); i < n; ++i) {
+   	char c = s[i];
+
+        if (c == '(')
+            count++;
 	else if (c == ')') {
             count--;
 	    if (count < 0) return false;
@@ -103,15 +139,21 @@ vector<string> Purgatory::removeInvalidParentheses(string s) {
 
     if (s.empty()) return {""};
 
+    // memory allocation
     unordered_set<string> visited;
-    queue<string> q;
+    visited.reserve(10000);
+
+    // cache behavior
+    vector<string> q;
+    q.push_back(s);
+    int head = 0;
+
     bool found = false;
 
-    q.push(s);
     visited.insert(s);
 
-    while(!q.empty()) {
-        string cur = q.front(); q.pop();
+    while(head < q.size()) {
+        string cur = std::move(q[head++]);
 
 	if (isValid(cur)) {
             result.push_back(cur);
@@ -123,11 +165,17 @@ vector<string> Purgatory::removeInvalidParentheses(string s) {
 	for(int i = 0; i < cur.size(); ++i) {
              if (cur[i] != '(' && cur[i] != ')') continue;
 
-	     string next = cur.substr(0, i) + cur.substr(i + 1);
+
+	     string next;
+	     next.reserve(cur.size() - 1);
+             // cache behavior
+	     for (int j = 0; j < cur.size(); ++j)
+                 if (j != i)
+                     next.push_back(cur[j]);
 
 	     if (!visited.count(next)) {
                  visited.insert(next);
-		 q.push(next);
+		 q.push_back(std::move(next));
 	     }
 	}
     }
@@ -156,18 +204,24 @@ bool Purgatory::isBipartite(vector<vector<int>>& graph) {
         if (color[i] != -1)
 	    continue;
 
-	queue<int> q;
-	q.push(i);
+	// cache behavior
+	vector<int> q;
+	int head = 0;
+	q.push_back(i);
 	color[i] = 0;
 
-	while (!q.empty()) {
-            int node = q.front(); q.pop();
+	while (head < q.size()) {
+            int node = q[head++];
 
-	    for (int nei: graph[node]) {
+	    // register vs memory
+	    int currColor = color[node];
+	    int nextColor = 1 - currColor;
+
+	    for (int &nei: graph[node]) {
                 if (color[nei] == -1) {
-		    color[nei] = 1 - color[node];
-		    q.push(nei);
-		} else if (color[nei] == color[node]) {
+		    color[nei] = nextColor;
+		    q.push_back(nei);
+		} else if (color[nei] != nextColor) {
                     return false;
 		}
 	    }
@@ -179,45 +233,62 @@ bool Purgatory::isBipartite(vector<vector<int>>& graph) {
 
 int Purgatory::numberOfComponents(vector<vector<int>>& properties, int k) {
     int n = properties.size();
-    vector<unordered_set<int>> sets(n);
+
+    vector<int> parent(n), rank(n, 0);
+
+    for (int i = 0; i < n; ++i)
+        parent[i] = i;
+
+    // branch prediction
+    auto find = [&](auto&& slef, int x) -> int {
+        while (x != parent[x]) {
+	    parent[x] = parent[parent[x]];
+	    x = parent[x];
+	}
+
+	return x;
+    };
+
+    // cache behavior
+    auto unite = [&](int a, int b) {
+        int pa = find(find, a);
+	int pb = find(find, b);
+
+	if (pa == pb) return;
+
+	if (rank[pa] < rank[pb])
+	    parent[pa] = pb;
+	else if (rank[pa] > rank[pb])
+	    parent[pb] = pa;
+	else {
+	    parent[pb] = pa;
+	    rank[pa]++;
+	}
+    };
+
+    // cache behavior
+    vector<bitset<101>> bits(n);
 
     for (int i = 0; i < n; ++i) {
-        for (int x: properties[i])
-	    sets[i].insert(x);
+        for (int v : properties[i])
+	    bits[i].set(v);
     }
 
-    vector<int> parent(n);
-    iota(parent.begin(), parent.end(), 0);
-
-    function<int (int)> find = [&](int x) {
-        return parent[x] == x ? x : parent[x] = find(parent[x]);
-    };
-
-    auto unit = [&](int a, int b) {
-        a = find(a); b = find(b);
-	if (a != b) parent[a] = b;
-    };
-
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n ; ++i) {
         for (int j = i + 1; j < n; ++j) {
-	    int cnt = 0;
-	    for (int val : sets[i]) {
-                if (sets[j].count(val))
-		    if (++cnt >= k) {
-		        unit(i, j);
-			break;
-		    }
-	    }
+	    if ((bits[i] & bits[j]).count() >= k)
+	        unite(i, j);
 	}
     }
 
-    unordered_set<int> roots;
+    int components = 0;
 
     for (int i = 0; i < n; ++i) {
-        roots.insert(find(i));
+        if (find(find, i) == i)
+	    components++;
     }
 
-    return roots.size();
+    return components;
 }
 
 }
