@@ -8,22 +8,50 @@ namespace purgatory {
  */
 vector<string> Purgatory::summaryRanges(vector<int>& nums) {
 	vector<string> result;
+	// register vs memory
+        int n = nums.size();
 
-	if (nums.empty()) return result;
+	if (n == 0) return result;
+        // cache behavior
+	result.reserve(n);
 
 	int start = nums[0];
+        int prev = nums[0];
 
-	for (int i = 1; i <= nums.size(); ++i) {
-            if (i == nums.size() || nums[i] != nums[i - 1] + 1) {
-	        if (start == nums[i-1]) {
-	            result.push_back(to_string(start));
-		} else {
-		    result.push_back(to_string(start) + "->" + to_string(nums[i-1]));
+	for (int i = 1; i < n; ++i) {
+            int curr = nums[i];
+
+	    // cpu pipeline
+            if ( curr != prev + 1) {
+                string s;
+		s.reserve(20);
+
+	        s += to_string(start);
+		
+	        if (start != prev) {
+		    s += "->";
+		    s += to_string(prev);
 	        }
 
-	        if (i < nums.size()) start = nums[i];
+		result.push_back(move(s));
+		start = curr;
 	    }
+
+	    prev = curr;
 	}
+
+	// cpu pipeline
+	string s;
+	s.reserve(20);
+
+        s += to_string(start);
+	if (start != prev) {
+	    s += "->";
+	    s += to_string(prev);
+	}
+
+	result.push_back(move(s));
+
 	return result;
 }
 
@@ -36,17 +64,32 @@ vector<string> Purgatory::summaryRanges(vector<int>& nums) {
 vector<vector<int>> Purgatory::merge(vector<vector<int>>& intervals) {
     vector<vector<int>> merged;
 
-    if (intervals.empty()) return merged;
+    // register vs memory
+    int n = intervals.size();
 
-    sort(intervals.begin(), intervals.end());
+    if ( n == 0) return merged;
 
-    for (auto& interval: intervals) {
-	vector<int>& last = merged.back();
+    // loop optimization
+    sort(intervals.begin(), intervals.end(), [](const vector<int> &a, const vector<int> &b) {
+        return a[0] < b[0];
+    });
 
-        if (merged.empty() || last[1] < interval[0]) {
-	    merged.push_back(interval);
+    merged.push_back(intervals[0]);
+
+    for (int i = 1; i < n; ++i) {
+	// cache behavior
+	const vector<int> &curr = intervals[i];
+	int start = curr[0], end = curr[1];
+
+	vector<int> &last = merged.back();
+
+        if (last[1] < start) {
+	    merged.emplace_back();
+	    merged.back().push_back(start);
+	    merged.back().push_back(end);
 	} else {
-	    last[1] = max(last[1], interval[1]);
+	    // function call
+	    last[1] = (last[1] > end) ? last[1] : end;
 	}
     }
 
@@ -62,23 +105,46 @@ vector<vector<int>> Purgatory::merge(vector<vector<int>>& intervals) {
  */
 vector<vector<int>> Purgatory::insert(vector<vector<int>>& intervals, vector<int>& newInterval) {
 	vector<vector<int>> result;
+	// register vs memory
+	int n = intervals.size();
+	// cache behavior
+        result.reserve(n + 1);
 
-	int i = 0, n = intervals.size();
+	int newStart = newInterval[0];
+	int newEnd = newInterval[1];
 
-	while( i < n && intervals[i][1] < newInterval[0]) {
-	    result.push_back(intervals[i]);
+	int i = 0;
+	while( i < n ) {
+	    // register vs memory
+	    const vector<int> &curr = intervals[i];
+
+	    // branch prediction
+	    if (!(curr[1] < newStart))
+	        break;
+
+	    result.emplace_back(curr);
 	    i++;
 	}
 
-	while( i < n && intervals[i][0] <= newInterval[1]) {
-	    newInterval[0] = min(intervals[i][0], newInterval[0]);
-	    newInterval[1] = max(intervals[i][1], newInterval[1]);
+	while( i < n ) {
+	    // register vs memory
+	    const vector<int> &curr = intervals[i];
+
+	    // branch prediction
+	    if (! (curr[0] <= newEnd) )
+	        break;
+	
+	    newStart = (curr[0] < newStart) ? curr[0] : newStart;
+	    newEnd = (curr[1] > newEnd) ? curr[1] : newEnd;
 	    i++;
 	}
-	result.push_back(newInterval);
+
+	result.emplace_back();
+	result.back().push_back(newStart);
+	result.back().push_back(newEnd);
 
 	while (i<n) {
-            result.push_back(intervals[i]);
+            result.emplace_back(intervals[i]);
 	    i++;
 	}
 
@@ -93,19 +159,31 @@ vector<vector<int>> Purgatory::insert(vector<vector<int>>& intervals, vector<int
  */
 int Purgatory::findMinArrowShots(vector<vector<int>>& points) {
         if (points.empty()) return 0;
+	// register vs memory
+	int n = points.size();
 
-        sort(points.begin(), points.end(), [](const vector<int>& a, const vector<int>& b) {
-	    if (a[1] == b[1]) return a[0] < b[0];
-	    return a[1] < b[1];
-        });
+        // cache behavior
+	vector<pair<int, int>> order;
+	order.reserve(n);
+
+        for (int i = 0; i < n; ++i) {
+	    order.emplace_back(points[i][1], i);
+	}
+
+        sort(order.begin(), order.end());
 
 	int arrows = 1;
-	long long arrowPos = points[0][1];
+	int arrowPos = order[0].first;
 
-	for (auto &balloon : points) {
-            if (balloon[0] > arrowPos) {
+	for (int i = 1; i < n; ++i) {
+	    // register vs memory
+	    int idx = order[i].second;
+	    const vector<int> &p = points[idx];
+	    int start = p[0];
+
+            if (start > arrowPos) {
                 arrows++;
-		arrowPos = balloon[1];
+		arrowPos = order[i].first;
 	    }
 	}
 

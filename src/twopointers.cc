@@ -160,18 +160,31 @@ void Purgatory::reverseString(vector<char>& s) {
  * T: O(n), S: O(1)
  */
 void Purgatory::sortColors(vector<int>& nums) {
-    int low = 0, mid = 0;
-    int high = nums.size() - 1;
+    // register vs memory
+    int *l = &nums[0];
+    int *m = &nums[0];
+    int *r = &nums[nums.size() - 1];
 
-    while (mid <= high) {
-        if (nums[mid] == 0) {
-            swap(nums[low], nums[mid]);
-	    low++; mid++;
-	} else if (nums[mid] == 1) {
-            mid++;
+    while ( m <= r) {
+	// cache behavior
+        int v = *m;
+	if (v == 0) {
+	    if (m != l) {
+	        int tmp = *l;
+		*l = *m;
+		*m = tmp;
+	    }
+	    l++;
+	    m++;
+	} else if (v == 2) {
+	    if (m != r) {
+	        int tmp = *r;
+		*r = *m;
+		*m = tmp;
+	    }
+	    r--;
 	} else {
-	    swap(nums[mid], nums[high]);
-	    high--;
+	    m++;
 	}
     }
 }
@@ -181,27 +194,30 @@ void Purgatory::sortColors(vector<int>& nums) {
  *  T: O(n + m), S: O(1)
  */
 int Purgatory::compareVersion(string version1, string version2) {
-    int i = 0, j = 0;
-    int n = version1.size(), m = version2.size();
+    // register vs memory
+    const char *p1 = version1.c_str();
+    const char *p2 = version2.c_str();
 
-    while (i < n || j < m) {
+    while (*p1 || *p2) {
         long num1 = 0, num2 = 0;
 
-	while (i < n && version1[i] != '.') {
-            num1 = num1*10 + (version1[i] - '0');
-	    i++;
+	while (*p1 && *p1 != '.') {
+            num1 = num1*10 + (*p1 - '0');
+	    ++p1;
 	}
 
-	while (j < m && version2[j] != '.') {
-             num2 = num2*10 + (version2[j] - '0');
-	     j++;
+	while (*p2 && *p2 != '.') {
+             num2 = num2*10 + (*p2 - '0');
+	     ++p2;
 	}
 
 
-	if (num1 > num2) return 1;
-	if (num1 < num2) return -1;
+	// branch prediction
+	if (num1 != num2) 
+	    return num1 < num2 ? -1 : 1;
 
-	i++; j++;
+	if (*p1 == '.') ++p1;
+        if (*p2 == '.') ++p2;	
     }
 
     return 0;
@@ -225,16 +241,27 @@ vector<int> maxSubsequence(vector<int>& nums, int k) {
     return st;
 }
 
-vector<int> mergeMaxNumber(vector<int>& a, vector<int>& b) {
-    vector<int> result;
+bool greaterVec(const vector<int> &a, int i, const vector<int> &b, int j) {
+    while (i < a.size() && j < b.size() && a[i] == b[j]) {
+        i++; j++;
+    }
 
-    while (!a.empty() || !b.empty()) {
-        if ( a > b) {
-            result.push_back(a.front());
-	    a.erase(a.begin());
+    return j == b.size() || (i < a.size() && a[i] > b[j]);
+}
+
+vector<int> mergeMaxNumber(vector<int> &a, vector<int> &b) {
+    vector<int> result;
+    // cache behavior
+    result.reserve(a.size() + b.size());
+
+    int i = 0, j = 0;
+
+    while (i < a.size() || j < b.size()) {
+	// cpu pipleline
+        if ( greaterVec(a, i, b, j)) {
+            result.push_back(a[i++]);
 	} else {
-            result.push_back(b.front());
-	    b.erase(b.begin());
+            result.push_back(b[j++]);
 	}
     }
 

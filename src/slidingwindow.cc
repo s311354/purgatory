@@ -8,13 +8,22 @@ namespace purgatory {
  */
 bool Purgatory::containsNearbyDuplicate(vector<int>& nums, int k) {
     unordered_map<int, int> lastIndex;
+    // register vs memory
+    int n = nums.size();
+    // cache behavior
+    lastIndex.reserve(n);
 
-    for (int i = 0; i < nums.size(); ++i) {
-        if (lastIndex.find(nums[i]) != lastIndex.end()) {
-	     if (i - lastIndex[nums[i]] <= k)
-                 return true;
+    for (int i = 0; i < n; ++i) {
+	// register vs memory
+	int value = nums[i];
+	auto it = lastIndex.find(value);
+        if (it != lastIndex.end()) {
+	    if (i - it->second <= k)
+                return true;
+	    it->second = i;
+	} else {
+	    lastIndex.emplace(value, i);
 	}
-	lastIndex[nums[i]] = i;
     }
 
     return false;
@@ -31,14 +40,16 @@ int Purgatory::minSubArrayLen(int target, vector<int>& nums) {
     // memory vs register
     int n = nums.size();
     for (int right = 0; right < n; ++right) {
-	 
-	int val = nums[right];
-        sum += val;
+	sum += nums[right];
 
-	while (sum >= target) {
-            minLen = min(minLen, right - left + 1);
-
-	    sum -= nums[left++];
+	// branch prediction
+	if (sum >= target) {
+	    do {
+		// cpu pipeline
+		int len = right - left + 1;
+		if (len < minLen) minLen = len;
+	        sum -= nums[left++];
+	    } while (sum >= target);
 	}
     }
 
@@ -50,18 +61,23 @@ int Purgatory::minSubArrayLen(int target, vector<int>& nums) {
  *  T: O(n), S: O(n, charset_size)
  */
 int Purgatory::lengthOfLongestSubstring(string s) {
-    unordered_map<unsigned char, int> charIndex;
+    // cache behavior
+    int last[256];
+    memset(last, -1, sizeof(last));
+
     int left = 0, maxLen = 0;
 
     for (int right = 0; right < s.size(); ++right) {
         unsigned char c = s[right];
 
-	if (charIndex.count(c) && charIndex[c] >= left) {
-            left = charIndex[c] + 1;
-	}
+	// register vs memory
+	int prev = last[c];
+	left = prev >= left ? prev + 1: left;
 
-	charIndex[c] = right;
-	maxLen = max(maxLen, right - left + 1);
+	last[c] = right;
+	// register vs memory
+	int len = right - left + 1;
+	maxLen = len > maxLen ? len : maxLen;
     }
 
     return maxLen;
@@ -71,48 +87,70 @@ int Purgatory::lengthOfLongestSubstring(string s) {
  *  using divide-and-conquer
  *  T: O(n log n), S: O(n)
  */
-string Purgatory::longestNiceSubstring(string s) {
-    if (s.size() < 2) return "";
-    
-    unordered_set<char> seen(s.begin(), s.end());
+string solveLongestNiceSubstring(const string &s, int l, int r) {
+    if (r - l < 2) return "";
 
-    for (int i = 0; i < (int) s.size(); ++i) {
+    // cpu pipeline
+    int lower = 0, upper = 0;
+    for (int i = l; i < r; ++i) {
+        if (islower(s[i]))
+	    lower |= 1 << (s[i] - 'a');
+        else
+            upper |= 1 << (s[i] - 'A');
+    }  
+
+    int valid = lower & upper;
+
+    for (int i = l; i < r; ++i) {
         char c = s[i];
 
-	if (seen.count(tolower(c)) && seen.count(toupper(c)))
-	    continue;
-
-	string left = longestNiceSubstring(s.substr(0, i));
-	string right = longestNiceSubstring(s.substr(i + 1));
-	return (left.size() >= right.size() ? left : right);
+	// branch prediction
+	if (islower(c) && !(valid & (1 << (c - 'a'))) ||
+	    islower(c) && !(valid & (1 << (c - 'A')))) {
+	    // cache behavior
+	    string left = solveLongestNiceSubstring(s, l, i);
+	    string right = solveLongestNiceSubstring(s, i + 1, r);
+	    return left.size() >= right.size() ? left : right;
+	}
     }
- 
-    return s;
+
+    return s.substr(l, r - l);
+}
+
+string Purgatory::longestNiceSubstring(string s) {
+    return solveLongestNiceSubstring(s, 0, s.size());
 }
 
 /*
  *  using frequency-based divide pattern here because we can break the problem into invalid characters as natural boundaries.
  *  T: O(n log n), S: O(n)
  */
-int Purgatory::longestSubstring(string s, int k) {
-    if (s.empty() || k > s.size()) return 0;
+int solveLongestSubstring(const string &s, int l, int r, int k) {
+    if (r - l < k) return 0;
 
-    if (k <= 1) return s.size();
+    // cache behavior
+    int freq[26] = {0};
 
-    vector<int> freq(26, 0);
+    for (int i = l; i < r; ++i)
+        freq[s[i] - 'a']++;
 
-    for (char c: s) freq[c - 'a']++;
-
-    for (int i = 0; i < s.size(); ++i) {
+    // cpu pipeline
+    for (int i = l; i < r; ++i) {
         if (freq[s[i] - 'a'] < k) {
-            int left = longestSubstring(s.substr(0, i), k);
-	    int right = longestSubstring(s.substr(i + 1), k);
+	    int j = i + 1;
 
-	    return max(left, right);
+	    while (j < r && freq[s[j] - 'a'] < k)
+	        ++j;
+
+	    return max(solveLongestSubstring(s, l, i, k), solveLongestSubstring(s, j, r, k));
 	}
-    }
+    } 
 
-    return s.size();
+    return r - l;
+}
+
+int Purgatory::longestSubstring(string s, int k) {
+    return solveLongestSubstring(s, 0, s.size(), k);
 }
 
 /*
@@ -122,16 +160,29 @@ int Purgatory::longestSubstring(string s, int k) {
 int Purgatory::numberOfArithmeticSlices(vector<int>& nums) {
     if (nums.size() < 3) return 0;
 
-    int count = 0, curr = 0;
+    int count = 0, current = 0;
 
-    for (int i = 2; i < (int) nums.size(); ++i) {
-	// memory vs register
-	int diff1 = nums[i] - nums[i - 1], diff2 = nums[i - 1] - nums[i - 2];
-        int is_arith = (diff1 == diff2);
-	
+    // cache behavior
+    const int *p = nums.data();
+    const int *end = p + nums.size();
+
+    // register vs memory
+    int prev = p[0];
+    int curr = p[1];
+    int prev_diff = curr - prev;
+
+    for (p += 2; p < end; ++p) {
+        int next = *p;
+	int diff = next - curr;
+
 	// branch prediction
-	curr = is_arith ? curr + 1 : 0;
-	count += curr;
+	int same = (diff == prev_diff);
+	current = same * (current + 1);
+	count += current;
+
+	prev_diff = diff;
+	prev = curr;
+	curr = next;
     }
 
     return count;

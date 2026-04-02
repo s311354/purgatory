@@ -9,12 +9,22 @@ namespace purgatory {
 bool Purgatory::canConstruct(string rasomNote, string magazine) {
     int count[26] = {0};
 
-    for (char c : magazine) {
-        ++count[c - 'a'];
+    // register vs memory
+    int m = magazine.size();
+    // cache behavior
+    for (int i = 0; i < m; ++i) {
+        int idx = magazine[i] - 'a';
+	++count[idx];
     }
 
-    for (char c : rasomNote) {
-        if(--count[c - 'a'] < 0) return false;
+    // register vs memory
+    int n = rasomNote.size();
+    // cache behavior
+    for (int i = 0; i < n; ++i) {
+	int idx = rasomNote[i] - 'a';
+	int val = --count[idx];
+
+        if(val < 0) return false;
     }
 
     return true;
@@ -28,16 +38,28 @@ bool Purgatory::canConstruct(string rasomNote, string magazine) {
  */
 vector<vector<string>> Purgatory::groupAnagrams(vector<string> & strs) {
     unordered_map<string, vector<string>> groups;
-    vector<vector<string>> result;
+    // cache behavior
+    groups.reserve(strs.size());
 
-    for (string s : strs) {
-        string key = s;
-	sort(key.begin(), key.end());
-	groups[key].push_back(s);
+    for (string &s : strs) {
+	// cache behavior
+	int freq[26] = {0};
+	for (char &c : s) {
+	    freq[c - 'a']++;
+	}
+
+	// cache behavior
+        string key(26, 0);
+        for (int i = 0; i < 26; ++i)
+            key[i] = freq[i];
+
+	groups[key].push_back(move(s));
     }
 
-    for (auto & entry: groups) {
-        result.push_back(entry.second);
+    vector<vector<string>> result;
+    result.reserve(groups.size());
+    for (auto &entry: groups) {
+        result.push_back(move(entry.second));
     }
 
     return result;
@@ -50,20 +72,25 @@ vector<vector<string>> Purgatory::groupAnagrams(vector<string> & strs) {
  *  T: O(n), S: O(n)
  */
 int Purgatory::longestConsecutive(vector<int> & nums) {
-    unordered_set<int> numSet(nums.begin(), nums.end());
+    unordered_set<int> numSet;
+    // cache behavior
+    numSet.reserve(nums.size());
+    numSet.insert(nums.begin(), nums.end());
+
     int longest = 0;
 
     for (int num : numSet) {
         if (!numSet.count(num - 1)) {
+	    // register vs memory
             int currentNum = num;
-	    int currentSteak = 1;
+	    int next = currentNum + 1;
 
-	    while (numSet.count(currentNum + 1)) {
-                currentNum++;
-		currentSteak++;
+	    while (numSet.count(next)) {
+	        currentNum = next;
+		next++;
 	    }
 
-	    longest = max(longest, currentSteak);
+	    longest = max(longest, currentNum - num + 1);
 	}
     }
 
@@ -79,40 +106,59 @@ vector<int> Purgatory::findSubstring(string s, vector<string>& words) {
 
     if (words.empty() || s.empty()) return result;
 
-    unordered_map<string, int> wordCount;
+    // cache behavior
+    unordered_map<string, int> wordToId;
+    int id = 0;
+    for (string &w : words) {
+        if (!wordToId.count(w))
+	    wordToId[w] = ++id;
+    }
+
+    // cache behavior
+    vector<int> targetFreq(id, 0);
+    for (auto &w : words) {
+        targetFreq[wordToId[w]]++;
+    }
+
+    // register vs memory
+    int n = s.size();
     int wordLen = words[0].size();
     int numWords = words.size();
 
-    for(string & word : words) ++wordCount[word];
-
     for (int i = 0; i < wordLen; ++i) {
         int left = i, count = 0;
-	unordered_map<string, int> seen;
+	// cache behavior
+	vector<int> seen(id, 0);
 
-        for (int j = i; j + wordLen <= s.size(); j+= wordLen) {
-            string word = s.substr(j, wordLen);
+        for (int j = i; j + wordLen <= n; j+= wordLen) {
+	    // cpu pipeline
+            string word(s.data() + j, wordLen);
 
-	    if (wordCount.count(word)) {
-                ++seen[word];
+	    auto it = wordToId.find(word);
+	    if (it != wordToId.end()) {
+		int wid = it->second;
+
+                ++seen[wid];
 		++count;
 
-		while(seen[word] > wordCount[word]) {
-		    string leftWord = s.substr(left, wordLen);
-		    --seen[leftWord];
+		while(seen[wid] > targetFreq[wid]) {
+		    string leftWord(s.data() + left, wordLen);
+		    int lid = wordToId[leftWord];
+		    --seen[lid];
 		    --count;
 		    left += wordLen;
-
 		}
 	    
 		if ( count == numWords ) {
 		    result.push_back(left);
-                    string leftWord = s.substr(left, wordLen);
-		    --seen[leftWord];
+                    string leftWord(s.data() + left, wordLen);
+		    int lid = wordToId[leftWord];
+		    --seen[lid];
 		    --count;
 		    left += wordLen;
 		}
 	    } else {
-                seen.clear();
+                fill(seen.begin(), seen.end(), 0);
                 count = 0;
                 left = j + wordLen;
 	    }
@@ -128,13 +174,15 @@ vector<int> Purgatory::findSubstring(string s, vector<string>& words) {
  */
 bool Purgatory::containsDuplicate(vector<int>& nums) {
     unordered_set<int> seen;
+    // cache behavior
+    seen.reserve(nums.size());
 
     for (int x: nums) {
-        if (seen.count(x)) {
+	// function call
+	auto [it, inserted] = seen.insert(x);
+        if (!inserted) {
             return true;
 	}
-
-	seen.insert(x);
     }
 
     return false;
@@ -151,8 +199,12 @@ string Purgatory::fractionToDecimal(int numerator, int denominator) {
     if (numerator == 0) return "0";
 
     string result;
+    // cache behavior
+    result.reserve(128);
 
-    if ((numerator < 0) ^ (denominator < 0)) result += '-';
+    if ((numerator < 0) ^ (denominator < 0))
+	// function call
+        result.push_back('-');
 
     long long n = llabs( numerator);
     long long d = llabs( denominator);
@@ -163,20 +215,25 @@ string Purgatory::fractionToDecimal(int numerator, int denominator) {
 
     if (remainder == 0) return result;
 
-    result += '.';
+    result.push_back('.');
 
     unordered_map<long long, int> seen;
+    // cahce behavior
+    seen.reserve(1024);
 
-    while (remainder) {
+    while (remainder != 0) {
         if (seen.count(remainder)) {
             result.insert(seen[remainder], "(");
-	    result += ')';
+	    result.push_back(')');
 	    break;
 	}
 
 	seen[remainder] = result.size();
+
 	remainder *= 10;
-	result += to_string(remainder/d);
+	// register vs memory
+	int digit = remainder / d;
+	result.push_back('0' + digit);
 	remainder %= d;
     }
 
@@ -191,8 +248,19 @@ int Purgatory::firstMissingPositive(vector<int>& nums) {
     int n = nums.size();
 
     for (int i = 0; i < n; ++i) {
-        while (nums[i] > 0 && nums[i] <= n && nums[nums[i]- 1] != nums[i]) {
-	    swap(nums[i], nums[nums[i] - 1]);
+	// cpu pipeline
+        while (true) {
+            // register vs memory
+	    int val = nums[i];
+
+	    if (val <= 0 || val > n) break;
+
+	    // register vs memory
+	    int correct = nums[val - 1];
+
+	    if (correct == val) break;
+
+	    swap(nums[i], nums[val - 1]);
 	}
     }
 
