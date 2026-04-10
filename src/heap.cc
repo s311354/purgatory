@@ -9,16 +9,25 @@ namespace purgatory {
  *  - handle smash rules
  */
 int Purgatory::lastStoneWeight(vector<int>& stones) {
-    priority_queue<int> pq(stones.begin(), stones.end());
+    // cache behavior
+    vector<int> heap = stones;
+    make_heap(heap.begin(), heap.end());
 
-    while(pq.size() > 1) {
-        int y = pq.top(); pq.pop();
-	int x = pq.top(); pq.pop();
+    while(heap.size() > 1) {
+	pop_heap(heap.begin(), heap.end());
+        int y = heap.back(); heap.pop_back();
+	pop_heap(heap.begin(), heap.end());
+	int x = heap.back(); heap.pop_back();
 
-	if (y != x) pq.push(y - x);
+	// branch prediction
+	int diff = y - x;
+	if (diff > 0) {
+	    heap.push_back(diff);
+	    push_heap(heap.begin(), heap.end());
+	}
     }
      
-    return pq.empty() ? 0 : pq.top();
+    return heap.empty() ? 0 : heap.back();
 }
 
 /*
@@ -29,18 +38,31 @@ int Purgatory::nthUglyNumber(int n) {
     ugly[0] = 1;
 
     int p2 = 0, p3 = 0, p5 = 0;
+    // register vs memory
+    int next2 = 2, next3 = 3, next5 = 5;
 
     for(int i = 1; i < n; ++i) {
-        int next2 = ugly[p2]*2;
-	int next3 = ugly[p3]*3;
-	int next5 = ugly[p5]*5;
+	// function call
+	int nextUgly = next2;
+	if (next3 < nextUgly) nextUgly = next3;
+	if (next5 < nextUgly) nextUgly = next5;
 
-	int nextUgly = min(next2, min(next3, next5));
 	ugly[i] = nextUgly;
 
-	if (nextUgly == next2) p2++;
-	if (nextUgly == next3) p3++;
-	if (nextUgly == next5) p5++;
+	if (nextUgly == next2) {
+	    p2++;
+	    next2 = ugly[p2] << 1;
+	}
+
+	if (nextUgly == next3) {
+            p3++;
+	    next3 = ugly[p3] * 3;
+	}
+	
+	if (nextUgly == next5) { 
+	    p5++;
+	    next5 = ugly[p5] * 5;
+	}
     }
     return ugly[n-1];
 }
@@ -50,19 +72,31 @@ int Purgatory::nthUglyNumber(int n) {
  */
 vector<int> Purgatory::topKFrequent(vector<int>& nums, int k) {
     unordered_map<int, int> freq;
+    // cache behavior
+    freq.reserve(nums.size());
     for(int n : nums) {
         freq[n]++;
     }
 
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+    // cpu pipeline 
+    struct Compare {
+        bool operator()(const pair<int, int> &a, const pair<int, int> &b) {
+	    return a.first > b.first;
+	}
+    };
+
+    priority_queue<pair<int, int>, vector<pair<int, int>>, Compare> pq;
 
     for (auto& f: freq) {
-        pq.push({f.second, f.first});
+        pq.emplace(f.second, f.first);
+
 	if (pq.size() > k) pq.pop();
     }
 
 
     vector<int> result;
+    result.reserve(k);
+
     while(!pq.empty()) {
         result.push_back(pq.top().second);
 	pq.pop();
@@ -75,18 +109,28 @@ vector<int> Purgatory::topKFrequent(vector<int>& nums, int k) {
  *  using a monatomix deque here because it allows us to maintain the max efficiently as the window slides. Each element is processed at most twice.
  */
 vector<int> Purgatory::maxSlidingWindow(vector<int>& nums, int k) {
-    deque<int> dq;
+    // register vs memory
+    int n = nums.size();
+
+    // cache behavior
+    vector<int> dq(n);
+    int head = 0, tail = 0;
+
     vector<int> result;
+    result.reserve(n - k + 1);
 
-    for (int i = 0; i < nums.size(); ++i) {
-        if (!dq.empty() && dq.front() <= i - k) dq.pop_front();
+    for (int i = 0; i < n; ++i) {
+	// register vs memory
+	int cur = nums[i];
 
-	while (!dq.empty() && nums[dq.back()] <= nums[i]) dq.pop_back();
+        if (head < tail && dq[head] <= i - k) head++;
 
-	dq.push_back(i);
+	while (head < tail && nums[dq[tail - 1]] <= cur) tail--;
+
+	dq[tail++] = i;
 
 	if (i >= k - 1) {
-            result.push_back(nums[dq.front()]);
+            result.push_back(nums[dq[head]]);
 	}
     }
 

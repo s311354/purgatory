@@ -7,14 +7,17 @@ namespace purgatory {
  *  T:O(log n), S: O(1)
  */
 int Purgatory::searchInsert(vector<int>& nums, int target) {
-    int left = 0, right = nums.size() - 1;
+    int left = 0, right = nums.size();
 
-    while (left <= right) {
-        int mid = left + (right - left)/2;
+    while (left < right) {
+        int mid = left + ((right - left) >> 1);
+	// register vs memory
+        int val = nums[mid];
 
-	if (nums[mid] == target) return mid;
-	else if (nums[mid] < target) left = mid + 1;
-	else right = mid - 1;
+	// branch prediction
+	bool cond = val < target;
+	left = cond ? mid + 1 : left;
+	right = cond ? right : mid;
     }
 
     return left;
@@ -30,15 +33,37 @@ bool Purgatory::searchMatric(vector<vector<int>>& matrix, int target) {
 
     int m = matrix.size(), n = matrix[0].size();
 
-    int left = 0, right = m*n - 1;
+    // cpu pipeline
+    int top = 0, bottom = m - 1;
 
-    while (left <= right ) {
-        int mid = left + (right - left)/2;
-	int val = matrix[mid/n][mid%n];
+    while (top <= bottom) {
+        int mid = top + ((bottom - top) >> 1);
+	// register vs memory
+	auto &row = matrix[mid];
 
-	if (val == target) return true;
-	else if (val < target) left = mid + 1;
-	else right = mid - 1;
+	// branch prediction
+        if (row[0] <= target && target <= row[n - 1]) {
+	    int left = 0, right = n - 1;
+
+	    while (left <= right) {
+                int mid2 = right + (right - left) >> 1;
+		int val = row[mid2];
+
+		if (val < target)
+		    left = mid2 + 1;
+		else if (val > target)
+		    right = mid2 - 1;
+		else
+		    return true;
+	    }
+
+	    return false;
+	}
+
+	if (row[0] > target)
+	    bottom = mid - 1;
+	else
+	    top = mid + 1;
     }
 
     return false;
@@ -52,9 +77,13 @@ int Purgatory::findPeakElement(vector<int>& nums) {
     int left = 0, right = nums.size() - 1;
 
     while (left < right) {
-	int mid = left + (right - left)/2;
+	// compiler optimization
+	int mid = left + ((right - left) >> 1);
+	// register vs memory
+	int val = nums[mid];
+	int nextVal = nums[mid + 1]; 
 
-        if (nums[mid] < nums[mid + 1]) {
+        if (val < nextVal) {
             left = mid + 1;
         } else {
             right = mid;
@@ -71,12 +100,15 @@ double Purgatory::findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2)
     if (nums1.size() > nums2.size()) return findMedianSortedArrays(nums2, nums1);
 
     int m = nums1.size(), n = nums2.size();
-    int half = (m + n + 1)/2;
+
+    // register vs memory
+    int half = (m + n + 1) >> 1;
+    int odd = (m + n) & 1;
 
     int left = 0, right = m;
 
     while ( left <= right ) {
-        int i = left + (right - left)/ 2;
+        int i = left + ((right - left) >> 1);
 	int j = half - i;
 
 	int left1 = ( i > 0 ) ? nums1[i - 1] : INT_MIN;
@@ -84,11 +116,25 @@ double Purgatory::findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2)
 	int left2 = ( j > 0 ) ? nums2[j - 1] : INT_MIN;
 	int right2 = ( j < n ) ? nums2[j] : INT_MAX;
 
-	if (left1 <= right2 && left2 <= right1) {
-            if ((m + n) % 2 == 0) return (max(left1, left2) + min(right1, right2)) / 2.0;
-	    else return max(left1, left2);
-	} else if (left1 > right2) right = i - 1;
-	else left = i + 1;
+	// branch prediction
+	if (left1 > right2) {
+	    right = i - 1;
+	    continue;
+	}
+
+	// branch prediction
+	if (left2 > right1) {
+	    left = i + 1;
+	    continue;
+	}
+
+	int leftMax = max(left1, left2);
+
+	if (odd) return (double) leftMax;
+
+	int rightMin = min(right1, right2);
+
+	return (leftMax + rightMin) * 0.5;
     } 
 
     return 0.0;
@@ -100,15 +146,14 @@ double Purgatory::findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2)
  */
 int Purgatory::missingNumber(vector<int>& nums) {
     int n = nums.size();
-    int xorAll = 0;
+    int x = n;
 
-    for (int i = 0; i <= n; ++i) {
-        xorAll ^= i;
+    // cpu pipeline
+    for (int i = 0; i < n; ++i) {
+        x ^= i ^ nums[i];
     }
 
-    for (int num: nums) xorAll ^= num;
-
-    return xorAll;
+    return x;
 }
 
 /*
@@ -116,18 +161,23 @@ int Purgatory::missingNumber(vector<int>& nums) {
  *   T: O(n), S: O(1)
  */
 int Purgatory::findDuplicate(vector<int>& nums) {
-    int slow = nums[0], fast = nums[0];
+    // register vs memory
+    const int *a = nums.data();
+
+    int slow = a[0], fast = a[0];
 
     do{
-        slow = nums[slow];
-	fast = nums[nums[fast]];
+        slow = a[slow];
+	// cpu pipeline
+	int f = nums[fast];
+	fast = nums[f];
     } while (slow != fast);
 
-    slow = nums[0];
+    slow = a[0];
     
     while (slow != fast) {
-        slow = nums[slow];
-	fast = nums[fast];
+        slow = a[slow];
+	fast = a[fast];
     }
 
     return slow;
@@ -140,22 +190,34 @@ int Purgatory::findDuplicate(vector<int>& nums) {
 bool Purgatory::search(vector<int>& nums, int target) {
     int l = 0, r = nums.size() - 1;
 
+    // register vs memory
+    const int *data = nums.data();
+
     while (l <= r) {
-        int mid = l + (r - l)/2;
+	// compiler optimization
+        int mid = l + ((r - l) >> 1);
+	// register vs memory
+	int lval = data[l];
+	int mval = data[mid];
+	int rval = data[r];
 
-	if (nums[mid] == target) return true;
+	if (mval == target) return true;
 
-	if (nums[l] == nums[mid] && nums[r] == nums[mid]) { // equality case
+	// branch predication
+	if (lval == mval && rval == mval) { // equality case
 	    l++;
 	    r--;
-	} else if (nums[l] <= nums[mid]) { // left sorted case
-            if (nums[mid] > target && nums[l] <= target) {
+	    continue;
+	}
+	
+	if (lval <= mval) { // left sorted case
+            if (mval > target && lval <= target) {
 	        r = mid - 1;
 	    } else {
 	        l = mid + 1;
 	    }
 	} else { // right sorted case
-            if (nums[mid] < target && target <= nums[r]) {
+            if (mval < target && target <= rval) {
 	        l = mid + 1;
 	    } else {
 	        r = mid - 1;
@@ -171,18 +233,24 @@ bool Purgatory::search(vector<int>& nums, int target) {
  */
 int Purgatory::findMin(vector<int>& nums) {
     int left = 0, right = nums.size() - 1;
+    // cache behavior
+    const int *data = nums.data();
 
     while (left < right) {
-        int mid = left + (right - left)/2;
+	// compiler optimization
+        int mid = left + ((right - left) >> 1);
+	// register vs memory
+	int m = nums[mid];
+	int r = nums[right];
 
-	if (nums[mid] > nums[right]) {
+	if (m > r) {
             left = mid + 1;
 	} else {
 	    right = mid;
 	}
     }
 
-    return nums[left];
+    return data[left];
 }
 
 

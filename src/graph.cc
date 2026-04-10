@@ -11,32 +11,26 @@ namespace purgatory {
 int Purgatory::findJudge(int n , vector<vector<int>>& trust) {
     if (n == 1 && trust.empty()) return 1;
 
-    vector<int> score(n + 1, 0);
 
-    for (auto &t: trust) {
-        int a = t[0], b = t[1];
+    vector<int16_t> score(n + 1, 0);
+    // register vs memory
+    int16_t *s = score.data();
 
-	score[a]--;
-	score[b]++;
+    // cache behavior
+    int m = trust.size();
+    for (int i = 0; i < m; ++i) {
+        int a = trust[i][0], b = trust[i][1];
+
+	s[a]--;
+	s[b]++;
     }
 
+    // register vs memory
+    int target = n - 1;
     for (int i = 0; i <= n; ++i) {
-        if (score[i] == n - 1) return i;
+        if (s[i] == target) return i;
     }
     return -1;
-}
-
-void dfsNumIslands(vector<vector<char>>& grid, int i, int j) {
-    int m = grid.size(), n = grid[0].size();
-
-    if (i < 0 || j < 0 || i >= m || j >= n || grid[i][j] == '0') return;
-
-    grid[i][j] = '0';
-
-    dfsNumIslands(grid, i + 1, j);
-    dfsNumIslands(grid, i - 1, j);
-    dfsNumIslands(grid, i, j + 1);
-    dfsNumIslands(grid, i, j - 1);
 }
 
 /*
@@ -46,34 +40,48 @@ void dfsNumIslands(vector<vector<char>>& grid, int i, int j) {
  *  T: O(m*n), S: O(1)
  */
 int Purgatory::numIslands(vector<vector<char>>& grid) {
-    if (grid.empty()) return 0;
-
-    int m = grid.size(), n = grid[0].size();
+    int m = grid.size();
+    if (m == 0) return 0;
+    int n = grid[0].size();
     int count = 0;
+
+    // register vs memory
+    int dirs[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+    // function call
+    vector<pair<int, int>> st;
+    st.reserve(m * n);
 
     for (int i = 0; i < m ; ++i) {
         for (int j = 0; j < n; ++j) {
-            if (grid[i][j] == '1') {
-                count++;
-                dfsNumIslands(grid, i, j);
+	    // branch prediction
+            if (grid[i][j] != '1')
+	        continue;
+
+            count++;
+	    st.emplace_back(i, j);
+	    grid[i][j] = '0';
+
+	    while (!st.empty()) {
+                auto [r, c] = st.back();
+		st.pop_back();
+                 
+		for (int k = 0; k < 4; ++k) {
+		    int nr = r + dirs[k][0];
+		    int nc = c + dirs[k][1];
+
+		    // branch prediction
+		    if ((unsigned) nr < (unsigned) m && (unsigned) nc < (unsigned) n && grid[nr][nc] == '1') {
+		    
+		        grid[nr][nc] = '0';
+			st.emplace_back(nr, nc);
+		    }
+		}
+ 
 	    }
 	}
     }
     return count;
-}
-
-
-void dfsSolve(vector<vector<char>>& board, int i, int j) {
-    int m = board.size(), n = board[0].size();
-
-    if ( i < 0 || j < 0 || i >= m || j >= n || board[i][j] != 'O') return;
-
-    board[i][j] = '#';
-
-    dfsSolve(board, i + 1, j);
-    dfsSolve(board, i - 1, j);
-    dfsSolve(board, i, j + 1);
-    dfsSolve(board, i, j - 1);
 }
 
 /*
@@ -83,50 +91,62 @@ void dfsSolve(vector<vector<char>>& board, int i, int j) {
  *  T: O(m * n), S: O(1)
  */
 void Purgatory::solve(vector<vector<char>> & board) {
-    if (board.empty()) return;
+    int m = board.size();
+    if (m == 0) return;
+    int n = board[0].size();
 
-    int m = board.size(), n = board[0].size();
+    // register vs memory
+    int dirs[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+    // function call
+    vector<pair<int, int>> q;
+    q.reserve(m * n);
+
+    // cpu pipeline
+    auto push = [&](int r, int c) {
+        if (board[r][c] == 'O') {
+	    board[r][c] = '#';
+	    q.emplace_back(r, c);
+	}
+    };
 
     for (int i = 0; i < m  ; ++i) {
-        dfsSolve(board, i, 0);
-	dfsSolve(board, i, n - 1);
+        push(i, 0);
+	push(i, n - 1);
     }
 
     for (int j = 0; j < n; ++j) {
-        dfsSolve(board, 0, j);
-	dfsSolve(board, m - 1, j);
+        push(0, j);
+	push(m - 1, j);
     }
 
-    for(int i = 0; i < m; ++i) {
-        for(int j = 0; j < n; ++j) {
-            if (board[i][j] == '#')
-                board[i][j] = 'O';
-	    else if (board[i][j] == 'O') 
-		board[i][j] = 'X';
+    for (int i = 0; i < q.size(); ++i) {
+        auto [r, c] = q[i];
+
+	for (int k = 0; k < 4; ++k) {
+	    // register vs memory
+            int nr = r + dirs[k][0];
+	    int nc = c + dirs[k][1];
+
+	    // branch prediction
+	    if ((unsigned) nr < (unsigned) n && (unsigned) nc < (unsigned) n && board[nr][nc] == 'O') {
+	        board[nr][nc] = '#';
+		q.emplace_back(nr, nc);
+	    }
 	}
     }
-}
 
 
-
-
-int dfsLongestIncreasingPath(vector<vector<int>>& matrix, vector<vector<int>> &memo, int i, int j) {
-    if (memo[i][j] != 0) return memo[i][j];
-
-    int m = matrix.size(), n = matrix[0].size();
-
-    int best = 1;
-
-    vector<vector<int>> dir = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-
-    for(auto & d : dir) {
-        int x = i + d[0], y = j + d[1];
-	if (x >= 0 && y >= 0 && x < m && y < n && matrix[x][y] > matrix[i][j])
-	    best = max(best, 1 + dfsLongestIncreasingPath(matrix, memo, x, y));
+    for(int i = 0; i < m; ++i) {
+	// register vs memory
+	auto &row = board[i];
+        for(int j = 0; j < n; ++j) {
+            if (row[j] == '#')
+                row[j] = 'O';
+	    else if (row[j] == 'O') 
+		row[j] = 'X';
+	}
     }
-
-    memo[i][j] = best;
-    return best;
 }
 
 /*
@@ -137,16 +157,60 @@ int Purgatory::longestIncreasingPath(vector<vector<int>>& matrix) {
     if (matrix.empty() || matrix[0].empty()) return 0;
 
     int m = matrix.size(), n = matrix[0].size();
-    vector<vector<int>> memo;
-    memo.assign(m, vector<int>(n, 0));
+    // cache behavoir
+    vector<vector<int>> memo(m, vector<int>(n, 0));
+
+    // register vs memory
+    int dirs[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+    // function call
+    for (int r = 0; r < m; ++r) {
+        for (int c = 0; c < n ; ++c) {
+	    for (int k = 0; k< 4; ++k) {
+                int nr = r + dirs[k][0];
+		int nc = c + dirs[k][1];
+
+		if ((unsigned) nr < (unsigned) m && (unsigned) nc < (unsigned) n && matrix[nr][nc] > matrix[r][c]) {
+                    memo[r][c]++;
+		}
+	    }
+	}
+    }
+
+    queue<pair<int, int>> q;
+
+    for (int r = 0; r < m; ++r) {
+        for (int c = 0; c < n; ++c) {
+	    if (memo[r][c] == 0) {
+                q.emplace(r, c);
+	    }
+	}
+    }
 
     int ans = 0;
 
-    for(int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
-            ans = max(ans, dfsLongestIncreasingPath(matrix, memo, i, j));
+    while (!q.empty()) {
+        int sz = q.size();
+	ans++;
+
+	while (sz--) {
+            auto [r, c] = q.front(); q.pop();
+
+	    for (int k = 0; k < 4; ++k) {
+		// register vs memory
+	        int nr = r + dirs[k][0];
+		int nc = c + dirs[k][1];
+
+		// branch prediction
+		if ((unsigned) nr < (unsigned) m && (unsigned) nc < n && matrix[nr][nc] < matrix[r][c]) {
+		    if(--memo[nr][nc] == 0)
+		        q.emplace(nr, nc);
+		}
+	    
+	    }
 	}
     }
+
     return ans;
 }
 

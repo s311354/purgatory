@@ -9,25 +9,34 @@ namespace purgatory {
  */
 vector<double> Purgatory::averageOfLevels(TreeNode* root) {
     vector<double> result;
-
     if (!root) return result;
 
-    queue<TreeNode*> q;
-    q.push(root);
+    // cache behavior
+    result.reserve(64);
+
+    // compiler optimization (abstraction)
+    deque<TreeNode*> q;
+    q.push_back(root);
 
     while(!q.empty()) {
         int size = q.size();
+	long long sum = 0;
 
-	    long long sum = 0;
+	for (int i = 0; i < size; ++i) {
+            TreeNode* node = q.front(); q.pop_front();
+	    
+	    // register vs memory
+	    int val = node->val;
+	    sum += val;
+	    
+             // register vs memory
+	    TreeNode *left = node->left;
+	    TreeNode *right = node->right;
 
-	    for (int i = 0; i < size; ++i) {
-            TreeNode* node = q.front(); q.pop();
-	        sum += node->val;
-	        if (node->left) q.push(node->left);
-	        if (node->right) q.push(node->right);
-	    }
-
-	    result.push_back((double) sum/size);
+	    if (left) q.push_back(left);
+	    if (right) q.push_back(right);
+	}
+	result.push_back((double) sum/size);
     }
 
     return result;
@@ -39,23 +48,32 @@ vector<double> Purgatory::averageOfLevels(TreeNode* root) {
  */
 vector<int> Purgatory::rightSideView(TreeNode* root) {
     vector<int> res;
-
     if (!root) return res;
 
-    queue<TreeNode*> q;
-    q.push(root);
+    // cache behavior
+    res.reserve(64);
+
+    // compiler optimization (abstraction)
+    deque<TreeNode*> q;
+    q.push_back(root);
 
     while(!q.empty()) {
         int size = q.size();
+	// branch predication
+        TreeNode *lastNode = nullptr;
 
-	    for (int i = 0; i < size; ++i) {
-            TreeNode* node = q.front(); q.pop();
+	for (int i = 0; i < size; ++i) {
+            TreeNode* node = q.front(); q.pop_front();
 
-	        if (i == size - 1) res.push_back(node->val);
+	    lastNode = node;
+	    // register vs memory
+            TreeNode *left = node->left;
+	    TreeNode *right = node->right;
 
-	        if (node->left) q.push(node->left);
-	        if (node->right) q.push(node->right);
-	    }
+	    if (left) q.push_back(left);
+	    if (right) q.push_back(right);
+	}
+	res.push_back(lastNode->val);
     }
     return res;
 }
@@ -66,25 +84,36 @@ vector<int> Purgatory::rightSideView(TreeNode* root) {
  */
 vector<vector<int>> Purgatory::levelOrder(TreeNode* root) {
     vector<vector<int>> res;
-
     if (!root) return res;
 
-    queue<TreeNode*> q;
-    q.push(root);
+    // cache behavior
+    res.reserve(64);
+
+    // compiler optimization (abstraction)
+    deque<TreeNode*> q;
+    q.push_back(root);
 
     while(!q.empty()) {
         int size = q.size();
-	    vector<int> level;
+	vector<int> level;
+	// cache behavior
+	level.reserve(size);
 
-	    for (int i = 0; i < size ; ++i) {
-            TreeNode* node = q.front(); q.pop();
+	for (int i = 0; i < size ; ++i) {
+            TreeNode* node = q.front(); q.pop_front();
+            
+	    // register vs memory
+	    int val = node->val;
+	    level.push_back(val);
 
-	        level.push_back(node->val);
-
-	        if (node->left) q.push(node->left);
-	        if (node->right) q.push(node->right);
-	    }
-        res.push_back(level);
+	    // register vs memory
+	    TreeNode *left = node->left;
+	    TreeNode *right = node->right;
+	    if (left) q.push_back(left);
+	    if (right) q.push_back(right);
+	}
+        
+	res.push_back(move(level));
     }
 
     return res;
@@ -95,19 +124,34 @@ vector<vector<int>> Purgatory::levelOrder(TreeNode* root) {
  *  T: O(n), S: O(h)
  */
 int Purgatory::sumOfLeftLeaves(TreeNode* root) {
-    if (!root)
-        return 0;
+    if (!root) return 0;
 
     int sum = 0;
 
-    if (root->left) {
-        if (!root->left->left && !root->left->right)
-            sum += root->left->val;
-        else
-	    sum += sumOfLeftLeaves(root->left);
-    }    
+    // cpu pipeline
+    vector<TreeNode *> stack;
+    stack.push_back(root);
 
-    sum += sumOfLeftLeaves(root->right);
+    while (!stack.empty()) {
+	TreeNode *node = stack.back();
+	stack.pop_back();
+
+	// register vs memory
+        TreeNode *left = node->left;
+        TreeNode *right = node->right;
+
+        if (left) {
+	    // branch prediction
+	    bool isLeaf = (left->left == nullptr) & (left->right == nullptr);
+            if (isLeaf)
+                sum += left->val;
+            else
+		stack.push_back(left);
+        }    
+
+	if (right)
+	    stack.push_back(right);
+    }
 
     return sum;
 }
@@ -121,24 +165,28 @@ int Purgatory::numSquares(int n) {
     vector<int> dp(n + 1, INT_MAX);
     dp[0] = 0;
 
+    // branch predication
+    vector<int> squares;
+    for(int j = 1; j * j <= n ; ++j)
+        squares.push_back(j * j);
+
     for (int i = 1; i <= n; ++i) {
-        for (int j = 1; j*j <= i; ++j) {
-            dp[i] = min(dp[i], dp[i - j * j] + 1);
+	int best = INT_MAX;
+
+        for (const int sq : squares) {
+            if (sq > i) break;
+
+	    // register vs memory
+	    int candidate = dp[i - sq] + 1;
+            best = (candidate < best) ? candidate : best;
     	}
+
+	dp[i] = best;
     }
 
     return dp[n];
 }
 
-
-int gcdCanMeasureWater(int a, int b) {
-    while (b != 0) {
-        int r = a % b;
-	a = b;
-	b = r;
-    }
-    return a;
-}
 /*
  *  using Bezout's identity here because we can break the problem into multiple of gcd
  *  T: O(n), S: O(1)
@@ -150,7 +198,8 @@ bool Purgatory::canMeasureWater(int x, int y, int target) {
     if (target == 0)
         return true;
 
-    return target % gcdCanMeasureWater(x, y) == 0;
+    // compiler optimization
+    return target % std::gcd(x, y) == 0;
 }
 
 
@@ -164,22 +213,30 @@ void findLaddersbfs(const string &beginWord, const string &endWord, unordered_se
         string cur = q.front(); q.pop();
 	int step = dist[cur];
 
+	// register vs memory
+	string next = cur;
 	for (int i = 0; i < cur.size(); ++i) {
-	    string next = cur;
+	    char original = next[i];
 
 	    for (char c = 'a'; c <= 'z' ; ++c) {
-                next[i] = c;
+		if (c == original) continue;
+
+		next[i] = c;
 
 		if (!dict.count(next)) continue;
 
-		if (!dist.count(next)) {
+		// branch prediction
+                auto it = dist.find(next);
+
+		if (it == dist.end()) {
                     dist[next] = step + 1;
 		    q.push(next);
 		    parents[next].push_back(cur);
-		} else if (dist[next] == step + 1) {
+		} else if (it->second == step + 1) {
                     parents[next].push_back(cur);
 		}
 	    }
+	    next[i] = original;
 	}
     }
 }

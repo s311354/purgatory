@@ -13,9 +13,14 @@ bool Purgatory::hasCycle(ListNode* head) {
     ListNode* slow = head;
     ListNode* fast = head;
 
-    while (fast && fast->next) {
+    while (fast) {
+	// branch prediction
+	ListNode *next = fast->next;
+	if (!next) break;
+
+	// cpu pipeline
         slow = slow->next;
-	fast = fast->next->next;
+	fast = next->next;
 
 	if (slow == fast)
 	    return true;
@@ -48,10 +53,16 @@ ListNode* Purgatory::addTwoNumber(ListNode* l1, ListNode* l2) {
 	    l2 = l2->next;
 	}
 
+	// compiler optimization
+        if (sum >= 10) {
+	    carry = 1;
+	    sum -= 10;
+	} else {
+	    carry = 0;
+	}
 
-        tail->next = new ListNode(sum%10);
+        tail->next = new ListNode(sum);
 	tail = tail->next;
-	carry = sum/10;
     }
 
     return dummy.next;
@@ -70,18 +81,22 @@ ListNode* Purgatory::removeNthFromEnd(ListNode* head, int n) {
     ListNode *fast = &dummy;
     ListNode *slow = &dummy;
 
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i <= n; ++i) {
         fast = fast->next;
     }
 
-    while(fast->next) {
+    // cpu pipeline
+    while(fast) {
         fast = fast->next;
 	slow = slow->next;
     }
 
-    ListNode* toDelete = slow->next;
-    slow->next = slow->next->next;
-    delete toDelete;
+    if (slow->next) {
+	// cpu pipeline
+        ListNode* toDelete = slow->next;
+        slow->next = toDelete->next;
+        delete toDelete;
+    }
 
     return dummy.next;
 }
@@ -91,36 +106,35 @@ ListNode* Purgatory::removeNthFromEnd(ListNode* head, int n) {
  *  T: O(n), S: O(1)
  */
 ListNode* Purgatory::reverseKGroup(ListNode* head, int k) {
+    if (!head || k <= 1) return head;
+
+    // cpu pipeline
+    int len = 0;
+    for (ListNode *p = head; p; p = p->next) len++;
+
     ListNode dummy(0);
     dummy.next = head;
 
     ListNode* prevGroupEnd = &dummy;
 
-    while(true) {
-        ListNode* kth = prevGroupEnd;
+    // branch prediction
+    for (int g = 0; g < len / k; ++g) {
+	// register vs memory
+        ListNode *curr = prevGroupEnd->next;
+	ListNode *prev = nullptr;
 
-	for (int i = 0; i < k && kth; ++i) {
-	    kth = kth->next;
-	}
-
-	if (!kth)
-	    break;
-
-	ListNode* nextGroupStart = kth->next;
-
-	// reverse the current group
-	ListNode* curr = prevGroupEnd->next;
-	ListNode* prev = nextGroupStart;
-	while(curr != nextGroupStart) {
-            ListNode* temp = curr->next;
+	for (int i = 0; i < k; ++i) {
+            ListNode *next = curr->next;
 	    curr->next = prev;
 	    prev = curr;
-	    curr = temp;
+	    curr = next;
 	}
 
-        ListNode* temp = prevGroupEnd->next;
-	prevGroupEnd->next = kth;
-	prevGroupEnd = temp;
+        // cpu pipeline
+        ListNode *tail = prevGroupEnd->next;
+	prevGroupEnd->next = prev;
+	tail->next = curr;
+	prevGroupEnd = tail;
     }
 
     return dummy.next;

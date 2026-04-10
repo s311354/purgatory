@@ -7,21 +7,28 @@ namespace purgatory {
  *  T: O(n), S: O(n)
  */
 bool Purgatory::isValid(string s) {
-    stack<char> st;
+    // cache behavior
+    vector<char> st;
+    st.reserve(s.size());
+
+    // cpu pipelie
+    auto match = [](unsigned char c) -> char {
+       if (c == ')') return '(';
+       if (c == ']') return '[';
+       if (c == '}') return '{';
+       return 0;
+    };
 
     for (char c: s) {
-        if (c == '(' || c == '{' || c == '[') {
-	    st.push(c);
+	char m = match(c);
+	if (m) {
+	    // branch prediction
+            if (st.empty() || st.back() != m)
+                return false;
+
+	    st.pop_back();
 	} else {
-            if (st.empty()) return false;
-
-	    char top = st.top(); st.pop();
-
-	    if ( (c == ')' && top != '(') ||
-	         (c == '}' && top != '{') ||
-		 (c == ']' && top != '[') ) {
-	        return false;
-	    }
+	    st.push_back(c);
 	}
     }
     return st.empty();
@@ -32,27 +39,43 @@ bool Purgatory::isValid(string s) {
  *  T: O(n), S: O(n)
  */
 string Purgatory::simplifyPath(string path) {
+    int n = path.size();
+    // cache behavior
     vector<string> stack;
+    stack.reserve(n);
 
-    string token;
-    stringstream ss(path);
+    int i = 0;
+    // cpu pipeline
+    while (i < n) {
+        while (i < n && path[i] == '/') ++i;
 
-    while(getline(ss, token, '/')) {
-        if (token == "" || token == ".") {
-            continue;
-	} else if (token == "..") {
+	int start = i;
+
+	while (i < n && path[i] != '/') ++i;
+
+	int len = i - start;
+
+	if (len == 0) continue;
+
+        if (len == 1 && path[start] == '.')
+	    continue;
+
+	// branch prediction
+	if (len == 2 && path[start] == '.' && path[start + 1] == '.') {
 	    if (!stack.empty()) stack.pop_back();
 	} else {
-	    stack.push_back(token);
+	    stack.emplace_back(path.substr(start, len));
 	}
     }
-
+    
     if (stack.empty()) return "/";
 
     string result;
+    result.reserve(path.size());
 
-    for (string &dir : stack) {
-        result += "/" + dir;
+    for (const string &dir : stack) {
+        result.push_back('/');
+        result.append(dir);
     }
 
     return result;
@@ -63,23 +86,41 @@ string Purgatory::simplifyPath(string path) {
  *  T: O(n), S: O(n)
  */
 int Purgatory::evalRPN(vector<string>& tokens) {
-    stack<int> st;
+    // cache behavior
+    vector<int> st;
+    st.reserve(tokens.size());
 
-    for (auto &tok: tokens) {
-        if (tok == "+" || tok == "-" || tok == "*" || tok == "/") {
-            int b = st.top(); st.pop();
-	    int a = st.top(); st.pop();
 
-	    if (tok == "+") st.push(a + b);
-	    else if (tok == "-") st.push(a - b);
-	    else if (tok == "*") st.push(a * b);
-	    else if (tok == "/") st.push(a / b);
+    for (const string &tok: tokens) {
+	// branch prediction
+        if (tok.size() == 1 && !isdigit(tok[0])) {
+            int b = st.back(); st.pop_back();
+	    int a = st.back(); st.pop_back();
 
+	    // register vs memory
+	    char op = tok[0];
+
+	    if (op == '+') st.push_back(a + b);
+	    else if (op == '-') st.push_back(a - b);
+	    else if (op == '*') st.push_back(a * b);
+	    else if (op == '/') st.push_back(a / b);
 	} else {
-	    st.push(stoi(tok));
+	    // function call
+            int num = 0, sign = 1, i = 0;
+
+	    if (tok[0] == '-') {
+	        sign = -1;
+		i = 1;
+	    }
+
+	    for (;i < tok.size();++i) {
+	        num = num * 10 + (tok[i] - '0');
+	    }
+
+	    st.push_back(sign * num);
 	}
     }
-    return st.top();
+    return st.back();
 }
 
 /*
@@ -87,36 +128,41 @@ int Purgatory::evalRPN(vector<string>& tokens) {
  *  T: O(n), S: O(n)
  */
 int Purgatory::calculate(string s) {
-    stack<int> signs;
-    signs.push(1);
+    // cache behavior
+    vector<int> signs;
+    signs.reserve(64);
+    signs.push_back(1);
 
     int result = 0;
     int sign = 1;
-    int n = s.size();
 
-    for(int i = 0; i < n ; ++i) {
-	char c = s[i];
+    // cpu pipeline
+    const char *p = s.c_str();
+
+    while(*p) {
+	char c = *p;
 	
-	if (isdigit(c)) {    
+	// branch prediction
+	if (c >= '0' && c <= '9') {    
             long long number = 0;
             
-	    while (i < n && isdigit(s[i])) {
-                number = number * 10 + (s[i] - '0');
-	        ++i;
+	    while (*p >= '0' && *p <= '9') {
+                number = number * 10 + (*p - '0');
+	        ++p;
 	    }	
-	    --i;
 	    result += sign*number;
-	} else if (c == '+') {
-	    sign = signs.top();
-	} else if (c == '-') {
-	    sign = -signs.top();
-	} else if (c == '(') {
-	    signs.push(sign);
-	} else if (c == ')') {
-	    signs.pop();
-	} else if (c == ' ') {
 	    continue;
+	} else if (c == '+') {
+	    sign = signs.back();
+	} else if (c == '-') {
+	    sign = -signs.back();
+	} else if (c == '(') {
+	    signs.push_back(sign);
+	} else if (c == ')') {
+	    signs.pop_back();
 	}	
+
+	++p;
     }
 
     return result;
@@ -127,25 +173,30 @@ int Purgatory::calculate(string s) {
  *  T: O(m + n), S: O(n)
  */
 vector<int> Purgatory::nextGreaterElement(vector<int>& nums1, vector<int>& nums2) {
-    unordered_map<int, int> next;
-    stack<int> st;
+    // cache behavior
+    vector<int> next(10001, -1);
+    vector<int> st;
+    st.reserve(nums2.size());
 
-    for (int x : nums2 ) {
-	    
-        while(!st.empty() && x > st.top()) {
-	    next[st.top()] = x;
-	    st.pop();
+
+    for (int x : nums2 ) {	    
+	// register vs memory
+	int top;
+        while(!st.empty() && x > (top = st.back())) {
+	    next[top] = x;
+	    st.pop_back();
 	}
 
-	st.push(x);
+	st.push_back(x);
     }
     
     while (!st.empty()) {
-        next[st.top()]= -1;
-	st.pop();
+        next[st.back()]= -1;
+	st.pop_back();
     }
 
     vector<int> result;
+    result.reserve(nums1.size());
 
     for (int x : nums1) {
         result.push_back(next[x]);
@@ -159,28 +210,40 @@ vector<int> Purgatory::nextGreaterElement(vector<int>& nums1, vector<int>& nums2
  *  T: O(n), S: O(1)
  */
 string Purgatory::removeDuplicateLetters(string s) {
-    vector<int> last(26, 0);
+    // cache behavior
+    int last[256];
+    for (int i = 0; i < 256; ++i)
+        last[i] = -1;
 
-    for (int i = 0; i < (int) s.size(); ++i) {
-        last[s[i] - 'a'] = i;
-    }
+    int n = s.size();
+    for (int i = 0; i < n; ++i)
+        last[(unsigned char) s[i]] = i;
 
-    vector<bool> inStack(26, false);
+    // cache behavior
+    bool inStack[256] = {false};
     string st;
+    st.reserve(n);
 
-    for (int i = 0; i < (int)s.size(); ++i) {
+    for (int i = 0; i < n; ++i) {
         char c = s[i];
 
-	if (inStack[c - 'a'])
+	if (inStack[(unsigned char) c])
 	    continue;
 
-	while(!st.empty() && st.back() > c && last[st.back() - 'a'] > i) {
-            inStack[st.back() - 'a'] = false;
+	// branch prediction
+	while(!st.empty()) {
+	    char top = st.back();
+
+	    if (top <= c) break;
+	   
+	    if (last[(unsigned char) top] <= i) break;
+
+            inStack[(unsigned char) top] = false;
 	    st.pop_back();
 	}
 
 	st.push_back(c);
-	inStack[c - 'a'] = true;
+	inStack[(unsigned char) c] = true;
     }
 
     return st;
@@ -200,20 +263,30 @@ int Purgatory::calculateII(string s) {
     for (int i = 0; i < n; ++i) {
         char c = s[i];
 
-	if (isdigit(c))
+	// function call
+	if (c >= '0' && c <= '9')
 	    current = current*10 + (c-'0');
 
-	if ( (!isdigit(c) && c != ' ') || i == n - 1) {
-            if (lastOp == '+') {
-                result += last;
-		last = current;
-	    } else if (lastOp == '-') {
-	        result += last;
-		last = -current;
-	    } else if (lastOp == '*') {
-	        last = last * current;
-	    } else if (lastOp == '/') {
-                last = last / current;
+	// branch prediction
+	bool isLast = (i == n - 1);
+	bool isOp = !(c >= '0' && c <= '9') && c != ' ';
+	if (isOp || isLast) {
+	    // branch prediction
+            switch (lastOp) {
+	        case '+':
+                    result += last;
+		    last = current;
+		    break;
+	        case '-':
+	            result += last;
+		    last = -current;
+                    break;
+	        case '*':
+	            last = last * current;
+		    break;
+	        case '/':
+                    last = last / current;
+		    break;
 	    }
 
 	    current = 0;
@@ -230,33 +303,40 @@ int Purgatory::calculateII(string s) {
  *  T: O(n), S: O(1)
  */
 int Purgatory::longestValidParentheses(string s) {
+    // register vs memory
+    int n = s.size();
     int maxLen = 0;
 
     int left = 0, right = 0;
 
-    for (char c : s) {
-        if (c == '(')
-	    left++;
-	else
-	    right++;
+    for (int i = 0; i < n ; ++ i) {
+	// register vs memory
+        char c = s[i];
+	// branch prediction
+	left += (c =='(');
+	right += (c == ')');
 
 	if (left == right) {
-	    maxLen = max(maxLen, 2 * right);
+	    // function call
+	    int len = right << 1;
+	    maxLen = maxLen > len ? maxLen : len;
 	} else if (right > left) {
 	    left = right = 0;
 	}
     }
 
     left = right = 0;
-    for (int i = s.size() - 1; i >= 0; --i) {
-
-        if (s[i] == '(')
-	    left++;
-        else
-            right++;
+    for (int i = n - 1; i >= 0; --i) {
+	// register vs memory
+        char c = s[i];
+	// branch prediction
+	left += (c == '(');
+        right += (c == ')');
     
         if (left == right) {
-	    maxLen = max(maxLen, 2 * left);
+            // function call
+	    int len = left << 1;
+	    maxLen = maxLen > len ? maxLen : len;
 	} else if (left > right) {
 	    left = right = 0;
 	}

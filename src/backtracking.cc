@@ -2,8 +2,11 @@
 
 namespace purgatory {
 
-void dfsBinaryTreePaths(TreeNode* node, string path, vector<string>& result) {
+void dfsBinaryTreePaths(TreeNode* node, string& path, vector<string>& result) {
     if (!node) return;
+
+    // cache behavior
+    int len = path.size();
 
     if (!path.empty()) path += "->";
 
@@ -11,11 +14,12 @@ void dfsBinaryTreePaths(TreeNode* node, string path, vector<string>& result) {
 
     if (!node->left && !node->right) {
         result.push_back(path);
-	return;
+    } else {
+        dfsBinaryTreePaths(node->left, path, result);
+        dfsBinaryTreePaths(node->right, path, result);
     }
 
-    dfsBinaryTreePaths(node->left, path, result);
-    dfsBinaryTreePaths(node->right, path, result);
+    path.resize(len);
 }
 
 /*
@@ -26,7 +30,10 @@ vector<string> Purgatory::binaryTreePaths(TreeNode* root) {
 
     if (!root) return result;
 
+    // cache behavior
     string path;
+    path.reserve(256);
+
     dfsBinaryTreePaths(root, path, result);
 
     return result;
@@ -38,51 +45,59 @@ vector<string> Purgatory::binaryTreePaths(TreeNode* root) {
 vector<string> Purgatory::letterCombinations(string digits) {
     if (digits.empty()) return {};
 
-    vector<string> mapping = {"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
+    // cache behavior
+    static const string mapping[10] = {"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
 
     vector<string> result;
-    string path;
+    // cache behavior
+    int n = digits.size();
+    result.reserve(1 << n);
 
-    function<void(int)> backtrack = [&](int index) {
-        if (index == digits.size()) {
+    string path(n, ' ');
+
+    // cpu pipeline
+    function<void(int)> dfs = [&](int index) {
+        if (index == n) {
             result.push_back(path);
 	    return;
 	}
 
-	int d = digits[index] - '0';
+	const string &letters = mapping[digits[index] - '0'];
 
-	for (char c : mapping[d]) {
-            path.push_back(c);
-	    backtrack(index + 1);
-	    path.pop_back();
+	// cache behavior
+	for (char c : letters) {
+            path[index] = c;
+	    dfs(index + 1);
 	}
     };
 
-    backtrack(0);
+    dfs(0);
     return result;
 }
 
 /*
  *  using backtracking here because the problem is about combinatorial generation. We define the recursion state (start, path), and stop once path size == k
  */
+void dfsCombine(int start, int depth, int n, int k, vector<int> &path, vector<vector<int>> &result) {
+    if (depth == k) {
+        result.push_back(path);
+	return;
+    }
+
+    // branch prediction
+    for (int i = start; i <= n - (k - depth) + 1; ++i) {
+        path[depth] = i;
+	dfsCombine(i + 1, depth + 1, n, k, path, result);
+    }
+}
+
 vector<vector<int>> Purgatory::combine(int n, int k) {
     vector<vector<int>> result;
-    vector<int> path;
+    // cache behavior
+    vector<int> path(k);
 
-    function<void(int)> dfs = [&](int start) {
-        if ( path.size() == k) {
-            result.push_back(path);
-	    return;
-	}
-	
-	for (int i = start; i <= n; ++i) {
-            path.push_back(i);
-	    dfs(i + 1);
-	    path.pop_back();
-	}
-    };
-
-    dfs(1);
+    // cpu pipeline
+    dfsCombine(1, 0, n, k, path, result);
     return result;
 }
 
@@ -92,32 +107,26 @@ vector<vector<int>> Purgatory::combine(int n, int k) {
 int Purgatory::totalNQueens(int n) {
     int count = 0;
 
-    unordered_set<int> cols;
-    unordered_set<int> diag;
-    unordered_set<int> antiDiag;
-
-    function<void(int)> backtrack = [&](int row) {
+    // cpu pipeline
+    function<void(int, int, int, int)> dfs = [&](int row, int cols, int diag, int antiDiag) {
         if (row == n) {
             count++;
 	    return;
 	}
 
-	for (int col = 0; col < n; ++col) {
-            if (cols.count(col) || diag.count(row - col) || antiDiag.count(row + col)) continue;
+	// register vs memory
+	int available = ((1 << n) - 1) & ~(cols | diag | antiDiag);
 
-	    cols.insert(col);
-	    diag.insert(row - col);
-	    antiDiag.insert(row + col);
+        while (available) {
+	    int pos = available & -available;
 
-	    backtrack(row + 1);
+	    available &= (available - 1);
 
-	    cols.erase(col);
-	    diag.erase(row - col);
-	    antiDiag.erase(row + col);
+	    dfs(row + 1, cols | pos, (diag | pos) << 1, (antiDiag | pos) >> 1);
 	}
     };
 
-    backtrack(0);
+    dfs(0, 0, 0 , 0);
     return count;
 }
 
@@ -127,15 +136,30 @@ int Purgatory::totalNQueens(int n) {
  */
 vector<string> Purgatory::readBinaryWatch(int turnedOn) {
     vector<string> result;
+    // cache behavior
+    result.reserve(128);
 
-    for (int hour = 0; hour < 12; ++hour) {
-        for (int minute = 0; minute < 60; ++minute) {
-	    int bits = __builtin_popcount(hour) + __builtin_popcount(minute);
+    // register vs memory
+    int hourBits[12], minuteBits[60];
 
-	    if (bits == turnedOn) {
-	        string time = to_string(hour) + ":" + (minute < 10 ? "0" + to_string(minute) : to_string(minute));
-      	        result.push_back(time);
-	    }
+    for(int i = 0; i < 12; ++i)
+        hourBits[i] = __builtin_popcount(i);
+    for(int i = 0; i < 60; ++i)
+	minuteBits[i] = __builtin_popcount(i);
+
+    vector<string> minuteStr(60);
+    for(int i = 0; i < 60; ++i) {
+	// branch prediction
+        if (i < 10)
+	    minuteStr[i] = "0" + to_string(i);
+	else
+	    minuteStr[i] = to_string(i);
+    }
+
+    for (int h = 0; h < 12; ++h) {
+        for(int m = 0; m < 60; ++m) {
+            if (hourBits[h] + minuteBits[m] == turnedOn)
+                result.emplace_back(to_string(h) + ":" + minuteStr[m]);
 	}
     }
 
@@ -146,21 +170,27 @@ vector<string> Purgatory::readBinaryWatch(int turnedOn) {
  *  using recursion here because we can break the problem into the state space of subsets.
  *  T: O(n*2^n), S:O(n*2^n)
  */
+void dfsSubsets(int start, int n, vector<int> &nums, vector<int> &current, vector<vector<int>> &result) {
+    // cache behavior
+    result.emplace_back(current);
+
+    for (int i = start; i < n; ++i) {
+        current.push_back(nums[i]);
+	dfsSubsets(i + 1, n, nums, current, result);
+	current.pop_back();
+    }
+}
+
 vector<vector<int>> Purgatory::subsets(vector<int>& nums) {
+    int n = nums.size();
     vector<vector<int>> result;
+    // cache behavior
+    result.reserve(1 << n);
     vector<int> current;
+    current.reserve(n);
 
-    function<void(int)> backtrack = [&](int start) {
-        result.push_back(current);
-
-	for (int i = start; i < nums.size(); ++i) {
-	    current.push_back(nums[i]);
-	    backtrack(i + 1);
-	    current.pop_back();
-	}
-    };
-
-    backtrack(0);
+    // cpu pipeline 
+    dfsSubsets(0, n, nums, current, result);
     return result;
 }
 

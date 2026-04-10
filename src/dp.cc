@@ -6,19 +6,25 @@ namespace purgatory {
  *  using Fibonacci recurrence here
  */
 int Purgatory::climbStairs(int n) {
-    if (n == 1) return 1;
-    if (n == 2) return 2;
+    // branch prediction
+    if (n <= 2) return n;
 
-    int prev1 = 1;
-    int prev2 = 2;
-    int curr = 0;
+    // register vs memory
+    int a = 1, b = 2;
+    int i = 3;
 
-    for (int i = 3; i <= n; ++i) {
-        curr = prev1 + prev2;
-	prev1 = prev2;
-	prev2 = curr;
+    // loop unrolling
+    for (; i + 1<= n; i += 2)  {
+        a = a + b;
+	b = a + b;
     }
-    return curr;
+
+    if (i == n) {
+        a = a + b;
+	return a;
+    }
+
+    return b;
 }
 
 /*
@@ -31,10 +37,16 @@ int Purgatory::rob(vector<int>& nums) {
     if (n == 1) return nums[0];
 
     int prev2 = nums[0];
-    int prev1 = max(nums[0], nums[1]);
+    // function call
+    int prev1 = nums[0] > nums[1] ? nums[0] : nums[1];
 
     for (int i = 2; i < n; ++i) {
-        int curr = max(prev1, prev2 + nums[i]);
+	// register vs memory
+	int val = nums[i];
+	int take = prev2 + val;
+	int skip = prev1;
+
+        int curr = take > skip ? take : skip;
 	prev2 = prev1;
 	prev1 = curr;
     }
@@ -48,16 +60,36 @@ int Purgatory::rob(vector<int>& nums) {
  *  - the hash set look up ensures substring membership is O(1)
  */
 bool Purgatory::wordBreak(string s, vector<string>& wordDict) {
-    unordered_set<string> dict(wordDict.begin(), wordDict.end());
-    int n = s.size();
-    vector<bool> dp(n+1, false);
+    // cache behavoir
+    unordered_set<string> dict;
+    dict.reserve(wordDict.size() * 2);
+    int maxLen = 0;
+    for (auto &w: wordDict) {
+        dict.insert(w);
 
+	if (w.size() > maxLen) maxLen = w.size();
+    }
+
+    int n = s.size();
+    const char *data = s.data();
+
+    vector<bool> dp(n+1, false);
     dp[0] = true;
 
+    // branch prediction
+    vector<int> trueIndices;
+    trueIndices.reserve(n);
+    trueIndices.push_back(0);
+
     for(int i = 1; i <= n; ++i) {
-        for (int j = 0; j < i; ++j) {
-            if(dp[j] && dict.count(s.substr(j, i - j))) {
+        for (int j : trueIndices) {
+	    // branch prediction
+            if (i - j > maxLen) continue;
+
+	    // register vs memory
+            if(dict.find(string(data + j, i - j)) != dict.end()) {
 	        dp[i] = true;
+		trueIndices.push_back(i);
 		break;
 	    }
 	}
@@ -70,28 +102,43 @@ bool Purgatory::wordBreak(string s, vector<string>& wordDict) {
  */
 bool Purgatory::isMatch(string s, string p) {
     int m = s.size(), n = p.size();
-    vector<vector<bool>> dp(m + 1, vector<bool>(n + 1, false));
 
-    dp[0][0] = true;
+    // cache behavior
+    vector<bool> dp(n + 1, false);
+    dp[0] = true;
+
+    // register vs memory
+    const char *ps = s.c_str();
+    const char *pp = p.c_str();
 
     for (int j = 2; j <= n; ++j) {
-        if (p[j - 1] == '*') dp[0][j] = dp[0][j-2];
+        if (pp[j - 1] == '*')
+	    dp[j] = dp[j-2];
     }
 
     for (int i = 1; i <= m; ++i) {
-        for (int j = 1; j <= n; ++j) {
-            if (p[j - 1] == '.' || p[j - 1] == s[i - 1]) {
-	        dp[i][j] = dp[i-1][j-1];
-	    } else if (p[j-1] == '*') {
-                dp[i][j] = dp[i][j - 2];
+	// register vs memory
+        bool prev = dp[0];
+	dp[0] = false;
 
-		if (p[j-2] == '.' || p[j - 2] == s[i - 1])
-		    dp[i][j] = dp[i][j] || dp[i - 1][j];
-  
+        for (int j = 1; j <= n; ++j) {
+	    // register vs memory
+	    bool temp = dp[j];
+            char sc = ps[i - 1];
+            char pc = pp[j - 1];
+
+	    // branch prediction
+            if (pc != '*') {
+	        dp[j] = prev & (pc == '.' || pc == sc);
+	    } else {
+	        dp[j] = dp[j - 2] |
+			((pp[j - 2] == '.' || pp[j - 2] == sc) & dp[j]);
 	    }
+
+	    prev = temp;
 	}
     }
-    return dp[m][n];
+    return dp[n];
 }
 
 }
