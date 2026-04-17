@@ -487,4 +487,120 @@ string Purgatory::getEncryptedString(string s, int k) {
     return result;
 }
 
+int Purgatory::arrayPairSum(vector<int> &nums) {
+    // cache behavior
+    const int OFFSET = 10000;
+    vector<int> count(20001, 0);
+
+    for (int num : nums) {
+        count[num + OFFSET]++;
+    }
+
+    int result = 0;
+    // branch prediction
+    bool take = true;
+
+    for (int i = 0; i < count.size(); ++i) {
+	// cpu pipeline
+        while (count[i]--) {
+            if (take) result += (i - OFFSET);
+
+	    take = !take;
+	}
+    }
+
+    return result;
+}
+
+int Purgatory::maxProduct(vector<string> &words) {
+    int n = words.size();
+ 
+    vector<pair<int, int>> data;
+
+    // cpu pipeline
+    for (auto &w:words) {
+        int mask = 0;
+	for (char c : w)
+	    mask |= (1 << (c - 'a'));
+
+	data.emplace_back(mask, (int) w.size());
+    }
+
+    sort(data.begin(), data.end(), [](auto &a, auto &b) {
+        return a.second > b.second;
+        });
+
+    int maxProduct = 0;
+    for (int i = 0; i < n; ++i) {
+	// branch prediction
+        if (data[i].second * data[i].second <= maxProduct) break;
+
+	for (int j = i + 1; j <n ;++j) {
+            int product = data[i].second * data[j].second;
+
+	    // branch prediction
+	    if (product <= maxProduct) break;
+
+	    // cpu pipeline
+	    if ((data[i].first & data[j].first) == 0) {
+	        maxProduct = product;
+
+		break;
+	    }
+	}
+
+    }
+
+    return maxProduct;
+}
+
+vector<int> Purgatory::largestDivisibleSubset(vector<int> &nums) {
+    int n = nums.size();
+    if (n == 0) return {};
+
+    sort(nums.begin(), nums.end());
+
+    vector<int> dp(n, 1);
+    vector<int> parent(n, -1);
+
+    int maxLen = 1, maxIdx = 0;
+
+    // cahce behavior
+    int *nums_ptr = nums.data();
+    int *dp_ptr = dp.data();
+    int *parent_ptr = parent.data();
+
+    for (int i = 0; i < n; ++i) {
+	// register vs memory
+        int ni = nums_ptr[i];
+
+	for (int j = i - 1; j >=0; --j) {
+	    // branch prediction
+	    if (dp_ptr[j] + 1 <= dp_ptr[i]) continue;
+
+	    if (ni % nums[j] == 0) {
+                dp_ptr[i] = dp_ptr[j] + 1;
+		parent[i] = j;
+	    }
+	}
+
+	if (dp_ptr[i] > maxLen) {
+	    maxLen = dp_ptr[i];
+	    maxIdx = i;
+	}
+    }
+
+    vector<int> result;
+
+    while (maxIdx != -1) {
+        result.push_back(nums_ptr[maxIdx]);
+	maxIdx = parent_ptr[maxIdx];
+    }
+
+    reverse(result.begin(), result.end());
+
+    return result;
+}
+
+
 }

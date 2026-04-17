@@ -19,20 +19,21 @@ TreeNode* buildTree(const vector<int>& arr) {
         TreeNode* node = q.front(); q.pop();
 
 	if (i < arr.size() && arr[i] != INT_MIN) {
-	    if(arr[i] != -1) 
+	    if(arr[i] != -1) { 
             	node->left = new TreeNode(arr[i]);
+       	        q.push(node->left);
+	    }
 	    else
 		node->left = nullptr;
-	    q.push(node->left);
 	}
 	i++;
 
 	if (i < arr.size() && arr[i] != INT_MIN) {
-	    if(arr[i] != -1)
+	    if(arr[i] != -1) {
                 node->right = new TreeNode(arr[i]);
-	    else
+       	        q.push(node->right);
+	    } else
 		node->right = nullptr;
-	    q.push(node->right);
 	}
 	i++;
     }
@@ -2130,6 +2131,275 @@ TEST(X86_64Test, maximalRectangleCheck) {
     EXPECT_EQ(expected, solutions.maximalRectangle(matrix));
 }
 
+TEST(X86_64Test, intersectionCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums1 = {1, 2, 2, 1}, nums2 = {2, 2};
+    vector<int> expected = {2};
+
+    EXPECT_EQ(expected, solutions.intersection(nums1, nums2));
+
+    // Edge Case:
+    nums1 = {}; nums2 = {1, 2};
+
+    expected = {};
+
+    EXPECT_EQ(expected, solutions.intersection(nums1, nums2));
+}
+
+TEST(X86_64Test, majorityElementCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {3, 2, 3};
+
+    vector<int> expected = {3};
+
+    EXPECT_EQ(expected, solutions.majorityElement(nums));
+
+    // Edge Case:
+    nums = {1};
+
+    expected = {1};
+
+    EXPECT_EQ(expected, solutions.majorityElement(nums));
+}
+
+TEST(X86_64Test, getHintCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string secret = "1807", guess = "7810";
+
+    string expected = "1A3B";
+
+    EXPECT_EQ(expected, solutions.getHint(secret, guess));
+
+    // Edge Case:
+    secret = "1111"; guess = "1111";
+
+    expected = "4A0B";
+
+    EXPECT_EQ(expected, solutions.getHint(secret, guess));
+}
+
+TEST(X86_64Test, numberOfBoomerangesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> points = {{0, 0}, {1, 0}, {2, 0}};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.numberOfBoomeranges(points));
+
+    // Edge Case:
+    points = {{1, 1}};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.numberOfBoomeranges(points));
+}
+
+TEST(X86_64Test, inorderTraversalCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> root = {1, -1, 2, 3};
+
+    vector<int> expected = {1, 3, 2};
+
+    EXPECT_EQ(expected, solutions.inorderTraversal(purgatory::buildTree(root)));
+
+    // Edge Case:
+    root = {};
+
+    expected = {};
+
+    EXPECT_EQ(expected, solutions.inorderTraversal(purgatory::buildTree(root)));
+} 
+
+TEST(X86_64Test, numTreesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int n = 3;
+
+    int expected = 5;
+
+    EXPECT_EQ(expected, solutions.numTrees(n));
+
+    // Edge Case:
+    n = 1;
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.numTrees(n));
+}
+
+TEST(X86_64Test, findFrequentTreeSumCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> root = {5, 2, -3};
+
+    vector<int> expected = {4, -3, 2};
+
+    EXPECT_EQ(expected, solutions.findFrequentTreeSum(purgatory::buildTree(root)));
+
+    // Edge Case:
+    root = {5, 2, -5};
+
+    expected = {2};
+
+    EXPECT_EQ(expected, solutions.findFrequentTreeSum(purgatory::buildTree(root)));
+}
+
+TEST(X86_64Test, maxAncestorDiffCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> root = {1, -1, 2, -1, 0, 3};
+
+    int expected = 3;
+
+    // EXPECT_EQ(expected, solutions.maxAncestorDiff(purgatory::buildTree(root)));
+
+    // Edge Case:
+    root = {5, 5, 5};
+
+    expected = 0;
+
+    // EXPECT_EQ(expected, solutions.maxAncestorDiff(purgatory::buildTree(root)));
+}
+
+TEST(X86_64Test, findContentChildrenCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> g = {1, 2, 3}, s = {1, 1};
+
+    int expected = 1;
+
+    EXPECT_EQ(expected, solutions.findContentChildren(g, s));
+
+    // Edge Case:
+    g = {1}; s = {};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.findContentChildren(g, s));
+}
+
+TEST(X86_64Test, magicalStringCheclCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int n = 6;
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.magicalString(n));
+
+    // Edge Case:
+    n = 1;
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.magicalString(n));
+
+}
+
+TEST(X86_64Test, checkInclusionCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s1 = "ab", s2 = "eidbaooo";
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.checkInclusion(s1, s2));
+
+    // Edge Case:
+    s1 = "a"; s2 = "a";
+
+    expected = true;
+
+    EXPECT_EQ(expected, solutions.checkInclusion(s1, s2));
+}
+
+TEST(X86_64Test, judgeSquareSumCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int c = 5;
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.judgeSquareSum(c));
+
+    // Edge Case:
+    c = 0;
+
+    expected = true;
+
+    EXPECT_EQ(expected, solutions.judgeSquareSum(c));
+}
+
+TEST(X86_64Test, arrayPairSumCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 4, 3, 2};
+
+    int expected = 4;
+
+    EXPECT_EQ(expected, solutions.arrayPairSum(nums));
+
+    // Edge Case:
+    nums = {1, 1};
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.arrayPairSum(nums));
+
+}
+
+TEST(X86_64Test, maxProductCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<string> words = {"abcw", "bax", "foo", "bar", "xtfn", "abcdef"};
+
+    int expected = 16;
+
+    EXPECT_EQ(expected, solutions.maxProduct(words));
+
+    // Edge Case:
+    words = {"a", "aa"};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.maxProduct(words));
+}
+
+TEST(X86_64Test, largestDivisibleSubsetCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 4, 8};
+
+    vector<int> expected = {1, 2, 4, 8};
+
+    EXPECT_EQ(expected, solutions.largestDivisibleSubset(nums));
+
+    // Edge Case:
+    nums = {1};
+    expected = {1};
+
+    EXPECT_EQ(expected, solutions.largestDivisibleSubset(nums));
+}
 
 #elif PURGATORY_ARM64LE
 

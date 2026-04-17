@@ -292,4 +292,116 @@ vector<int> Purgatory::maxNumber(vector<int>& nums1, vector<int>& nums2, int k) 
     return best;
 }
 
+int Purgatory::findContentChildren(vector<int> &g, vector<int> &s) {
+    sort(g.begin(), g.end());
+    sort(s.begin(), s.end());
+
+    // register vs memory
+    int gn = g.size(), sn = s.size();
+    int child = 0, cookie = 0;
+
+    while (child < gn && cookie < sn) {
+	// branch prediction
+        if (s[cookie] >= g[child])
+            ++child;
+
+	++cookie;
+    }
+
+    return child;
+}
+
+int Purgatory::magicalString(int n) {
+    if (n <= 0) return 0;
+    if (n <= 3) return 1;
+
+    vector<int> s(n);
+    s[0] = 1; s[1] = 2; s[2] = 2;
+
+    int read = 2;
+    int write = 3;
+    int num = 1;
+    int count = 1;
+
+    while (write < n) {
+	// cpu pipeline
+        int len = s[read++];
+
+	for (int i = 0; i < len && write < n ; ++i) {
+
+	    s[write++] = num;
+	    // branch prediction
+	    count += (num == 1);
+	}
+
+	num ^= 3;
+    }
+ 
+    return count;
+}
+
+bool Purgatory::checkInclusion(string s1, string s2) {
+    int n1 = s1.size(), n2 = s2.size();
+
+    if (n1 > n2) return false;
+
+    // cache behavior
+    int freq[26] = {0};
+
+    for (char c : s1) freq[c - 'a']++;
+
+    int count = n1;
+
+    for (int i = 0; i < n2; ++i) {
+        if (freq[s2[i] - 'a']-- > 0) count--;
+
+	// branch prediction
+	if (i >= n1)
+	    if (freq[s2[i - n1] - 'a'] >= 0) count++;
+
+	if (count == 0) return true;
+    }
+
+    return false;
+}
+
+long findSqrt(int c) {
+    long l = 0, r = c, ans = 0;
+
+    while (l <= r) {
+        long mid = l + (r - l) / 2;
+
+	// branch prediction
+	if (mid * mid <= c) {
+	    ans = mid;
+	    l = mid + 1;
+	} else {
+	    r = mid - 1;
+	}
+    }
+
+    return ans;
+}
+
+bool Purgatory::judgeSquareSum(int c) {
+    long left = 0, right = findSqrt(c);
+
+    // cpu pipeline
+    long l2 = 0, r2 = right * right;
+
+    while (left <= right) {
+        long sum = l2 + r2;
+
+	if (sum == c) return true;
+        else if (sum < c) {
+            left++;
+	    l2 = left * left;
+	} else {
+	    right--;
+	    r2 = right * right;
+	}
+    }
+    return false;
+}
+
 }

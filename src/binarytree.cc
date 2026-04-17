@@ -254,6 +254,126 @@ void backtrackFindLadders(string& word, string& beginWord, unordered_map<string,
     }
 }
 
+vector<int> Purgatory::inorderTraversal(TreeNode *root) {
+    vector<int> result;
+
+    // cache behavior
+    vector<TreeNode *> stack;
+    stack.reserve(100);
+
+    TreeNode *current = root;
+
+    while (current || !stack.empty()) {
+	// branch predication
+        while (current) {
+	    stack.push_back(current);
+	    current= current->left;
+	}
+
+	current = stack.back();
+	stack.pop_back();
+
+	result.push_back(current->val);
+
+	current = current->right;
+    }
+
+    return result;
+}
+
+int Purgatory::numTrees(int n) {
+    // cache behavior
+    static vector<int> dp = {1};
+
+    // register vs memory
+    int start = dp.size();
+
+    if (start > n) return dp[n];
+
+    dp.resize(n + 1);
+
+    for(int nodes = start; nodes <= n; ++nodes) {
+        dp[nodes] = 0;
+
+	for (int root = 1; root <= nodes; ++root) {
+	    dp[nodes] += dp[root - 1] * dp[nodes - root];
+	}
+    }
+
+    return dp[n];
+}
+
+vector<int> Purgatory::findFrequentTreeSum(TreeNode *root) {
+
+    unordered_map<int, int> freq;
+    freq.reserve(10000);
+
+    int maxFreq = 0;
+
+    function<int(TreeNode*)> dfs = [&](TreeNode *node) ->int {
+        if (!node) return 0;
+
+	int leftSum = dfs(node->left);
+	int rightSum = dfs(node->right);
+
+	int sum = leftSum + rightSum + node->val;
+
+	// register vs memory
+	int f = ++freq[sum];
+
+	if (f > maxFreq) maxFreq = f;
+
+	return sum;
+    };
+    
+    dfs(root);
+
+    // cache behavior
+    vector<int> result;
+    result.reserve(freq.size());
+
+    for (auto &p: freq) {
+        if (p.second == maxFreq) {
+	    result.push_back(p.first);
+	}
+    }
+
+    return result;
+}
+
+int Purgatory::maxAncestorDiff(TreeNode *root) {
+    if (!root) return 0;
+
+    int result = 0;
+
+    // cache behavior
+    vector<tuple<TreeNode*, int, int>> st;
+    st.emplace_back(root, root->val, root->val);
+
+    while (!st.empty()) {
+        auto [node, curMin, curMax] = st.back();
+	st.pop_back();
+
+	result = max(result, curMax - curMin);
+
+	// branch prediction
+	if (node->left) {
+            int mn = min(curMin, node->left->val);
+	    int mx = max(curMax, node->left->val);
+	    st.emplace_back(node->left, mn, mx);
+	}
+
+	// branch prediction
+	if (node->right) {
+            int mn = min(curMin, node->right->val);
+	    int mx = max(curMax, node->right->val);
+	    st.emplace_back(node->right, mn, mx);
+	}
+    }
+
+    return result;
+}
+
 /*
  *  using BFS and DFS reconstructs the structure of shortest paths.
  *  T: O(N * L^2), S: O(N * L)

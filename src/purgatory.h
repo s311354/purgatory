@@ -116,6 +116,12 @@ public:
 
     string getEncryptedString(string s, int k);
 
+    int arrayPairSum(vector<int> &nums);
+
+    int maxProduct(vector<string> &words);
+
+    vector<int> largestDivisibleSubset(vector<int> &nums);
+
     // hashmap
     bool canConstruct(string ransomNot, string magazine);
 
@@ -130,6 +136,14 @@ public:
     string fractionToDecimal(int numerator, int denominator);
 
     int firstMissingPositive(vector<int>& nums);
+
+    vector<int> intersection(vector<int>& nums1, vector<int> &nums2);
+
+    vector<int> majorityElement(vector<int> &nums);
+
+    string getHint(string &secret, string &guess);
+
+    int numberOfBoomeranges(vector<vector<int>> &points);
 
     // two pointers
     bool isPalindrome(string s); 
@@ -147,6 +161,14 @@ public:
     int compareVersion(string version1, string version2);
 
     vector<int> maxNumber(vector<int>& nums1, vector<int>& nums2, int k);
+
+    int findContentChildren(vector<int> &g, vector<int> &s);
+
+    int magicalString(int n);
+
+    bool checkInclusion(string s1, string s2);
+
+    bool judgeSquareSum(int c);
 
     // sliding window
     bool containsNearbyDuplicate(vector<int>& nums, int k);
@@ -189,6 +211,14 @@ public:
     vector<int> rightSideView(TreeNode* root);
 
     vector<vector<int>> levelOrder(TreeNode* root);
+
+    vector<int> inorderTraversal(TreeNode *root);
+
+    int numTrees(int n);
+
+    vector<int> findFrequentTreeSum(TreeNode *root);
+
+    int maxAncestorDiff(TreeNode *root);
 
     class Codec {
     public:

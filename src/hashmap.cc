@@ -273,4 +273,127 @@ int Purgatory::firstMissingPositive(vector<int>& nums) {
     return n + 1;
 }
 
+
+vector<int> Purgatory::intersection(vector<int> &nums1, vector<int> &nums2) {
+    sort(nums1.begin(), nums1.end());
+    sort(nums2.begin(), nums2.end());
+
+    vector<int> result;
+
+    int i = 0, j = 0;
+
+    // register vs memory
+    int n1 = nums1.size(), n2 = nums2.size();
+
+    while (i < n1 && j < n2) {
+	// register vs memory
+        int a = nums1[i];
+	int b = nums2[j];
+
+	if (a == b) {
+            if (result.empty() || result.back() > a) {
+	        result.push_back(a);
+	    }
+
+	    ++i; ++j;
+	} else {
+	    // branch prediction
+            i += (a < b);
+	    j += (a > b);
+	}
+    }
+
+    return result;
+}
+
+
+vector<int> Purgatory::majorityElement(vector<int> &nums) {
+    int candidate1 = 0, candidate2 = 0;
+    int count1 = 0, count2 = 0;
+
+    for (int num : nums) {
+	// branch prediction
+        if (num == candidate1) {
+            ++count1;
+	} else if (num == candidate2) {
+	    ++count2;
+	} else if (count1 == 0) {
+	    candidate1 = num;
+	    count1 = 1;
+	} else if (count2 == 0) {
+	    candidate2 = num;
+	    count2 = 1;
+	} else {
+	    ++count1;
+	    --count2;
+	}
+    }
+
+    count1 = count2 = 0;
+    for (int num : nums) {
+        if (num == candidate1) ++count1;
+	else if (num == candidate2) ++count2;
+    }
+
+    vector<int> result;
+    int n = nums.size();
+
+    if (count1 > n/3) result.push_back(candidate1);
+
+    if (count2 > n/3) result.push_back(candidate2);
+
+    return result;
+}
+
+string Purgatory::getHint(string &secret, string &guess) {
+    int bulls = 0, cows = 0;
+    int freq[10] = {0};
+
+    for (int i = 0; i < secret.size(); ++i) {
+	// cpu pipeline
+        int si = secret[i] - '0';
+	int gi = guess[i] - '0';
+
+	if (si == gi) {
+	    ++bulls;
+	} else {
+	    // branch prediction
+	    cows += (freq[si] < 0);
+	    cows += (freq[gi] > 0);
+
+	    ++freq[si];
+	    --freq[gi];
+	}
+    }
+
+    return to_string(bulls) + 'A' + to_string(cows) + 'B';
+}
+
+int Purgatory::numberOfBoomeranges(vector<vector<int>> &points) {
+    int n = points.size();
+    int total = 0;
+
+    for (int i = 0; i < n; ++i) {
+	// cache behavior
+        unordered_map<int, int> distCount;
+	distCount.reserve(n);
+
+	for (int j = 0; j < n; ++j) {
+            if (i == j) continue;
+
+	    int dx = points[i][0] - points[j][0];
+	    int dy = points[i][1] - points[j][1];
+
+	    int dist = dx * dx + dy * dy;
+
+	    // cpu pipeline
+	    total += 2 * distCount[dist];
+	    ++distCount[dist];
+	}
+    }
+
+    return total;
+}
+
+
 }

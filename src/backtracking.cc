@@ -199,47 +199,57 @@ vector<vector<int>> Purgatory::subsets(vector<int>& nums) {
  *  T: O(2^n), S:O(2^n)
  */
 vector<int> Purgatory::grayCode(int n) {
-    vector<int> result = {0};
+    int size = 1 << n;
+    // cache behavior
+    vector<int> result(size);
 
-    for (int i = 0; i < n; ++i) {
-        int prefix = 1 << i;
-
-	for (int j = result.size() - 1; j >= 0; --j) {
-	    result.push_back(result[j] + prefix);
-	}
+    // cpu pipeline
+    for (int i = 0; i < size; ++i) {
+        result[i] = i ^ (i >> 1);
     }
     return result;
 }
 
+static constexpr double EPS = 1e-6;
 
-vector<double> computeJudgePoint(double a, double b) {
-    vector<double> results = {a + b, a - b, b - a, a*b};
+bool dfsJudgePoint(vector<double>& nums) {
+    int n = nums.size();
 
-    if (fabs(b) > 1e-6) results.push_back(a/b);
-    if (fabs(a) > 1e-6) results.push_back(b/a);
+    if (n == 1)
+        return fabs(nums[0] - 24.0) < EPS;
 
-    return results;
-}
+    // cpu pipeline
+    for (int i = 0; i < n; ++i) {
+	// branch prediction
+        for (int j = i + 1; j < n; ++j) {
 
-bool dfsJudgePoint(vector<double> nums) {
-    if (nums.size() == 1)
-        return fabs(nums[0] - 24.0) < 1e-6;
+            // register vs memory
+	    double a = nums[i], b = nums[j];
 
-    for (int i = 0; i < nums.size(); ++i) {
-        for (int j = 0; j < nums.size(); ++j) {
-            if (i == j) continue;
-
+	    // cache hebavior
 	    vector<double> next;
+	    next.reserve(n - 1);
 
-	    for (int k = 0; k < nums.size(); ++k)
+	    for (int k = 0; k < n; ++k)
                 if (k != i && k != j)
 	            next.push_back(nums[k]);
 
+            vector<double> candidates = {
+	        a + b,
+		a - b,
+		b - a,
+		a * b
+	    };
 
-	    for (double val : computeJudgePoint(nums[i], nums[j])) {
+	    if (fabs(b) > EPS) candidates.push_back(a / b);
+	    if (fabs(a) > EPS) candidates.push_back(b / a);
+
+	    for (double val : candidates) {
                 next.push_back(val);
+
 		if (dfsJudgePoint(next))
 		    return true;
+
 	        next.pop_back();
 	    }
 	}
