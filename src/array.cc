@@ -514,37 +514,60 @@ int Purgatory::arrayPairSum(vector<int> &nums) {
 
 int Purgatory::maxProduct(vector<string> &words) {
     int n = words.size();
- 
-    vector<pair<int, int>> data;
+    if (n < 2) return 0;
+
+    // cache behavior 
+    vector<uint32_t> masks(n);
+    vector<int> lengths(n);
 
     // cpu pipeline
-    for (auto &w:words) {
+    for (int i = 0; i < n; ++i) {
         int mask = 0;
-	for (char c : w)
+	for (char c : words[i])
 	    mask |= (1 << (c - 'a'));
 
-	data.emplace_back(mask, (int) w.size());
+	masks[i] = mask;
+	lengths[i] = words[i].size();
     }
 
-    sort(data.begin(), data.end(), [](auto &a, auto &b) {
-        return a.second > b.second;
+    // cpu pipeline
+    vector<int> idx(n);
+    iota(idx.begin(), idx.end(), 0);
+    sort(idx.begin(), idx.end(), [&](int a, int b) {
+        return lengths[a] > lengths[b];
         });
 
-    int maxProduct = 0;
-    for (int i = 0; i < n; ++i) {
-	// branch prediction
-        if (data[i].second * data[i].second <= maxProduct) break;
+    vector<uint32_t> s_masks(n);
+    vector<int> s_lens(n);
 
-	for (int j = i + 1; j <n ;++j) {
-            int product = data[i].second * data[j].second;
+    for (int i = 0; i < n; ++i) {
+        s_masks[i] = masks[idx[i]];
+	s_lens[i] = lengths[idx[i]];
+    }
+
+    int maxProduct = 0;
+
+    // cache behavior
+    uint32_t *m_ptr = s_masks.data();
+    int *l_ptr = s_lens.data();
+
+    for (int i = 0; i < n - 1; ++i) {
+	// register vs memory
+	int len = l_ptr[i];
+	uint32_t m = m_ptr[i];
+
+	// branch prediction
+        if (len * len <= maxProduct) break;
+
+	for (int j = i + 1; j < n ;++j) {
+            int product = len * l_ptr[j];
 
 	    // branch prediction
 	    if (product <= maxProduct) break;
 
 	    // cpu pipeline
-	    if ((data[i].first & data[j].first) == 0) {
+	    if ((m & m_ptr[j]) == 0) {
 	        maxProduct = product;
-
 		break;
 	    }
 	}
@@ -602,5 +625,125 @@ vector<int> Purgatory::largestDivisibleSubset(vector<int> &nums) {
     return result;
 }
 
+int Purgatory::distributeCandies(vector<int> &candyType) {
+    // cache behavior
+    sort(candyType.begin(), candyType.end());
+
+    int n = candyType.size();
+    int unique = 0;
+
+    for (int i = 0; i < n; ++i) {
+	// branch prediction
+        if (i == 0 || candyType[i] != candyType[ i - 1])
+		++unique;
+    }
+
+    int result = candyType.size() / 2;
+
+    return min(unique, result);
+}
+
+int Purgatory::maxRotateFunction(vector<int> &nums) {
+    int n = nums.size();
+    if (n == 1) return 0;
+
+    long total = 0;
+    long F = 0;
+
+    for (int i = 0; i < n; ++i) {
+        total += nums[i];
+	F += (int) i * nums[i];
+    }
+
+    long max = 0;
+
+    // cpu pipeline
+    for (int i = n - 1; i > 0; --i) {
+        F = F + total - long(n) * nums[i];
+	// branch prediction
+	max = (F > max) ? F : max;
+    }
+
+    return (int) max;
+}
+
+vector<int> Purgatory::findRightInterval(vector<vector<int>> &intervals) {
+    int n = intervals.size();
+
+    // cache behavior
+    vector<int> starts(n);
+    vector<int> indices(n);
+
+    for (int i = 0; i < n; ++i) {
+        starts[i] = intervals[i][0];
+	indices[i] = i;
+    }
+
+    vector<int> orders(n);
+    iota(orders.begin(), orders.end(), 0);
+    sort(orders.begin(), orders.end(), [&](int a, int b) {
+        return starts[a] < starts[b];
+    });
+
+    vector<int> sorted_starts(n);
+    vector<int> sorted_indices(n);
+
+    for (int i = 0; i < n; ++i) {
+        sorted_starts[i] = starts[orders[i]];
+	sorted_indices[i] = indices[orders[i]];
+    }
+
+    vector<int> result(n, -1);
+
+    for (int i = 0; i < n; ++i) {
+        int target = intervals[i][1];
+
+	auto it = lower_bound(sorted_starts.begin(), sorted_starts.end(), target);
+
+        // branch prediction
+	if (it != sorted_starts.end()) {
+            int pos = it - sorted_starts.begin();
+	    result[i] = sorted_indices[pos];
+	}
+    }
+
+    return result;
+}
+
+static bool cmpLargestNumber(const string &a, const string &b) {
+    int n = a.size(), m = b.size();
+
+    // branch prediction
+    for (int i = 0; i < n + m; ++i) {
+        char ca = (i < n) ? a[i] : b[i - n];
+	char cb = (i < m) ? b[i] : a[i - m];
+
+	if (ca != cb) return ca > cb;
+    }
+    return false;
+}
+
+string Purgatory::largestNumber(vector<int> &nums) {
+    // cache behavior
+    vector<string> numStrs;
+    numStrs.reserve(nums.size());
+
+    for (int num : nums) {
+        numStrs.emplace_back(to_string(num));
+    }
+
+    sort(numStrs.begin(), numStrs.end(), cmpLargestNumber);
+
+    if (numStrs[0] == "0") return "0";
+
+    string result;
+    result.reserve(nums.size() * 10);
+
+    for (const auto &s: numStrs) {
+        result += s;
+    }
+
+    return result;
+}
 
 }

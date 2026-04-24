@@ -122,6 +122,14 @@ public:
 
     vector<int> largestDivisibleSubset(vector<int> &nums);
 
+    int distributeCandies(vector<int> &candyType);
+
+    int maxRotateFunction(vector<int> &nums);
+
+    vector<int> findRightInterval(vector<vector<int>> &intervals);
+
+    string largestNumber(vector<int> &nums);
+
     // hashmap
     bool canConstruct(string ransomNot, string magazine);
 
@@ -169,6 +177,14 @@ public:
     bool checkInclusion(string s1, string s2);
 
     bool judgeSquareSum(int c);
+
+    int removePalindromeSub(string s);
+
+    int findRadius(vector<int> &house, vector<int> &heaters);
+
+    bool circularArrayLoop(vector<int> &nums);
+
+    int maxProfitAssignment(vector<int> &difficulty, vector<int> &profit, vector<int> &worker);
 
     // sliding window
     bool containsNearbyDuplicate(vector<int>& nums, int k);

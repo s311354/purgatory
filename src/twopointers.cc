@@ -404,4 +404,147 @@ bool Purgatory::judgeSquareSum(int c) {
     return false;
 }
 
+int Purgatory::removePalindromeSub(string s) {
+    // cache behavior
+    const char *l = s.data();
+    const char *r = l + s.size() - 1;
+
+    while (l < r) {
+	// branch prediction
+        if (*r != *l) return 2;
+        ++l;
+	--r;
+    }
+    return 1;
+}
+
+int Purgatory::findRadius(vector<int> &houses, vector<int> &heaters) {
+    // cpu pipeline
+    sort(houses.begin(), houses.end());
+    sort(heaters.begin(), heaters.end());
+
+    int i = 0;
+    int maxRadius = 0;
+
+    for (int house : houses) {
+	// branch prediction
+        while (i < heaters.size() - 1 &&
+		abs(heaters[i + 1] - house) <= abs(heaters[i] - house)) {
+	    ++i;
+	}
+
+	maxRadius = max(maxRadius, abs(heaters[i] - house));
+    }
+
+    return maxRadius;
+}
+
+bool Purgatory::circularArrayLoop(vector<int> &nums) {
+    int n = nums.size();
+
+    for (int i = 0; i < n; ++i) {
+        if (nums[i] == 0) continue;
+
+	int slow = i, fast = i;
+	bool isForward = nums[i] > 0;
+
+	while (true) {
+            int nextSlow = slow + nums[slow];
+	    if (nextSlow >= n || nextSlow < 0)
+                nextSlow = (nextSlow % n + n) % n;
+	    int valSlow = nums[nextSlow];
+
+	    int nextFast = fast + nums[fast];
+	    if (nextFast >= n || nextFast < 0)
+	        nextFast = (nextFast % n + n) % n;
+	    int valFast1 = nums[nextFast];
+
+	    nextFast = nextFast + valFast1;
+	    if (nextFast >= n || nextFast < 0)
+                nextFast = (nextFast % n + n) % n;
+	    int valFast2 = nums[nextFast];
+
+	    // branch prediction
+	    if ( ((valSlow > 0) != isForward) |
+	         ((valFast1 > 0) != isForward) |
+		 ((valFast2 > 0) != isForward))
+                break;
+
+	    slow = nextSlow;
+	    fast = nextFast;
+
+	    if (slow == fast) {
+                int next = slow + nums[slow];
+
+		if (next >= 0 || next < 0)
+		    next = (next % n + n) % n;
+
+		if (next == slow) break;
+
+		return true;
+	    } 
+	}
+
+	int cur = i;
+
+	while (true) {
+	    // register vs memory
+            int step = nums[cur];
+
+	    if ((step > 0) != isForward) break;
+
+	    int nxt = cur + step;
+
+	    if (nxt >= n || nxt < 0) 
+	        nxt = (nxt % n + n) % n;
+
+	    nums[cur] = 0;
+
+	    if (nxt == cur) break;
+
+	    cur = nxt;
+	}
+    }
+
+    return false;
+}
+
+int Purgatory::maxProfitAssignment(vector<int> &difficulty, vector<int> &profit, vector<int> &worker) {
+    int n = difficulty.size();
+
+    // cache behavior
+    vector<pair<int, int>> jobs;
+    jobs.reserve(n);
+
+    for (int i = 0; i < n; ++i) {
+        jobs.push_back({difficulty[i], profit[i]});
+    }
+
+    sort(jobs.begin(), jobs.end());
+    sort(worker.begin(), worker.end());
+
+    int maxProfitSoFar = 0;
+    int j = 0;
+    int total = 0;
+
+    for (int w : worker) {
+        while (j < n) {
+	    // register vs memory
+            int d = jobs[j].first;
+
+	    if (d > w) break;
+
+	    // register vs memory
+	    int p = jobs[j].second;
+
+	    if (p > maxProfitSoFar)
+                maxProfitSoFar = p;
+
+	    ++j;
+	}
+	total += maxProfitSoFar;
+    }
+    return total;
+}
+
 }

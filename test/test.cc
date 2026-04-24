@@ -2401,6 +2401,157 @@ TEST(X86_64Test, largestDivisibleSubsetCheck) {
     EXPECT_EQ(expected, solutions.largestDivisibleSubset(nums));
 }
 
+TEST(X86_64Test, distributeCandiesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> candyType = {1, 1, 2, 2, 3, 3};
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.distributeCandies(candyType));
+
+
+    // Edge Case:
+    candyType = {6, 6, 6, 6, 6};
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.distributeCandies(candyType));
+}
+
+TEST(X86_64Test, maxRotateFunctionCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {4, 3, 2, 6};
+
+    int expected = 26;
+
+    EXPECT_EQ(expected, solutions.maxRotateFunction(nums));
+
+    // Edge Case:
+    nums = {100};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.maxRotateFunction(nums));
+}
+
+TEST(X86_64Test, findRightIntervalCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> intervals = {{3, 4}, {2, 3}, {1, 2}};
+
+    vector<int> expected = {-1, 0, 1};
+
+    EXPECT_EQ(expected, solutions.findRightInterval(intervals));
+
+    // Edge Case:
+    intervals = {{1, 2}};
+
+    expected = {-1};
+
+    EXPECT_EQ(expected, solutions.findRightInterval(intervals));
+}
+
+TEST(X86_64Test, largestNumberCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {3, 30, 34, 5, 9};
+
+    string expected = "9534330";
+
+    EXPECT_EQ(expected, solutions.largestNumber(nums));
+
+    // Edge Case:
+    nums = {0, 0, 0};
+
+    expected = "0";
+
+    EXPECT_EQ(expected, solutions.largestNumber(nums));
+} 
+
+TEST(X86_64Test, removePalindromeSubCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "ababa";
+
+    int expected = 1;
+
+    EXPECT_EQ(expected, solutions.removePalindromeSub(s));
+
+    // Edge Case:
+    s = "aaaa";
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.removePalindromeSub(s));
+}
+
+TEST(X86_64Test, findRadiusCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> houses = {1, 2, 3};
+    vector<int> heaters = {2};
+
+    int expected = 1;
+
+    EXPECT_EQ(expected, solutions.findRadius(houses, heaters));
+
+    // Edge Case:
+    houses = {1}; heaters = {100};
+
+    expected = 99;
+
+    EXPECT_EQ(expected, solutions.findRadius(houses, heaters));
+}
+
+TEST(X86_64Test, circularArrayLoopCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {2, -1, 1, 2, 2};
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.circularArrayLoop(nums));
+
+    // Edge Case:
+    nums = {1, 1, 1};
+
+    expected = true;
+
+    EXPECT_EQ(expected, solutions.circularArrayLoop(nums));
+}
+
+TEST(X86_64Test, maxProfitAssignmentCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> difficulty = {2, 4, 6, 8, 10};
+    vector<int> profit = {10, 20, 30, 40, 50};
+    vector<int> worker = {4, 5, 6, 7};
+
+    int expected = 100;
+
+    EXPECT_EQ(expected, solutions.maxProfitAssignment(difficulty, profit, worker));
+
+    // Edge Case:
+    difficulty = {2};
+    profit = {100};
+    worker = {2, 2};
+
+    expected = 200;
+
+    EXPECT_EQ(expected, solutions.maxProfitAssignment(difficulty, profit, worker));
+
+}
+
 #elif PURGATORY_ARM64LE
 
 TEST(ARM64LETest, BasicCheck) {
