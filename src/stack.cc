@@ -345,5 +345,129 @@ int Purgatory::longestValidParentheses(string s) {
     return maxLen;
 }
 
+bool Purgatory::backspaceCompare(string s, string t) {
+    int i = s.size() - 1, j = t.size() - 1;
+    int skipS = 0, skipT = 0;
+
+    while (true) {
+        while (i >= 0) {
+            // register vs memory
+            char c = s[i--];
+	    // branch prediction
+	    if (c == '#') skipS++;
+	    else if (skipS > 0) skipS--;
+	    else {
+	        ++i;
+		break;
+	    }
+	}
+
+	while (j >= 0) {
+            // register vs memory
+            char c = t[j--];
+	    // branch prediction
+	    if (c == '#') skipT++;
+	    else if (skipT > 0) skipT--;
+	    else {
+	        ++j;
+		break;
+	    }
+	}
+
+	// branch prediction
+        if (i < 0 || j < 0) return i == j;
+
+	if (s[i] != t[j]) return false;
+
+	--i; --j;
+    }
+}
+
+int Purgatory::findUnsortedSubarray(vector<int>& nums) {
+    int n = nums.size();
+    int left = n, right = -1;
+
+    int curMax = nums[0];
+    int curMin = nums[n - 1];
+
+    for (int i = 1; i < n; ++i) {
+        curMax = max(curMax, nums[i]);
+	if (nums[i] < curMax) right = i;
+
+	int j = n - 1 - i;
+	curMin = min(curMin, nums[j]);
+	if (nums[j] > curMin) left = j;
+    }
+
+    return right == -1 ? 0 : right - left + 1;
+}
+
+
+int Purgatory::carFleet(int target, vector<int>& position, vector<int>& speed) {
+    int n = position.size();
+
+    // cache behavior
+    vector<int> idx(n);
+    iota(idx.begin(), idx.end(), 0);
+    sort(idx.begin(), idx.end(), [&](int a, int b) {
+        return position[a] < position[b];	
+    });
+
+    int fleets = 0;
+    double maxTime = 0;
+
+    for (int i = n - 1; i >= 0; --i) {
+        int id = idx[i];
+	double time = (double) (target - position[id]) / speed[id];
+
+	// branch prediction
+	if (time > maxTime) {
+	    fleets++;
+	    maxTime = time;
+	}
+    }
+
+    return fleets;
+}
+
+int Purgatory::sumSubarrayMins(vector<int>& arr) {
+    const int MOD = 1e9 + 7;
+    int n = arr.size();
+
+    // cache behavior
+    vector<int> left(n), right(n), stack(n);
+    int top = -1;
+
+    for (int i = 0; i < n; ++i) {
+        while (top >= 0 && arr[stack[top]] > arr[i]) {
+	    --top;
+	}
+
+	left[i] = (top < 0) ? (i + 1) : (i - stack[top]);
+	stack[++top] = i;
+    }
+
+    top = -1;
+
+    for (int i = n - 1; i >= 0; --i) {
+        while (top >= 0 && arr[stack[top]] >= arr[i]) {
+            top--;
+	}
+
+	right[i] = (top < 0) ? (n - i) : (stack[top] - i);
+	stack[++top] = i;
+    }
+
+    long long result = 0;
+
+    for (int i = 0; i < n; ++i) {
+        result = result + (long long) arr[i] * left[i] * right[i] % MOD;
+    }
+
+    return (int) result;
+}
+
+
+
 
 }

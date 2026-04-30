@@ -2552,6 +2552,84 @@ TEST(X86_64Test, maxProfitAssignmentCheck) {
 
 }
 
+TEST(X86_64Test, backspaceCompareCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "ab#c", t = "ad#c";
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.backspaceCompare(s, t));
+
+    // Edge Case:
+    s = "####"; t = "";
+
+    expected = true;
+
+    EXPECT_EQ(expected, solutions.backspaceCompare(s, t));
+}
+
+TEST(X86_64Test, findUnsortedSubarrayCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {2, 6, 4, 8, 10, 9, 15};
+
+    int expected = 5;
+
+    EXPECT_EQ(expected, solutions.findUnsortedSubarray(nums));
+
+    // Edge Case:
+    nums = {1, 2, 3, 4};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.findUnsortedSubarray(nums));
+}
+
+TEST(X86_64Test, carFleetCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int target = 12;
+    vector<int> position = {10, 8, 0, 5, 3};
+    vector<int> speed = {2, 4, 1, 1, 3};
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.carFleet(target, position, speed));
+
+    // Edge Case:
+    target = 10; position = {3}; speed = {3};
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.carFleet(target, position, speed));
+
+}
+
+TEST(X86_64Test, sumSubarrayMinsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> arr =  {3, 1, 2, 4};
+
+    int expected = 17;
+
+    EXPECT_EQ(expected, solutions.sumSubarrayMins(arr));
+
+    // Edge Case:
+    arr = {1, 1, 1};
+
+    expected = 6;
+
+    EXPECT_EQ(expected, solutions.sumSubarrayMins(arr));
+}
+
+
+
+
 #elif PURGATORY_ARM64LE
 
 TEST(ARM64LETest, BasicCheck) {

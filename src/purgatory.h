@@ -263,6 +263,14 @@ public:
 
     int longestValidParentheses(string s);
 
+    bool backspaceCompare(string s, string t);
+
+    int findUnsortedSubarray(vector<int>& nums);
+
+    int carFleet(int target, vector<int>& position, vector<int>& speed);
+
+    int sumSubarrayMins(vector<int>& arr);
+
     // graph bfs
     vector<vector<int>> levelOrderBottom(TreeNode* root); 
 
