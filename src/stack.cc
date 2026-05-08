@@ -467,6 +467,116 @@ int Purgatory::sumSubarrayMins(vector<int>& arr) {
     return (int) result;
 }
 
+string Purgatory::removeOccurrences(string s, string part) {
+    string result;
+
+    int m = part.size();
+
+    for (char c : s) {
+        result.push_back(c);
+
+	if (result.size() >= m) {
+	    // branch prediction
+            if (memcmp(&result[result.size() - m], part.data(), m) == 0) 
+                result.resize(result.size() - m);
+	}
+    }
+
+    return result;
+}
+
+int removePattern(string &s, char a, char b, int score) {
+    int n = s.size();
+    // cpu pipeline
+    int write = 0;
+    int total = 0;
+
+    for (int read = 0; read < n; ++read) {
+	// register vs memory
+        char c = s[read];
+
+	// branch prediction
+	if (write > 0 && s[write - 1] == a && c == b) {
+	    --write;
+	    total += score;
+	} else {
+	    s[write++] = c;
+	}
+    }
+
+    s.resize(write);
+    return total;
+}
+
+int Purgatory::maximumGain(string s, int x, int y) {
+    int result = 0;
+
+    if (x > y) {
+        result += removePattern(s, 'a', 'b', x);
+	result += removePattern(s, 'b', 'a', y);
+    } else {
+        result += removePattern(s, 'b', 'a', y);
+	result += removePattern(s, 'a', 'b', x);
+    }
+    
+    return result;
+}
+
+int Purgatory::addMinimum(string word) {
+    int insertions = 0;
+    int expected = 0;
+
+    for (char c : word) {
+	// register vs memory
+        int cur = c - 'a';
+
+	// branch prediction
+	while (cur != expected) {
+	    ++insertions;
+	    expected = (expected + 1) % 3;
+	}
+
+	expected = (expected + 1) % 3;
+    }
+
+    if (expected != 0)
+        insertions += (3 - expected);
+
+    return insertions;
+}
+
+long long Purgatory::calculateScore(string s) {
+    // cache behavior
+    vector<int> stacks[26];
+    long long score = 0;
+
+    for (int i = 0; i < s.size(); ++i) {
+        int cur = s[i] - 'a';
+	int mirror = 25 - cur;
+
+	// register vs memory
+	auto &stk = stacks[mirror];
+	if (!stk.empty()) {
+            score += i - stk.back();
+	    stk.pop_back();
+	} else {
+	    stacks[cur].push_back(i);
+	}
+    }
+
+    return score;
+}
+
+int Purgatory::minLengthAfterRemovals(string s) { 
+    int balance = 0;
+
+    for (char c:s) {
+	// branch prediction
+        balance += (c == 'a') ? 1 : -1;
+    }
+
+    return abs(balance);
+}
 
 
 

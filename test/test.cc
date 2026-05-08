@@ -2047,6 +2047,140 @@ TEST(X86_64Test, reverseKGroupCheck) {
     EXPECT_EQ(expected, result);
 }
 
+TEST(X86_64Test, isPalindromeLinkedListCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {1, 2, 2, 1};
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.isPalindromeLinkedList(purgatory::buildLinkedList(head)));
+
+    // Edge Case:
+    head = {1};
+
+    expected = true;
+
+    EXPECT_EQ(expected, solutions.isPalindromeLinkedList(purgatory::buildLinkedList(head)));
+}
+
+TEST(X86_64Test, swapPairsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {1, 2, 3, 4};
+
+    vector<int> expected = {2, 1, 4, 3};
+
+    vector<int> result = purgatory::toVector(solutions.swapPairs(purgatory::buildLinkedList(head)));
+
+    EXPECT_EQ(expected, result);
+
+    // Edge Case:
+    head = {};
+
+    expected = {};
+
+    result = purgatory::toVector(solutions.swapPairs(purgatory::buildLinkedList(head)));
+
+    EXPECT_EQ(expected, result);
+}
+
+TEST(X86_64Test, reorderListCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {1, 2, 3, 4};
+
+    vector<int> expected = {1, 4, 2, 3};
+
+    vector<int> result = purgatory::toVector(solutions.reorderList(purgatory::buildLinkedList(head)));
+
+    EXPECT_EQ(expected, result);
+
+    // Edge Case:
+    head = {1};
+
+    expected = {1};
+
+    result = purgatory::toVector(solutions.reorderList(purgatory::buildLinkedList(head)));
+
+    EXPECT_EQ(expected, result);
+}
+
+TEST(X86_64Test, numComponentsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {0, 1, 2, 3};
+    vector<int> nums = {0, 1, 3};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.numComponents(purgatory::buildLinkedList(head), nums));
+
+    // Edge Case:
+    head = {1}; nums = {1};
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.numComponents(purgatory::buildLinkedList(head), nums));
+}
+
+TEST(X86_64Test, nodesBetweenCriticalPointsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {3, 1};
+
+    vector<int> expected = {-1, -1};
+
+    EXPECT_EQ(expected, solutions.nodesBetweenCriticalPoints(purgatory::buildLinkedList(head)));
+
+    // Edge Case:
+    head = {1, 2, 3, 2, 1};
+
+    expected = {-1, -1};
+
+    EXPECT_EQ(expected, solutions.nodesBetweenCriticalPoints(purgatory::buildLinkedList(head)));
+}
+
+TEST(X86_64Test, removeNodesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {5, 2, 13, 3, 8};
+
+    vector<int> expected = {13, 8};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.removeNodes(purgatory::buildLinkedList(head))));
+
+    // Edge Case:
+    head = {1};
+
+    expected = {1};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.removeNodes(purgatory::buildLinkedList(head))));
+}
+
+TEST(X86_64Test, doubleItCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {1, 8, 9};
+
+    vector<int> expected = {3, 7, 8};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.doubleIt(purgatory::buildLinkedList(head))));
+
+    // Edge Case:
+    head = {0};
+
+    expected = {0};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.doubleIt(purgatory::buildLinkedList(head))));
+}
+
 TEST(X86_64Test, islandPerimeterCheck) {
     purgatory::Purgatory solutions;
 
@@ -2588,6 +2722,98 @@ TEST(X86_64Test, findUnsortedSubarrayCheck) {
     EXPECT_EQ(expected, solutions.findUnsortedSubarray(nums));
 }
 
+TEST(X86_64Test, removeOccurrencesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "daabcbaabcbc", part = "abc";
+
+    string expected = "dab";
+
+    EXPECT_EQ(expected, solutions.removeOccurrences(s, part));
+
+    // Edge Case:
+    s = "aaaa"; part = "aa";
+
+    expected = "";
+
+    EXPECT_EQ(expected, solutions.removeOccurrences(s, part));
+}
+
+TEST(X86_64Test, maximumGainCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "cdbcbbaaabab";
+    int x = 4, y = 5;
+
+    int expected = 19;
+
+    EXPECT_EQ(expected, solutions.maximumGain(s, x, y));
+
+    // Edge Case:
+    s = "abab";
+    x = 10; y = 1;
+
+    expected = 20;
+    EXPECT_EQ(expected, solutions.maximumGain(s, x, y));
+}
+
+TEST(X86_64Test, addMinimumCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string word = "b";
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.addMinimum(word));
+
+    // Edge Case:
+    word = "abc";
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.addMinimum(word));
+}
+
+TEST(X86_64Test, calculateScoreCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "aczzx";
+
+    long long expected = 5;
+
+    EXPECT_EQ(expected, solutions.calculateScore(s));
+
+    // Edge Case:
+    s = "azaz";
+
+    expected = 2;
+
+    EXPECT_EQ(expected, solutions.calculateScore(s));
+}
+
+TEST(X86_64Test, minLengthAfterRemovalsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "aabbab";
+
+    int expected = 0;
+
+    EXPECT_EQ(expected, solutions.minLengthAfterRemovals(s));
+
+    // Edge Case:
+    s = "aaaa";
+
+    expected = 4;
+
+    EXPECT_EQ(expected, solutions.minLengthAfterRemovals(s));
+
+}
+
 TEST(X86_64Test, carFleetCheck) {
     purgatory::Purgatory solutions;
 
@@ -2627,7 +2853,135 @@ TEST(X86_64Test, sumSubarrayMinsCheck) {
     EXPECT_EQ(expected, solutions.sumSubarrayMins(arr));
 }
 
+TEST(X86_64Test, findTheDifferenceCheck) {
+    purgatory::Purgatory solutions;
 
+    // Basic Case:
+    string s = "abcd", t = "abcde";
+
+    char expected = 'e';
+
+    EXPECT_EQ(expected, solutions.findTheDifference(s, t));
+
+    // Edge Case:
+    s = ""; t = "y";
+
+    expected = 'y';
+
+    EXPECT_EQ(expected, solutions.findTheDifference(s, t));
+}
+
+TEST(X86_64Test, findAnagramsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "abab", p = "ab";
+
+    vector<int> expected = {0, 1, 2};
+
+    EXPECT_EQ(expected, solutions.findAnagrams(s, p));
+
+    // Edge Case:
+    s = "a"; p = "ab";
+
+    expected = {};
+
+    EXPECT_EQ(expected, solutions.findAnagrams(s, p));
+}
+
+TEST(X86_64Test, subarraySumCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 1, 1};
+    int k = 2;
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.subarraySum(nums, k));
+
+    // Edge Case:
+    nums = {0, 0, 0};
+    k = 0;
+
+    expected = 6;
+
+    EXPECT_EQ(expected, solutions.subarraySum(nums, k));
+}
+
+TEST(X86_64Test, longestWordCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<string> words = {"w", "wo", "wor", "worl", "world"};
+
+    string expected = "world";
+
+    EXPECT_EQ(expected, solutions.longestWord(words));
+
+    // Edge Case:
+    words = {"abc", "ab"};
+
+    expected = "";
+
+    EXPECT_EQ(expected, solutions.longestWord(words));
+}
+
+TEST(X86_64Test, deleteAndEarnCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {3, 4, 2};
+    int expected = 6;
+
+    EXPECT_EQ(expected, solutions.deleteAndEarn(nums));
+
+    // Edge Case:
+    nums = {1};
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.deleteAndEarn(nums));
+}
+
+TEST(X86_64Test, minimumLengthEncodingCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<string> words = {"time", "me", "bell"};
+
+    int expected = 10;
+
+    EXPECT_EQ(expected, solutions.minimumLengthEncoding(words));
+
+    // Edge Case:
+    words = {"a"};
+
+    expected = 2;
+
+    EXPECT_EQ(expected, solutions.minimumLengthEncoding(words));
+
+}
+
+TEST(X86_64Test, wordSubsetsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<string> words1 = {"amazon", "apple", "facebook", "google", "leetcode"};
+    vector<string> words2 = {"e", "o"};
+
+    vector<string> expected = {"facebook", "google", "leetcode"};
+
+    EXPECT_EQ(expected, solutions.wordSubsets(words1, words2));
+
+    // Edge Case:
+    words1 = {""};
+    words2 = {"a", "b"};
+
+    expected = {};
+
+    EXPECT_EQ(expected, solutions.wordSubsets(words1, words2));
+}
 
 
 #elif PURGATORY_ARM64LE

@@ -153,6 +153,20 @@ public:
 
     int numberOfBoomeranges(vector<vector<int>> &points);
 
+    char findTheDifference(string s, string t);
+
+    vector<int> findAnagrams(string s, string p);
+
+    int subarraySum(vector<int>& nums, int k);
+
+    string longestWord(vector<string> &words);
+
+    int deleteAndEarn(vector<int> &nums);
+
+    int minimumLengthEncoding(vector<string> &words);
+
+    vector<string> wordSubsets(vector<string> &words1, vector<string> &word2);
+
     // two pointers
     bool isPalindrome(string s); 
     
@@ -271,6 +285,16 @@ public:
 
     int sumSubarrayMins(vector<int>& arr);
 
+    string removeOccurrences(string s, string part);
+
+    int maximumGain(string s, int x, int y);
+
+    int addMinimum(string word);
+
+    long long calculateScore(string s);
+
+    int minLengthAfterRemovals(string s);
+
     // graph bfs
     vector<vector<int>> levelOrderBottom(TreeNode* root); 
 
@@ -372,6 +396,21 @@ public:
     ListNode* removeNthFromEnd(ListNode* head, int n);
 
     ListNode* reverseKGroup(ListNode* head, int k);
+
+    bool isPalindromeLinkedList(ListNode *head);
+
+
+    ListNode *swapPairs(ListNode *head);
+
+    ListNode* reorderList(ListNode *head);
+
+    int numComponents(ListNode *head, vector<int> &nums);
+
+    vector<int> nodesBetweenCriticalPoints(ListNode *head);
+
+    ListNode *removeNodes(ListNode *head);
+
+    ListNode *doubleIt(ListNode *head);
 
     // matrix
     int islandPerimeter(vector<vector<int>>& grid);

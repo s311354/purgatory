@@ -140,7 +140,237 @@ ListNode* Purgatory::reverseKGroup(ListNode* head, int k) {
     return dummy.next;
 }
 
+bool Purgatory::isPalindromeLinkedList(ListNode *head) {
+    if (!head || !head->next) return true;
 
+    // register vs memory
+    ListNode *slow = head, *fast = head;
+
+    while (fast && fast->next) {
+        slow = slow->next;
+	fast = fast->next->next;
+    }
+
+    ListNode *prev = nullptr;
+
+    while (slow) {
+        ListNode *next = slow->next;
+	slow->next = prev;
+	prev = slow;
+	slow = next;
+    }
+
+    // register vs memory
+    ListNode *p1 = head, *p2 = prev;
+
+    while (p2) {
+        if (p1->val != p2->val) return false;
+
+	p1 = p1->next;
+	p2 = p2->next;
+    }
+
+    return true;
+}
+
+ListNode *Purgatory::swapPairs(ListNode *head) {
+    ListNode dummy(0);
+    dummy.next = head;
+
+    ListNode *prev = &dummy;
+    
+    while (true) {
+	// branch prediction
+        ListNode *first = prev->next;
+	if (!first) break;
+
+	// branch prediction
+	ListNode *second = first->next;
+	if (!second) break;
+
+	ListNode *nextPair = second->next;
+
+	prev->next = second;
+	second->next = first;
+	first->next = nextPair;
+
+	prev = first;
+    }
+
+    return dummy.next;
+}
+
+ListNode *Purgatory::reorderList(ListNode *head) {
+    if (!head) return nullptr;
+
+    // register vs memory
+    ListNode *slow = head, *fast = head;
+
+    while (fast && fast->next) {
+        slow = slow->next;
+	fast = fast->next->next;
+    }
+
+
+    ListNode *prev = nullptr, *curr = slow;
+    while (curr) {
+        ListNode *next = curr->next;
+	curr->next = prev;
+	prev = curr;
+	curr = next;
+    }
+
+    // register vs memory
+    ListNode *p1 = head, *p2 = prev;
+    while (p2 && p2->next) {
+        ListNode *n1 = p1->next;
+	ListNode *n2 = p2->next;
+
+	p1->next = p2;
+	p2->next = n1;
+
+	p1 = n1;
+	p2 = n2;
+    }
+    
+    return head;
+}
+
+int Purgatory::numComponents(ListNode *head, vector<int> &nums) {
+    unordered_set<int> nodeSet(nums.begin(), nums.end());
+
+    int componentCount = 0;
+
+    for (ListNode *current = head; current; current = current->next) {
+
+	// branch prediction
+        if (!nodeSet.count(current->val))
+	    continue;
+
+	// register vs memory
+	ListNode *nextNode = current->next;
+
+	if (!nextNode || nodeSet.count(nextNode->val)) {
+            ++componentCount;
+	}
+    }
+
+    return componentCount;
+}
+
+vector<int> Purgatory::nodesBetweenCriticalPoints(ListNode *head) {
+    if (!head || !head->next || !head->next->next)
+        return {-1, -1};
+
+    int currentIndex = 2;
+    int firstCritical = -1;
+    int previousCritical = -1;
+
+    int minDistance = INT_MAX;
+
+    ListNode *prev = head;
+    ListNode *curr = head->next;
+
+    while (curr->next) {
+	// register vs memory
+        int prevVal = prev->val;
+	int currVal = curr->val;
+	int nextVal = curr->next->val;
+
+	// branch prediction
+	bool isCritical = ((currVal > prevVal) & (currVal > nextVal)) | ((currVal < prevVal) & (currVal < nextVal));
+
+	if (isCritical) {
+            if (firstCritical == -1)
+	        firstCritical = currentIndex;
+
+	
+	    if (previousCritical != -1)
+	        minDistance = min(minDistance, currentIndex - previousCritical);
+
+
+	    previousCritical = currentIndex;
+	}
+
+	prev = curr;
+	curr = curr->next;
+	++currentIndex;
+    }
+
+    if (firstCritical == previousCritical)
+        return {-1, -1};
+
+    return {minDistance, previousCritical - firstCritical};
+}
+
+ListNode *reverseListRemoveNodes(ListNode *head) {
+    ListNode *prev = nullptr;
+
+    while (head) {
+        ListNode *nextNode = head->next;
+	head->next = prev;
+	prev = head;
+	head = nextNode;
+    }
+
+    return prev;
+}
+
+ListNode *Purgatory::removeNodes(ListNode *head) {
+    if (!head || !head->next)
+        return head;
+
+    ListNode *reversedHead = reverseListRemoveNodes(head);
+
+    int maxValue = reversedHead->val;
+
+    ListNode *curr = reversedHead;
+
+    while (curr && curr->next) {
+	// register vs memory
+        ListNode *nextNode = curr->next;
+
+	// branch prediction
+	const bool isDelete = nextNode->val < maxValue;
+
+	if (isDelete) {
+            curr->next = nextNode->next;
+	} else {
+            curr = nextNode;
+	    maxValue = curr->val;
+	}
+    }
+
+    return reverseListRemoveNodes(reversedHead);
+}
+
+ListNode *Purgatory::doubleIt(ListNode *head) {
+    if (!head) return nullptr;
+
+    ListNode *reversedHead = reverseListRemoveNodes(head);
+
+    ListNode *currentNode = reversedHead;
+
+    int carry = 0;
+
+    ListNode *prevNode = nullptr;
+
+    while (currentNode) {
+	// register vs memory
+        int doubledValue = (currentNode->val << 1) + carry;
+
+	currentNode->val = doubledValue % 10;
+	carry = doubledValue / 10;
+
+	prevNode = currentNode;
+	currentNode = currentNode->next;
+    }
+
+    if (carry)
+        prevNode->next = new ListNode(carry);
+
+    return reverseListRemoveNodes(reversedHead);
+}
 
 
 

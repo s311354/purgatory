@@ -395,5 +395,206 @@ int Purgatory::numberOfBoomeranges(vector<vector<int>> &points) {
     return total;
 }
 
+char Purgatory::findTheDifference(string s, string t) {
+    char xor_result = 0;
+    int n = s.size();
+
+    // cahce behavior
+    for (int i = 0; i < n; ++i) {
+        xor_result ^= s[i];
+	xor_result ^= t[i];
+    }
+
+    xor_result ^= t[n];
+
+    return xor_result;
+}
+
+vector<int> Purgatory::findAnagrams(string s, string p) {
+    vector<int> result;
+
+    // cache behavior
+    int freq[26] = {0};
+
+    for (char c : p) freq[c - 'a']++;
+
+    int count = p.size();
+    int ns = s.size(), np = p.size();
+
+    for (int r = 0, l = 0; r < ns; ++r) {
+	 
+	 // branch prediction
+         if (freq[s[r] - 'a']-- > 0) count--;
+
+	 if (r - l + 1 > np) {
+	     if (++freq[s[l] - 'a'] > 0) count++;
+
+	     l++;
+	 }
+
+	 if (count == 0) result.push_back(l);
+    }
+
+    return result;
+}
+
+int Purgatory::subarraySum(vector<int> &nums, int k) {
+    // cache behavior
+    unordered_map<int, int> prefixCount;
+    prefixCount.reserve(nums.size());
+
+    prefixCount[0] = 1;
+
+    int currentSum = 0;
+    int result = 0;
+
+    for (int num : nums) {
+        currentSum += num;
+
+	// branch prediction
+	auto it = prefixCount.find(currentSum - k);
+	if (it != prefixCount.end()) {
+	    result += it->second;
+	}
+
+	prefixCount[currentSum]++;
+    }
+
+    return result;
+}
+
+string Purgatory::longestWord(vector<string> &words) {
+    sort(words.begin(), words.end());
+
+    // cache behavior
+    unordered_set<string> valid;
+    valid.reserve(words.size());
+    string result = "";
+
+    for (const string &word: words) {
+	// branch prediction
+        bool canBuild = false;
+
+	if (word.size() == 1) {
+            canBuild = true;
+	} else {
+	    // cache behavior
+            string prefix = word;
+	    prefix.pop_back();
+	    if (valid.count(prefix)) {
+                canBuild = true;
+	    }
+	}
+
+	if (canBuild) {
+            valid.insert(word);
+	    if (word.size() > result.size()) {
+                result = word;
+	    }
+	}
+    }
+
+    return result;
+}
+
+int Purgatory::deleteAndEarn(vector<int> &nums) {
+    // cache behavior
+    int sum[10001] = {0};
+    int maxVal = 0;
+
+    for (int num: nums) {
+        sum[num] += num;
+	if (num > maxVal) maxVal = num;
+    }
+
+    int prev2 = 0, prev1 = 0;
+
+    for (int i = 0; i <= maxVal; ++i) {
+	// branch prediction
+        int curr = prev1 > (prev2 + sum[i]) ? prev1 : (prev2 + sum[i]);
+
+	prev2 = prev1;
+	prev1 = curr;
+    }
+
+    return prev1;
+}
+
+// cache behavior
+struct TrieNode {
+    TrieNode *children[26] = {};
+    bool isLeaf = true;
+};
+
+int Purgatory::minimumLengthEncoding(vector<string> &words) {
+    sort(words.begin(), words.end(), [](string &a, string &b) {
+        return a.size() > b.size();    
+		     });
+
+    TrieNode *root = new TrieNode();
+    int totalLength = 0;
+
+    for (const string &word: words) {
+	// register vs memory
+        TrieNode *node = root;
+	bool isNew = false;
+
+	// cpu pipeline
+	for (int i = word.size() - 1; i >= 0; --i) {
+	    // register vs memory
+            int idx = word[i] - 'a';
+
+	    // branch prediction
+	    if (!node->children[idx]) {
+	        node->children[idx] = new TrieNode();
+		isNew = true;
+	    }
+
+	    node = node->children[idx];
+	}
+
+	if (isNew) totalLength += word.size() + 1;
+    }
+
+    return totalLength;
+}
+
+vector<string> Purgatory::wordSubsets(vector<string> &words1, vector<string> &words2) {
+    // cache behavior
+    int maxFreq[26] = {0};
+
+    for (const string &b : words2) {
+        int freq[26] = {0};
+
+	for (char c : b) freq[c - 'a']++;
+
+	for (int i = 0; i < 26; ++i) 
+	    // branch prediction
+	    if (freq[i] > maxFreq[i]) maxFreq[i] = freq[i];
+    }
+
+    // cache behavior
+    vector<string> result;
+    result.reserve(words1.size());
+
+    for (const string &a: words1) {
+	// cache behavior
+        int freq[26] = {0};
+
+	for (char c : a) freq[c - 'a']++;
+
+	bool isValid = true;
+
+	for (int i = 0; i < 26; ++i) {
+            if (freq[i] < maxFreq[i]) {
+	        isValid = false;
+		break;
+	    }
+	}
+	if (isValid) result.push_back(a);
+    }
+
+    return result;
+}
 
 }
