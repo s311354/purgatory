@@ -1403,6 +1403,248 @@ TEST(X86_64Test, maxSlidingWindowCheck) {
 
 }
 
+TEST(X86_64Test, maxProductofTwoCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {3, 4, 5, 2};
+
+    int expected = 12;
+
+    EXPECT_EQ(expected, solutions.maxProduct(nums));
+
+    // Edge Case:
+    nums = {1, 1};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.maxProduct(nums));
+}
+
+TEST(X86_64Test, frequencySortCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "tree";
+
+    string expected = "eert";
+
+    EXPECT_EQ(expected, solutions.frequencySort(s));
+
+    // Edge Case:
+    s = "a";
+    expected = "a";
+
+    EXPECT_EQ(expected, solutions.frequencySort(s));
+}
+
+TEST(X86_64Test, rearrangeBarcodesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> barcodes = {1, 1, 1, 2, 2, 2};
+
+    vector<int> expected = {1, 2, 1, 2, 1, 2};
+
+    EXPECT_EQ(expected, solutions.rearrangeBarcodes(barcodes));
+
+    // Edge Case:
+    barcodes = {1};
+
+    expected = {1};
+
+    EXPECT_EQ(expected, solutions.rearrangeBarcodes(barcodes));
+}
+
+TEST(X86_64Test, furthestBuildingCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> heights = {4, 2, 7, 6, 9, 14, 12};
+
+    int bricks = 5, ladders = 1;
+
+    int expected = 4;
+
+    EXPECT_EQ(expected, solutions.furthestBuilding(heights, bricks, ladders));
+
+    // Edge Case:
+    heights = {1, 1, 1};
+    bricks = 0; ladders = 0;
+
+    expected = 2;
+    EXPECT_EQ(expected, solutions.furthestBuilding(heights, bricks, ladders));
+}
+
+TEST(X86_64Test, assignTasksCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basci Case:
+    vector<int> servers = {3, 3, 2};
+    vector<int> tasks = {1, 2, 3, 2, 1, 2};
+
+    vector<int> expected = {2, 2, 0, 2, 1, 2};
+
+    EXPECT_EQ(expected, solutions.assignTasks(servers, tasks));
+
+    // Edge Case:
+    servers = {1};
+    tasks = {5, 4, 3};
+
+    expected = {0, 0 , 0};
+    EXPECT_EQ(expected, solutions.assignTasks(servers, tasks));
+}
+
+TEST(X86_64Test, numberGameCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {5, 4, 2, 3};
+
+    vector<int> expected = {3, 2, 5, 4};
+
+    EXPECT_EQ(expected, solutions.numberGame(nums));
+
+    // Edge Case:
+    nums = {1, 1, 2, 2};
+
+    expected = {1, 1, 2, 2};
+
+    EXPECT_EQ(expected, solutions.numberGame(nums));
+}
+
+TEST(X86_64Test, networkDelayTimeCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> times = {{2, 1, 1}, {2, 3, 1}, {3, 4, 1}};
+
+    int n = 4, k = 2;
+  
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.networkDelayTime(times, n, k));
+
+    // Edge Case:
+    times = {{1, 2, 1}}; n = 2; k = 1;
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.networkDelayTime(times, n, k));
+
+}
+
+TEST(X86_64Test, minSetSizeCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> arr = {3, 3, 3, 3, 5, 5, 5, 2, 2, 7};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.minSetSize(arr));
+
+    // Edge Case:
+    arr = {7, 7, 7, 7};
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.minSetSize(arr));
+}
+
+TEST(X86_64Test, deleteGreatestValueCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> grid = {{1, 2, 4}, {3, 3, 1}};
+
+    int expected = 8;
+
+    EXPECT_EQ(expected, solutions.deleteGreatestValue(grid));
+
+    // Edge Case:
+    grid = {{1, 1}, {1, 1}};
+
+    expected = 2;
+
+    EXPECT_EQ(expected, solutions.deleteGreatestValue(grid));
+}
+
+TEST(X86_64Test, longestDiverseStringCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int a = 1, b = 1, c = 7;
+
+    string expected = "ccbccacc";
+
+    EXPECT_EQ(expected, solutions.longestDiverseString(a, b, c));
+
+    // Edge Case:
+    a = 0; b = 0; c = 1;
+
+    expected = "c";
+
+    EXPECT_EQ(expected, solutions.longestDiverseString(a, b, c));   
+}
+
+TEST(X86_64Test, minimumEffortPathCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> heights = {{1, 2, 2}, {3, 8, 2}, {5, 3, 5}};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.minimumEffortPath(heights));
+
+    // Edge Case:
+    heights = {{5}};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.minimumEffortPath(heights));
+}
+
+TEST(X86_64Test, pickGiftsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> gifts = {25, 64, 9, 4, 100};
+
+    int k = 4;
+
+    long long expected = 29;
+
+    EXPECT_EQ(expected, solutions.pickGifts(gifts, k));
+
+    // Edge Case:
+    gifts = {1, 1, 1};
+    k = 100;
+    expected = 3;
+
+    EXPECT_EQ(expected, solutions.pickGifts(gifts, k));
+}
+
+TEST(X86_64Test, getOrderCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> tasks = {{1, 2}, {2, 4}, {3, 2}, {4, 1}};
+
+    vector<int> expected = {0, 2, 3, 1};
+
+    EXPECT_EQ(expected, solutions.getOrder(tasks));
+
+    // Edge Case:
+    tasks = {{0, 5}};
+
+    expected = {0};
+
+    EXPECT_EQ(expected, solutions.getOrder(tasks));
+}
+
+
 TEST(X86_64Test, summaryRangesCheck) {
     purgatory::Purgatory solutions;
 
@@ -2685,6 +2927,157 @@ TEST(X86_64Test, maxProfitAssignmentCheck) {
     EXPECT_EQ(expected, solutions.maxProfitAssignment(difficulty, profit, worker));
 
 }
+
+TEST(X86_64Test, countBinarySubstringsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "00110011";
+
+    int expected = 6;
+
+    EXPECT_EQ(expected, solutions.countBinarySubstrings(s));
+
+    // Edge Case:
+    s = "1";
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.countBinarySubstrings(s));
+
+}
+
+TEST(X86_64Test, countSubstringsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "abc";
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.countSubstrings(s));
+
+    // Edge Case:
+    s = "a";
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.countSubstrings(s));
+}
+
+TEST(X86_64Test, longestMountainCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> arr = {2, 1, 4, 7, 3, 2, 5};
+
+    int expected = 5;
+
+    EXPECT_EQ(expected, solutions.longestMountain(arr));
+
+    // Edge Case:
+    arr = {2, 2, 2};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.longestMountain(arr));
+
+}
+
+TEST(X86_64Test, reverseStrCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "abcdefg";
+    int k = 2;
+
+    string expected = "bacdfeg";
+
+    EXPECT_EQ(expected, solutions.reverseStr(s, k));
+
+    // Edge Case:
+    s = "a"; k = 5;
+
+    expected = "a";
+
+    EXPECT_EQ(expected, solutions.reverseStr(s, k));
+
+}
+
+TEST(X86_64Test, shortestToCharCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "loveleetcode";
+    char c = 'e';
+
+    vector<int> expected = {3, 2, 1, 0, 1, 0, 0, 1, 2, 2, 1, 0};
+
+    EXPECT_EQ(expected, solutions.shortestToChar(s, c));
+
+    // Edge Case:
+    s = "aaaa"; c = 'a';
+
+    expected = {0, 0 ,0, 0};
+
+    EXPECT_EQ(expected, solutions.shortestToChar(s, c));
+}
+
+TEST(X86_64Test, rangeSumCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3, 4};
+    int n = 4, left = 1, right = 5;
+
+    int expected = 13;
+
+    EXPECT_EQ(expected, solutions.rangeSum(nums, n, left, right));
+
+    // Edge Case:
+    nums = {5};
+    n = 1; left = 1; right = 1;
+
+    expected = 5;
+
+    EXPECT_EQ(expected, solutions.rangeSum(nums, n, left, right));
+}
+
+TEST(X86_64Test, addSpacesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "LeetcodeHelpsMeLearn";
+    vector<int> spaces = {8, 13, 15};
+
+    string expected = "Leetcode Helps Me Learn";
+
+    EXPECT_EQ(expected, solutions.addSpaces(s, spaces));
+
+    // Edge Case:
+    s = "abc";
+    spaces = {0};
+
+    expected = " abc";
+
+    EXPECT_EQ(expected, solutions.addSpaces(s, spaces));
+}
+
+TEST(X86_64Test, minimumStepsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "101";
+    long long expected = 1;
+
+    EXPECT_EQ(expected, solutions.minimumSteps(s));
+
+    // Edge Case:
+    s = "0000";
+    expected = 0;
+    EXPECT_EQ(expected, solutions.minimumSteps(s));
+}
+
 
 TEST(X86_64Test, backspaceCompareCheck) {
     purgatory::Purgatory solutions;

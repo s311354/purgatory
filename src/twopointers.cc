@@ -56,15 +56,18 @@ bool Purgatory::isPalindrome(string s) {
  */
 vector<int> Purgatory::twoSum(vector<int>& numbers, int target) {
     // register vs memory
-    int n = numbers.size();
+    const int n = numbers.size();
+    // cache behavior
+    const int *data = numbers.data();
+
     unordered_map<int, int> seen;
     // cache behavior
     seen.reserve(n);
 
     for (int i = 0; i < n; ++i) {
 	// register vs memory
-	int num = numbers[i];
-        int complement = target - num;
+	const int num = data[i];
+        const int complement = target - num;
 
 	// branch prediction
 	auto it = seen.find(complement);
@@ -72,7 +75,7 @@ vector<int> Purgatory::twoSum(vector<int>& numbers, int target) {
 	    return {it->second, i};
 	}
 
-	seen[num] = i;
+	seen.emplace(num, i);
     }
     
     return {};
@@ -83,25 +86,28 @@ vector<int> Purgatory::twoSum(vector<int>& numbers, int target) {
  *  T: O(n), S: O(1)
  */
 int Purgatory::maxArea(vector<int> &height) {
+    // cache behavior
+    const int *data = height.data();
+
     int left = 0, right = height.size() - 1;
     int maxWater = 0;
 
     while (left < right) {
 	// register vs memory
-	int hl = height[left];
-	int hr = height[right];
+	const int hl = data[left];
+	const int hr = data[right];
 
-	int width = right - left;
-	int area = (hl < hr ? hl : hr) * width;
+	// CPU pipleline
+	const int width = right - left;
+	const int minH = (hl < hr) ? hl : hr;
+	const int area = minH * width;
         
 	// function call
 	if (area > maxWater) maxWater = area;
 
 	// branch prediction
-	if (hl < hr)
-	    ++left;
-        else
-	    --right;
+	left += (hl < hr);
+	right -= (hl >= hr);
     }
 
     return maxWater;
@@ -112,27 +118,24 @@ int Purgatory::maxArea(vector<int> &height) {
  *  T: O(n), S: O(1)
  */
 int Purgatory::trap(vector<int> & height) {
+    // cache behavior
+    const int *data = height.data();
     int left = 0, right = height.size() - 1;
     int leftMax = 0, rightMax = 0;
     int water = 0;
 
     while (left < right) {
 	// register vs memory
-        int hl = height[left], hr = height[right];
-        if (hl < hr) {
-	    // function call
-	    if (hl > leftMax)
-	        leftMax = hl;
+        const int hl = data[left], hr = data[right];
+	//branch prediction
+        const bool moveLeft = (hl < hr);
+	const int current = moveLeft ? hl : hr;
+	int &currentMax = moveLeft ? leftMax : rightMax;
 
-            water += leftMax - hl;
-	    left++;
-	} else {
-	    if (hr > rightMax)
-	        rightMax = hr;
-
-	    water += rightMax - hr;
-	    right--;
-	}
+	currentMax = (current > currentMax) ? current : currentMax;
+	water += (currentMax - current);
+	left += moveLeft;
+	right -= !moveLeft;
     }
 
     return water;
@@ -546,5 +549,204 @@ int Purgatory::maxProfitAssignment(vector<int> &difficulty, vector<int> &profit,
     }
     return total;
 }
+
+int Purgatory::countBinarySubstrings(string s) {
+    int prevGroup = 0;
+    int currGroup = 1;
+    int totalCount = 0;
+
+    if (s.size() < 2) return 0;
+
+    // register vs memory
+    const char *data = s.data();
+
+    for (int i = 1; i < s.size(); ++i) {
+        if (data[i] == data[i - 1])
+	    ++currGroup;
+        else {
+	    prevGroup = currGroup;
+	    currGroup = 1;
+	}
+
+	// branch prediction
+	totalCount += (prevGroup >= currGroup);
+    }
+    return totalCount;
+}
+
+int expandAorundCenterCountSubstrings(const string &s, int left, int right) {
+
+    // register vs memory
+    int length = s.size();
+    int palindromeCount = 0;
+
+    while (left >= 0 && right < length && s[left] == s[right]) {
+        ++palindromeCount;
+	--left;
+	++right;
+    }
+
+    return palindromeCount;
+}
+
+int Purgatory::countSubstrings(string s) {
+    // register vs memory
+    int n = s.size();
+    int totalPalindromes = 0;
+
+    for (int center = 0; center <n; ++ center) {
+        totalPalindromes += expandAorundCenterCountSubstrings(s, center, center);
+
+	totalPalindromes += expandAorundCenterCountSubstrings(s, center, center + 1);
+    }
+
+    return totalPalindromes;
+}
+
+int Purgatory::longestMountain(vector<int> &arr) {
+    int n = arr.size();
+
+    if (n < 3) return 0;
+
+    int up = 0, down = 0;
+    int maxLength = 0;
+
+    for (int i = 1; i < n; ++i) {
+	// register vs memory
+	const int diff = arr[i] - arr[i - 1];
+        if ((down > 0 && diff > 0) || diff == 0) {
+	    up = 0;
+	    down = 0;
+	}
+
+	if (diff > 0)
+	    ++up;
+        else if (diff < 0)
+	    ++down;
+
+	if (up > 0 && down > 0) 
+            maxLength = max(maxLength, up + down + 1);
+    }
+
+    return maxLength;
+}
+
+string Purgatory::reverseStr(string s, int k) {
+    const int n = s.size();
+
+    for (int start = 0; start < n; start += (k << 1)) {
+	// register vs memory
+        int left = start;
+	int right = min(start + k, n) - 1;
+
+	// branch prediction
+	while (left < right) {
+	    char temp = s[left];
+	    s[left++] = s[right];
+	    s[right--] = temp;
+	}
+    }
+
+    return s;
+}
+
+vector<int> Purgatory::shortestToChar(string s,char c) {
+    const int n = s.size();
+
+    vector<int> result(n);
+
+    int lastSeen = -n;
+
+    for (int i = 0; i < n; ++i) {
+	// branch prediction
+        lastSeen = (s[i] == c) ? i : lastSeen;
+	result[i] = i - lastSeen;
+    }
+
+    lastSeen = n << 1;
+
+    for (int i = n - 1; i >= 0; --i) {
+	// branch prediction
+        lastSeen = (s[i] == c) ? i : lastSeen;
+	// register vs memory
+	const int rightDist = lastSeen - i;
+	result[i] = result[i] < rightDist ? result[i] : rightDist;
+    }
+
+    return result;
+}
+
+int Purgatory::rangeSum(vector<int> &nums, int n , int left, int right) {
+    const int MOD = 1e9 + 7;
+
+    // cache behavior
+    vector<int> subarraySums;
+    subarraySums.reserve(n * (n + 1)/2);
+
+    for (int start = 0; start < n; ++start) {
+	// register vs memory
+        int runningSum = 0;
+
+	for (int end = start; end < n; ++end) {
+            runningSum += nums[end];
+	    subarraySums.emplace_back(runningSum);
+	}
+    }
+
+    sort(subarraySums.begin(), subarraySums.end());
+
+    long long answer = 0;
+
+    for (int i = left - 1; i < right; ++i) {
+        answer += subarraySums[i];
+    }
+
+    return static_cast<int> (answer % MOD);
+}
+
+string Purgatory::addSpaces(string s, vector<int> &spaces) {
+    // register vs memory
+    const size_t n = s.size();
+    const size_t m = spaces.size();
+
+    // cache behavior
+    string result;
+    result.reserve(n + m);
+
+    size_t spaceIndex = 0;
+
+    for (size_t i = 0; i < n; ++i) {
+	// branch prediction
+        bool needSpace = (spaceIndex < m) && (static_cast<int>(i) == spaces[spaceIndex]);
+
+	if (needSpace) {
+	    result.push_back(' ');
+	    ++spaceIndex;
+	}
+
+	result.push_back(s[i]);
+    }
+
+    return result;
+}
+
+long long Purgatory::minimumSteps(string s) {
+    long long onesCount = 0;
+    long long totalSwaps = 0;
+
+    // cache behavior
+    const char *ptr = s.data();
+    const size_t n = s.size();
+
+    for (size_t i = 0; i < n; ++i) {
+	// branch prediction
+        const bool isBlack = (ptr[i] == '1');
+	onesCount += isBlack;
+	totalSwaps += (!isBlack) * onesCount;
+    }
+
+    return totalSwaps;
+}
+
 
 }

@@ -200,6 +200,22 @@ public:
 
     int maxProfitAssignment(vector<int> &difficulty, vector<int> &profit, vector<int> &worker);
 
+    int countBinarySubstrings(string s);
+
+    int countSubstrings(string s);
+
+    int longestMountain(vector<int> &arr);
+
+    string reverseStr(string s, int k);
+
+    vector<int> shortestToChar(string s, char c);
+
+    int rangeSum(vector<int> &nums, int n, int left, int right);
+
+    string addSpaces(string s, vector<int> &spaces);
+
+    long long minimumSteps(string s);
+
     // sliding window
     bool containsNearbyDuplicate(vector<int>& nums, int k);
 
@@ -335,6 +351,32 @@ public:
     vector<int> topKFrequent(vector<int>& nums, int k);
 
     vector<int> maxSlidingWindow(vector<int>& nums, int k);
+
+    int maxProduct(vector<int> &nums);
+
+    string frequencySort(string s);
+
+    vector<int> rearrangeBarcodes(vector<int> &barcodes);
+
+    int furthestBuilding(vector<int> &heights, int bricks, int ladders);
+
+    vector<int> assignTasks(vector<int> &servers, vector<int> &tasks);
+
+    vector<int> numberGame(vector<int> &nums);
+
+    int networkDelayTime(vector<vector<int>> &times, int n, int k);
+
+    int minSetSize(vector<int> &arr);
+
+    int deleteGreatestValue(vector<vector<int>> &grid);
+
+    string longestDiverseString(int a, int b, int c);
+
+    int minimumEffortPath(vector<vector<int>> &heights);
+
+    long long pickGifts(vector<int> &gifts, int k);
+
+    vector<int> getOrder(vector<vector<int>> &tasks);
 
     // intervals
     vector<string> summaryRanges(vector<int>& nums);
