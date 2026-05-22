@@ -1644,6 +1644,246 @@ TEST(X86_64Test, getOrderCheck) {
     EXPECT_EQ(expected, solutions.getOrder(tasks));
 }
 
+TEST(X86_64Test, minLengthCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "ABFCACDB";
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.minLength(s));
+
+    // Edge Case:
+    s = "ABCD";
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.minLength(s));
+}
+
+TEST(X86_64Test, exclusiveTimeCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int n = 2;
+    vector<string> logs = {"0:start:0", "1:start:2", "1:end:5", "0:end:6"};
+
+    vector<int> expected = {3, 4};
+
+    EXPECT_EQ(expected, solutions.exclusiveTime(n, logs));
+
+    // Edge Case:
+    n = 1;
+    logs = {"0:start:0", "0:start:2", "0:end:5", "0:start:6", "0:end:6", "0:end:7"};
+
+    expected = {8};
+
+    EXPECT_EQ(expected, solutions.exclusiveTime(n, logs));
+}
+
+TEST(X86_64Test, buildArrayCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> target = {1, 3};
+    int n = 3;
+
+    vector<string> expected = {"Push", "Push", "Pop", "Push"};
+
+    EXPECT_EQ(expected, solutions.buildArray(target, n));
+
+    // Edge Case:
+    target = {1};
+    n = 1;
+    expected = {"Push"};
+
+    EXPECT_EQ(expected, solutions.buildArray(target, n));
+}
+
+TEST(X86_64Test, subArrayRangesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3};
+
+    long long expected = 4;
+
+    EXPECT_EQ(expected, solutions.subArrayRanges(nums));
+
+    // Edge Case:
+    nums = {1};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.subArrayRanges(nums));
+}
+
+TEST(X86_64Test, makeGoodCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "leEeetcode";
+
+    string expected = "leetcode";
+
+    EXPECT_EQ(expected, solutions.makeGood(s));
+
+    // Edge Case:
+    s = "s";
+
+    expected = "s";
+
+    EXPECT_EQ(expected, solutions.makeGood(s));
+}
+
+TEST(X86_64Test, reversePrefixCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string word = "abcdefd";
+    char ch = 'd';
+
+    string expected = "dcbaefd";
+
+    EXPECT_EQ(expected, solutions.reversePrefix(word, ch));
+
+    // Edge Case:
+    word = "abcd";
+
+    ch = 'z';
+
+    expected = "abcd";
+
+    EXPECT_EQ(expected, solutions.reversePrefix(word, ch));
+}
+
+TEST(X86_64Test, checkValidStringCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "(*))";
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.checkValidString(s));
+
+    // Edge Case:
+    s = "*";
+
+    expected = true;
+
+    EXPECT_EQ(expected, solutions.checkValidString(s));
+}
+
+TEST(X86_64Test, removeDuplicatesStringCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "abbaca";
+
+    string expected = "ca";
+
+    EXPECT_EQ(expected, solutions.removeDuplicates(s));
+
+    // Edge Case:
+    s = "aaaa";
+
+    expected = "";
+
+    EXPECT_EQ(expected, solutions.removeDuplicates(s));
+}
+
+TEST(X86_64Test, find132patternCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {3, 1, 4, 2};
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.find132pattern(nums));
+
+    // Edge Case:
+    nums = {1, 2, 3, 4};
+
+    expected = false;
+
+    EXPECT_EQ(expected, solutions.find132pattern(nums));
+}
+
+TEST(X86_64Test, maxWidthRampCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {6, 0, 8, 2, 1, 5};
+
+    int expected = 4;
+
+    EXPECT_EQ(expected, solutions.maxWidthRamp(nums));
+
+    // Edge Case:
+    nums = {1, 1, 1, 1};
+
+    expected = 3;
+
+    EXPECT_EQ(expected, solutions.maxWidthRamp(nums));
+}
+
+TEST(X86_64Test, clearDigitsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "cb34";
+
+    string expected = "";
+
+    EXPECT_EQ(expected, solutions.clearDigits(s));
+
+    // Edge Case:
+    s = "abc";
+
+    expected = "abc";
+
+    EXPECT_EQ(expected, solutions.clearDigits(s));
+}
+
+TEST(X86_64Test, validateStackSequencesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> pushed = {1, 2, 3, 4, 5};
+    vector<int> popped = {4, 5, 3, 2 ,1};
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.validateStackSequences(pushed, popped));
+
+    // Edge Case:
+    pushed = {1, 2, 3, 4, 5};
+    popped = {4, 3, 5, 1, 2};
+
+    expected = false;
+    EXPECT_EQ(expected, solutions.validateStackSequences(pushed, popped));
+}
+
+TEST(X86_64Test, minRemoveToMakeValidCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "lee(t(c)o)de)";
+
+    string expected = "lee(t(c)o)de";
+
+    EXPECT_EQ(expected, solutions.minRemoveToMakeValid(s));
+
+    // Edge Case:
+    s = "))((";
+
+    expected = "";
+
+    EXPECT_EQ(expected, solutions.minRemoveToMakeValid(s));
+}
 
 TEST(X86_64Test, summaryRangesCheck) {
     purgatory::Purgatory solutions;

@@ -578,6 +578,371 @@ int Purgatory::minLengthAfterRemovals(string s) {
     return abs(balance);
 }
 
+int Purgatory::minLength(string s) {
+    // cache behavior
+    string stackBuffer;
+    stackBuffer.reserve(s.size());
+
+    // cpu pipelie
+    for (char c : s) {
+        if (!stackBuffer.empty()) {
+            char top = stackBuffer.back();
+
+	    // branch prediction
+	    bool removable = ((top == 'A') && (c == 'B')) || ((top == 'C') && (c == 'D'));
+
+	    if (removable) {
+                stackBuffer.pop_back();
+		continue;
+	    } 
+	}
+
+	stackBuffer.push_back(c);
+    }
+
+    return static_cast<int>(stackBuffer.size());
+}
+
+vector<int> Purgatory::exclusiveTime(int n, vector<string> &logs) {
+    vector<int> result(n, 0);
+    // cache behavior
+    stack<int> st;
+    int prevTime = 0;
+
+    for (const string &log : logs) {
+        int id = 0, time = 0, i = 0;
+
+	// cpu pipeline
+	while (log[i] != ':')
+	    id = id * 10 + (log[i++] - '0');
+	i++;
+
+	bool isStart = (log[i] == 's');
+	while (log[i] != ':') i++;
+	i++;
+
+	while (i < log.size())
+	    time = time * 10 + (log[i++] - '0');
+
+	// branch prediction
+	if (isStart) {
+            if (!st.empty()) {
+	        result[st.top()] += time - prevTime;
+	    }
+
+	    st.push(id);
+	    prevTime = time;
+	} else {
+	    result[st.top()] += time - prevTime + 1;
+	    st.pop();
+	    prevTime = time + 1;
+	}
+    }
+    return result;
+}
+
+vector<string> Purgatory::buildArray(vector<int> & target, int n) {
+    // register vs memory
+    int size = target.size();
+    // cache behavior
+    vector<string> st;
+    st.reserve(n << 1);
+    int index = 0;
+
+    for (int num = 1; num <= n && index < size; ++num) {
+        st.push_back("Push");
+
+	if (num == target[index])
+	    ++index;
+        else
+	    st.push_back("Pop");
+    }
+
+    return st;
+}
+
+long long Purgatory::subArrayRanges(vector<int> &nums) {
+    int n = nums.size();
+    long long maxSum = 0, minSum = 0;
+
+    // cache behavior
+    stack<int> st;
+
+    for (int i = 0; i <= n; ++i) {
+	//register vs memory
+        int current = (i == n) ? INT_MAX : nums[i];
+
+	while (!st.empty() && current > nums[st.top()]) {
+	    int mid = st.top();
+	    st.pop();
+
+	    int left = st.empty() ? -1 : st.top();
+
+	    // register vs memory
+	    long long leftCount = mid - left;
+	    long long rightCount = i - mid;
+
+	    maxSum += 1LL*nums[mid] * leftCount * rightCount; 
+	}
+
+	st.push(i);
+    }
+
+    while (!st.empty())
+        st.pop();
+
+    for (int i = 0; i <= n; ++i) {
+        int current = (i == n) ? INT_MIN : nums[i];
+
+	while (!st.empty() && current < nums[st.top()]) {
+            int mid = st.top();
+	    st.pop();
+
+	    int left = st.empty() ? -1 : st.top();
+
+	    long long leftCount = mid - left;
+	    long long rightCount = i - mid;
+
+	    minSum += 1LL*nums[mid] * leftCount * rightCount;
+	}
+
+	st.push(i);
+    }
+
+    return maxSum - minSum;
+}
+
+string Purgatory::makeGood(string s) {
+    // cache behavior
+    string result;
+    result.reserve(s.size());
+
+    for (const char c : s) {
+        if (!result.empty()) {
+	    const int diff = result.back() - c;
+
+	    // branch prediction
+	    if (diff == 32 || diff == -32) {
+	        result.pop_back();
+		continue;
+	    }
+	}
+
+	result.push_back(c);
+    }
+
+    return result;
+}
+
+string Purgatory::reversePrefix(string word, char ch) {
+    int targetIndex = -1;
+
+    for (int i = 0; i < word.size(); ++i) {
+	// branch prediction
+        if (word[i] == ch) {
+	    targetIndex = i;
+	    break;
+	}
+    }
+
+    if (targetIndex == -1) return word;
+
+    // cpu pipelie
+    for (int l = 0, r = targetIndex; l < r; ++l, --r) {
+        char temp = word[l];
+	word[l] = word[r];
+	word[r] = temp;
+    }
+
+    return word;
+}
+
+bool Purgatory::checkValidString(string s) {
+    int low = 0, high = 0;
+
+    for (const char c : s) {
+	// branch prediction
+        switch(c) {
+            case '(':
+	        ++low; ++high;
+		break;
+	    case ')':
+		--low; --high;
+		break;
+	    default:
+		--low; ++high;
+	}
+
+	if (high < 0) return false;
+	if (low < 0) low = 0;
+    }
+
+    return low == 0;
+}
+
+string Purgatory::removeDuplicates(string s) {
+    // cache behavior
+    string stack;
+    stack.reserve(s.size());
+
+    for (const char c : s) {
+
+        if (!stack.empty()) {
+            const char letter = stack.back();
+            // branch prediction
+	    if (letter == c) {
+	        stack.pop_back();
+		continue;
+	    }
+	}
+
+	stack.push_back(c);
+    }
+
+    return stack;
+}
+
+bool Purgatory::find132pattern(vector<int> &nums) {
+    int n = nums.size();
+    if (n < 3) return false;
+
+    // cache behavior
+    vector<int> st;
+    st.reserve(n);
+    int second = INT_MIN;
+
+    for (int i = n - 1; i >= 0; --i) {
+	// register vs memory
+        int cur = nums[i];
+
+	if (cur < second)
+	    return true;
+
+	while (!st.empty()) {
+            int top = st.back();
+	    
+	    // branch prediction
+	    if (top >= cur) break;
+            
+	    second = top;
+	    st.pop_back();
+	}
+
+	st.push_back(cur);
+    }
+
+    return false;
+}
+
+int Purgatory::maxWidthRamp(vector<int> &nums) {
+    const int n = nums.size();
+    if (n < 2) return 0;
+
+    // cache behavior
+    vector<int> st;
+    st.reserve(n);
+
+    for (int i = 0; i < n; ++i) {
+        if (st.empty() || nums[i] < nums[st.back()]) {
+	    st.push_back(i);
+	}
+    }
+
+    int result = 0;
+
+    for (int j = n - 1; j >= 0; --j ) {
+	// register vs memory
+        int val = nums[j];
+	while (!st.empty()) {
+            int i = st.back();
+
+	    // branch prediction
+	    if (val < nums[i]) break;
+
+	    result = max(result, j - i);
+	    st.pop_back();
+	}
+    }
+
+    return result;
+}
+
+string Purgatory::clearDigits(string s) {
+    // cache behavior
+    vector<char> st;
+    st.reserve(s.size());
+
+    for (const char c : s) {
+	// branch prediction
+        if (c >= '0' && c <= '9') {
+	    if (!st.empty())
+	        st.pop_back();
+	} else {
+	    st.push_back(c);
+	}
+    }
+
+    return string(st.begin(), st.end());
+}
+
+bool Purgatory::validateStackSequences(vector<int> &pushed, vector<int> &popped) {
+    // cache behavior
+    vector<int> stack;
+    stack.reserve(pushed.size());
+    int index = 0;
+
+    for (const int val : pushed) {
+        stack.push_back(val);
+	while (!stack.empty() && stack.back() == popped[index]) {
+            stack.pop_back();
+	    ++index;
+	}
+    }
+
+    return stack.empty();
+}
+
+string Purgatory::minRemoveToMakeValid(string s) {
+    int open = 0;
+    // cache behavior
+    string temp;
+    temp.reserve(s.size());
+
+    for (const char c : s) {
+        if (c != '(' && c != ')') {
+	    temp.push_back(c);
+	} else {
+            if (c == '(') {
+	        ++open;
+		temp.push_back(c);
+	    } else {
+		// branch prediction
+                if (open == 0)
+		    continue;
+
+		temp.push_back(c);
+	        --open;
+	    }
+	}
+    }
+
+    string result;
+    result.reserve(temp.size());
+
+    for (int i = temp.size() - 1; i >= 0; --i) {
+	// branch prediction
+        if (temp[i] == '(' && open > 0) {
+	    --open;
+	    continue;
+	}
+
+	result.push_back(temp[i]);
+    }
+
+    reverse(result.begin(), result.end());
+
+    return result;
+}
 
 
 }

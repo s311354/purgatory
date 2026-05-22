@@ -311,6 +311,33 @@ public:
 
     int minLengthAfterRemovals(string s);
 
+    int minLength(string s);
+
+    vector<int> exclusiveTime(int n, vector<string> &logs);
+
+    vector<string> buildArray(vector<int> &target, int n);
+
+    long long subArrayRanges(vector<int> &nums);
+
+    string makeGood(string s);
+
+    string reversePrefix(string word, char ch);
+
+    bool checkValidString(string s);
+
+    string removeDuplicates(string s);
+
+    bool find132pattern(vector<int> &nums);
+
+    int maxWidthRamp(vector<int> & nums);
+
+    string clearDigits(string s);
+
+    bool validateStackSequences(vector<int> &pushed, vector<int> &popped);
+
+    string minRemoveToMakeValid(string s);
+
+
     // graph bfs
     vector<vector<int>> levelOrderBottom(TreeNode* root); 
 
