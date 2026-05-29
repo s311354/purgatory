@@ -746,4 +746,44 @@ string Purgatory::largestNumber(vector<int> &nums) {
     return result;
 }
 
+int Purgatory::minimumPairRemoval(vector<int> &nums) {
+    int count = 0;
+
+    while (true) {
+        bool sorted = true;
+
+	// function call
+	for (int i = 0; i < nums.size() - 1; ++i) {
+	    if (nums[i] > nums[i + 1]) {
+	        sorted = false;
+		break;
+	    }
+	}
+
+	// branch prediction
+	if (sorted) break;
+
+	int minSum = INT_MAX;
+	int idx = 0;
+
+
+	for (int i = 0; i < nums.size() - 1; ++i) {
+	    // register vs memory
+	    int s = nums[i] + nums[i + 1];
+
+	    if (s < minSum) {
+	        minSum = s;
+		idx = i;
+	    }
+	}
+
+	nums[idx] += nums[idx + 1];
+	nums.erase(nums.begin() + idx + 1);
+	++count;
+    }
+
+    return count;
+}
+
+
 }

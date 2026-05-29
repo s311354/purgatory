@@ -63,6 +63,7 @@ struct ListNode {
     int val;
     ListNode *next;
     ListNode(int x): val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
 };
 
 // Build tree from level-order vector with INT_MIN as null
@@ -129,6 +130,8 @@ public:
     vector<int> findRightInterval(vector<vector<int>> &intervals);
 
     string largestNumber(vector<int> &nums);
+
+    int minimumPairRemoval(vector<int> &nums);
 
     // hashmap
     bool canConstruct(string ransomNot, string magazine);
@@ -337,6 +340,7 @@ public:
 
     string minRemoveToMakeValid(string s);
 
+    int totalSteps(vector<int> &nums);
 
     // graph bfs
     vector<vector<int>> levelOrderBottom(TreeNode* root); 
@@ -468,7 +472,6 @@ public:
 
     bool isPalindromeLinkedList(ListNode *head);
 
-
     ListNode *swapPairs(ListNode *head);
 
     ListNode* reorderList(ListNode *head);
@@ -480,6 +483,28 @@ public:
     ListNode *removeNodes(ListNode *head);
 
     ListNode *doubleIt(ListNode *head);
+
+    ListNode *middleNode(ListNode *head);
+
+    ListNode *mergeNodes(ListNode *head);
+
+    ListNode *insertGreatestCommonDivisors(ListNode *head);
+
+    ListNode *deleteDuplicates(ListNode *head);
+
+    ListNode *mergeInBetween(ListNode *list1, int a, int b, ListNode *list2);
+
+    ListNode *modifiedList(vector<int> &nums, ListNode *head);
+
+    vector<int> nextLargerNodes(ListNode *head);
+
+    ListNode *removeElements(ListNode *head, int val);
+
+    ListNode *insertionSortList(ListNode *head);
+
+    int getDecimalValue(ListNode *head);
+
+    ListNode *reverseEvenLengthGroups(ListNode *head);
 
     // matrix
     int islandPerimeter(vector<vector<int>>& grid);

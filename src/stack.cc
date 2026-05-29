@@ -944,5 +944,28 @@ string Purgatory::minRemoveToMakeValid(string s) {
     return result;
 }
 
+int Purgatory::totalSteps(vector<int> &nums) {
+    // cache behavior
+    vector<pair<int, int>> st;
+    int result = 0;
+
+    for (const int num: nums) {
+        int step = 0;
+
+	while (!st.empty() && num >= st.back().first) {
+            step = max(step, st.back().second);
+	    st.pop_back();
+	}
+
+	// branch prediction
+	step = st.empty() ? 0 : step + 1;
+
+	result = max(result, step);
+	st.emplace_back(num, step);
+    }
+
+    return result;
+}
+
 
 }

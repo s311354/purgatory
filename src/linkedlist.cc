@@ -372,6 +372,268 @@ ListNode *Purgatory::doubleIt(ListNode *head) {
     return reverseListRemoveNodes(reversedHead);
 }
 
+ListNode *Purgatory::middleNode(ListNode *head) {
+    // register vs memory
+    ListNode *first = head;
+    ListNode *second = head;
 
+    for (;second != nullptr && second->next != nullptr; second = second->next->next) {
+        first = first->next;
+    }
+
+    return first;
+}
+
+ListNode *Purgatory::mergeNodes(ListNode *head) {
+    // register vs memory
+    ListNode *write = head;
+    ListNode *curr = head->next;
+
+    while (curr != nullptr) {
+        // register vs memory
+        int sum = 0;
+	while (curr->val != 0) {
+            sum += curr->val;
+	    curr = curr->next;
+	}
+
+	write->next->val = sum;
+	write = write->next;
+
+	curr = curr->next;
+    }
+
+    write->next = nullptr;
+    return head->next;
+}
+
+ListNode *Purgatory::insertGreatestCommonDivisors(ListNode *head) {
+    ListNode *curr = head;
+
+    while (curr && curr->next) {
+	ListNode *nextNode = curr->next;
+	// register vs memory
+        int a = curr->val, b = nextNode->val;
+
+	while (b) {
+	    int t = a % b;
+	    a = b;
+	    b = t;
+	}
+
+	curr->next = new ListNode(a, nextNode);
+	curr = nextNode;
+    }
+
+    return head;
+}
+
+ListNode *Purgatory::deleteDuplicates(ListNode *head) {
+    ListNode *start = head;
+
+    while (start && start->next) {
+	// register vs memory
+        int val = start->val;
+	ListNode *nextNode = start->next;
+
+	if (val == nextNode->val) {
+	    start->next = nextNode->next;
+	    delete nextNode;
+	} else {
+	    start = start->next;
+	}
+    }
+
+    return head;
+}
+
+ListNode *Purgatory::mergeInBetween(ListNode *list1, int a, int b, ListNode *list2) {
+    ListNode *curr = list1;
+    ListNode *first = nullptr, *second = nullptr;
+
+    // branch prediction
+    for (int i = 0; i < a - 1; ++i) {
+        curr = curr->next;
+    }
+    first = curr;
+
+    // branch prediction
+    for (int i = 0; i < b - a + 2; ++i) {
+        curr = curr->next;
+    }
+    second = curr;
+
+    ListNode *merged = list2;
+    while (merged->next)
+        merged = merged->next;
+
+    first->next = list2;
+    merged->next = second;
+
+    return list1;
+}
+
+ListNode *Purgatory::modifiedList(vector<int> &nums, ListNode *head) {
+
+    // cache behavior
+    vector<int> buckets(100001, false);
+    for (const int num : nums) buckets[num] = true;
+
+    ListNode dummy(0);
+    dummy.next = head;
+    ListNode *tail = &dummy;
+
+    ListNode *curr = head;
+
+    while (curr) {
+	// register vs memory
+        int val = curr->val;
+	if (buckets[val]) {
+            tail->next = curr->next;
+	} else {
+	    tail = curr;
+	}
+
+	curr = curr->next;
+    }
+
+    return dummy.next;
+
+}
+
+vector<int> Purgatory::nextLargerNodes(ListNode *head) {
+    // cache behavior
+    vector<int> nums;
+    nums.reserve(100000);
+
+    while (head) {
+        nums.push_back(head->val);
+	head = head->next;
+    }
+
+    // register vs memory
+    int n = nums.size();
+    vector<int> result(n, 0);
+    stack<int> st;
+
+    for (int i = 0; i < n; ++i) {
+	// register vs memory
+        int curr = nums[i];
+
+	while (!st.empty()) {
+	    int topIdx = st.top();
+            if (nums[topIdx] >= curr) break;
+
+	    result[topIdx] = curr;
+	    st.pop();
+	}
+
+        st.push(i);
+    }
+
+    return result;
+}
+
+ListNode *Purgatory::removeElements(ListNode *head, int val) {
+    ListNode dummy(0);
+    dummy.next = head;
+    ListNode *tail = &dummy;
+
+    while (tail->next) {
+	// register vs memory
+        ListNode *nextNode = tail->next;
+
+	if (nextNode->val == val) {
+	    tail->next = nextNode->next;
+	} else {
+            tail = nextNode;
+	}
+    }
+
+    return dummy.next;
+}
+
+ListNode *Purgatory::reverseEvenLengthGroups(ListNode *head) {
+    ListNode dummy(0);
+    dummy.next = head;
+    ListNode *tail = &dummy;
+
+    ListNode *curr = head;
+
+    // branch prediction
+    for (int group = 1; curr; ++group) {
+        ListNode *groupEnd = curr;
+        int count = 0;
+
+	while (count < group && groupEnd) {
+	    ++count;
+	    groupEnd = groupEnd->next;
+	}
+
+	// branch prediction
+	if ((count & 1) == 0) {
+            ListNode *prev = groupEnd;
+	    ListNode *node = curr;
+
+	    for (int i = 0; i < count; ++i) {
+                ListNode *next = node->next;
+		node->next = prev;
+		prev = node;
+		node = next;
+	    }
+
+	    tail->next = prev;
+	    tail = curr;
+	    curr = groupEnd;
+
+	} else {
+            for (int i = 0; i < count; ++i) {
+                tail = curr;
+		curr = curr->next;
+	    }
+	}
+    }
+    return dummy.next;
+}
+
+int Purgatory::getDecimalValue(ListNode *head) {
+    int result = 0;
+
+    while (head) {
+        result = (result << 1) | head->val;
+	head = head->next;
+    }
+
+    return result;
+}
+
+ListNode *Purgatory::insertionSortList(ListNode *head) {
+    ListNode dummy(0);
+    ListNode *curr = head;
+    ListNode *lastSorted = nullptr;
+
+    while (curr) {
+        ListNode *next = curr->next;
+
+        // branch prediction
+	ListNode *prev;
+	if (!lastSorted || lastSorted->val > curr->val) {
+	    prev = &dummy;
+	} else {
+	    prev = lastSorted;
+	}
+
+	while (prev->next && prev->next->val < curr->val)
+            prev = prev->next;
+
+	curr->next = prev->next;
+	prev->next = curr;
+	curr = next;
+
+	lastSorted = prev;
+    }
+
+    return dummy.next;
+}
 
 }

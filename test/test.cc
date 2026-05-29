@@ -2663,6 +2663,257 @@ TEST(X86_64Test, doubleItCheck) {
     EXPECT_EQ(expected, purgatory::toVector(solutions.doubleIt(purgatory::buildLinkedList(head))));
 }
 
+TEST(X86_64Test, middleNodeCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {1, 2, 3, 4, 5};
+
+    vector<int> expected = {3, 4, 5};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.middleNode(purgatory::buildLinkedList(head))));
+
+    // Edge Case:
+    head = {1};
+
+    expected = {1};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.middleNode(purgatory::buildLinkedList(head))));
+}
+
+TEST(X86_64Test, mergeNodesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {0, 3, 1, 0, 4, 5, 2, 0};
+
+    vector<int> expected = {4, 11};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.mergeNodes(purgatory::buildLinkedList(head))));
+
+    // Edge Case:
+    head = {0, 1, 0};
+
+    expected = {1};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.mergeNodes(purgatory::buildLinkedList(head))));
+}
+
+TEST(X86_64Test, insertGreatestCommonDivisorsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Bacis Case:
+    vector<int> head = {18, 6, 10, 3};
+
+    vector<int> expected = {18, 6, 6, 2, 10, 1, 3};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.insertGreatestCommonDivisors(purgatory::buildLinkedList(head))));
+
+    // Edge Case:
+    head = {7};
+
+    expected = {7};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.insertGreatestCommonDivisors(purgatory::buildLinkedList(head))));
+}
+
+TEST(X86_64Test, deleteDuplicatesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {1, 1, 2, 3, 3};
+
+    vector<int> expected = {1, 2, 3};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.deleteDuplicates(purgatory::buildLinkedList(head))));
+
+    // Edge Case:
+    head = {};
+
+    expected = {};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.deleteDuplicates(purgatory::buildLinkedList(head))));
+}
+
+TEST(X86_64Test, mergeInBetweenCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> list1 = {10 , 1, 13, 6, 9, 5};
+
+    int a = 3, b = 4;
+
+    vector<int> list2 = {1000000, 1000001, 1000002};
+
+    vector<int> expected = {10, 1, 13, 1000000, 1000001, 1000002, 5};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.mergeInBetween(purgatory::buildLinkedList(list1), a, b, purgatory::buildLinkedList(list2))));
+
+    // Edge Case:
+    list1 = {0, 1, 2, 3};
+    a = 1; b = 1;
+    list2 = {2, 3, 4};
+    expected = {0, 2, 3, 4, 2, 3};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.mergeInBetween(purgatory::buildLinkedList(list1), a, b, purgatory::buildLinkedList(list2))));
+}
+
+TEST(X86_64Test, modifiedListCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3};
+
+    vector<int> head = {1, 2, 3, 4, 5};
+
+    vector<int> expected = {4, 5};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.modifiedList(nums, purgatory::buildLinkedList(head))));
+
+    // Edge Case:
+    nums = {5};
+
+    head = {1, 2, 3, 4};
+
+    expected = {1, 2, 3, 4};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.modifiedList(nums, purgatory::buildLinkedList(head))));
+
+}
+
+TEST(X86_64Test, minimumPairRemovalCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {5, 2, 3, 1};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.minimumPairRemoval(nums));
+
+    // Edge Case:
+    nums = {1, 2, 2};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.minimumPairRemoval(nums));
+}
+
+TEST(X86_64Test, insertionSortListCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {4, 2, 1, 3};
+
+    vector<int> expected = {1, 2, 3, 4};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.insertionSortList(purgatory::buildLinkedList(head))));
+
+    // Edge Case:
+    head = {1, 2, 3};
+
+    expected = {1, 2, 3};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.insertionSortList(purgatory::buildLinkedList(head))));
+
+}
+
+
+TEST(X86_64Test, reverseEvenLengthGroupsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {1, 1, 0, 6, 5};
+
+    vector<int> expected = {1, 0, 1, 5, 6};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.reverseEvenLengthGroups(purgatory::buildLinkedList(head))));
+
+    // Edge Case:
+    head = {1};
+
+    expected = {1};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.reverseEvenLengthGroups(purgatory::buildLinkedList(head))));
+}
+
+TEST(X86_64Test, getDecimalValueCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {1, 0, 1};
+
+    int expected = 5;
+
+    EXPECT_EQ(expected, solutions.getDecimalValue(purgatory::buildLinkedList(head)));
+
+    // Edge Case:
+    head = {0};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.getDecimalValue(purgatory::buildLinkedList(head)));
+}
+
+TEST(X86_64Test, nextLargerNodesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {2, 1, 5};
+
+    vector<int> expected = {5, 5, 0};
+
+    EXPECT_EQ(expected, solutions.nextLargerNodes(purgatory::buildLinkedList(head)));
+
+    // Edge Case:
+    head = {5};
+
+    expected = {0};
+
+    EXPECT_EQ(expected, solutions.nextLargerNodes(purgatory::buildLinkedList(head)));
+}
+
+TEST(X86_64Test, removeElemetsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> head = {1, 2, 6, 3, 4, 5, 6};
+
+    int val = 6;
+
+    vector<int> expected = {1, 2, 3, 4, 5};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.removeElements(purgatory::buildLinkedList(head), val)));
+
+    // Edge Case:
+    head = {7, 7, 7};
+
+    val = 7;
+
+    expected = {};
+
+    EXPECT_EQ(expected, purgatory::toVector(solutions.removeElements(purgatory::buildLinkedList(head), val)));
+}
+
+
+TEST(X86_64Test, totalStepsCheck) {
+     purgatory::Purgatory solutions;
+
+     // Basic Case:
+     vector<int> nums = {5, 3, 4, 4, 7,  3, 6, 11, 8, 5, 11};
+
+     int expected = 3;
+
+     EXPECT_EQ(expected, solutions.totalSteps(nums));
+
+     // Edge Case:
+     nums = {1, 2, 3};
+
+     expected = 0;
+
+     EXPECT_EQ(expected, solutions.totalSteps(nums));
+}
+
 TEST(X86_64Test, islandPerimeterCheck) {
     purgatory::Purgatory solutions;
 
