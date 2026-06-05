@@ -218,4 +218,351 @@ vector<double> Purgatory::medianSlidingWindow(vector<int>& nums, int k) {
     return res;
 }
 
+int Purgatory::minimumSumSubarray(vector<int> &nums, int l, int r) {
+    int minSum = INT_MAX;
+    int n = nums.size();
+
+    vector<int> prefix(n + 1, 0);
+
+    for (int i = 0; i < n; ++i) {
+        prefix[i + 1] = prefix[i] + nums[i];
+    }
+
+    for (int start = 0; start < n; ++start) {
+        const int maxLen = min(r, n - start);
+
+	for (int bound = l; bound <= maxLen; ++bound) {
+	    int sum = prefix[start + bound] - prefix[start];
+
+	    if (sum > 0 && sum < minSum)
+	        minSum = sum;
+	}
+    } 
+
+    return minSum == INT_MAX ? -1 : minSum;
+
+}
+
+int Purgatory::numSubarraysWithSum(vector<int> &nums, int goal) {
+    int n = nums.size();
+    unordered_map<int, int> freq;
+    // cache behavior
+    freq.reserve(n << 1 );
+    freq[0] = 1;
+
+    int prefixSum = 0;
+    int result = 0;
+
+    for (const int value : nums) {
+        prefixSum += value;
+
+	// branch prediction
+	auto it = freq.find(prefixSum - goal);
+	if (it != freq.end())
+	    result += it->second;
+
+        ++freq[prefixSum];
+    }
+
+    return result;
+}
+
+int Purgatory::maxLength(vector<int> &nums) {
+    int result = 0;
+    const int n = nums.size();
+
+    for (int i = 0; i < n; ++i) {
+	// register vs memory
+        long long prod = 1;
+	long long g = 0;
+	long long l = 1;
+
+	for (int j = i; j < n; ++j) {
+            prod *= nums[j];
+	    if (prod > 25200) break;
+
+	    if (j == i) {
+	        g = nums[j];
+		l = nums[j];
+	    } else {
+                g  = std::gcd(g, (long long) nums[j]);
+
+		long long common = std::gcd(l, (long long) nums[j]);
+
+		l = l / common * nums[j];
+	    }
+
+	    // branch prediction
+	    if (prod == g * l)
+	        result = max(result, j - i + 1);
+	}
+    }
+
+    return result;
+}
+
+int Purgatory::characterReplacement(string s, int k) {
+    int result = 0;
+
+    // cache behavior
+    int count[26] = {0};
+    int left = 0, maxFreq = 0;
+
+    for (int right = 0; right < s.size(); ++right) {
+	// register vs memory
+        int idx = s[right] - 'A';
+	count[idx]++;
+
+	// branch prediction
+	if (count[idx] > maxFreq) maxFreq = count[idx];
+
+	while ((right - left + 1) - maxFreq > k) {
+	    count[s[left] - 'A']--;
+	    left++;
+	}
+
+	// branch prediction
+	if (right - left + 1 > result)
+	    result = right - left + 1;
+    }
+
+    return result;
+}
+
+int Purgatory::numSubarrayProductLessThanK(vector<int> &nums, int k) {
+    if (k <= 1) return 0;
+
+    int result = 0;
+    long long prod = 1;
+    int left = 0;
+
+    for (int right = 0; right < nums.size(); ++right) {
+        prod *= nums[right];
+
+	// branch prediction
+	while (prod >= k && left <= right) {
+	    prod /= nums[left++];
+	}
+
+	result += (right - left + 1);
+    }
+
+    return result;
+}
+
+int Purgatory::totalFruit(vector<int> &fruits) {
+    int result = 0;
+
+    // cache behavior
+    int type1 = -1, type2 = -1;
+    int count1 = 0, count2 = 0;
+    int left = 0;
+
+    for (int right = 0; right < fruits.size(); ++right) {
+	// register vs memory
+        int f = fruits[right];
+
+	// branch prediction
+	if (f == type1) {
+	    count1++;
+	} else if (f == type2) {
+	    count2++;
+	} else {
+            while (count1 > 0 && count2 >0) {
+                int leftFruit = fruits[left++];
+
+		if (leftFruit == type1) {
+		    count1--;
+		} else {
+		    count2--;
+		}
+	    }
+
+	    if (count1 == 0) {
+	        type1 = f;
+		count1 = 0;
+	    } else {
+		type2 = f;
+		count2 = 0;
+	    }
+	}
+
+	result = max(result, right - left + 1);
+    }
+
+    return result;
+}
+
+int Purgatory::numberOfAlternatingGroups(vector<int> &colors) {
+    int n = colors.size();
+    int result = 0;
+
+    for (int i = 0; i < n; ++i) {
+	// register vs memory
+        const int current = colors[i];
+	int leftIdx = (i - 1 + n) % n;
+	int rightIdx = (i + 1) % n;
+
+	// branch prediction
+	result += (current != colors[leftIdx] && current != colors[rightIdx]);
+    }
+
+    return result;
+}
+
+int Purgatory::findLength(vector<int> &nums1, vector<int> &nums2) {
+    int result = 0;
+    
+    const int n = nums1.size();
+    const int m = nums2.size();
+
+    // cache behavior
+    vector<int> dp(m + 1, 0);
+
+    for (int i = 1; i <= n; ++i) {
+	// register vs memory
+        const int value = nums1[i];
+
+	for (int j = m; j >= 1; --j) {
+	    // branch prediction
+            const bool match = (value == nums2[j - 1]);
+	    dp[j] = match ? dp[j - 1] + 1: 0;
+	    result = max(result, dp[j]);
+	}
+    }
+
+    return result;
+}
+
+int Purgatory::maxSatisfied(vector<int> &customers, vector<int> &grumpy, int minutes) {
+    int baseSatisfied = 0;
+    int currentGain = 0;
+    int maxGain = 0;
+
+    const int n = customers.size();
+
+    for (int i = 0; i < n; ++i) {
+	// register vs memory
+        const int customer = customers[i];
+	const int isGrumpty = grumpy[i];
+
+	// branch prediction
+	baseSatisfied += customer * (1 - isGrumpty);
+	currentGain += customer * isGrumpty;
+
+	if (i >= minutes && grumpy[i - minutes] == 1)
+	    currentGain -= customers[i - minutes];
+
+	if (i >= minutes - 1)
+	    maxGain = max(maxGain, currentGain);
+    }
+
+    return baseSatisfied + maxGain;
+}
+
+int Purgatory::countKConstraintSubstrings(string s, int k) {
+    int result = 0;
+    int left = 0;
+
+    // branch prediction
+    int count[2] = {0, 0};
+
+    for (int right = 0; right < s.size(); ++right) {
+        ++count[s[right] - '0'];
+
+	while (count[0] > k && count[1] > k) {
+            --count[s[left] - '0'];
+	    ++left;
+	}
+
+	result += right - left + 1;
+    }
+
+    return result;
+}
+
+int Purgatory::maxTurbulenceSize(vector<int> &arr) {
+    int result = 1;
+    int n = arr.size();
+
+    int prevCmp = 0;
+    int curr = 1;
+
+    for (int i = 1; i < n; ++i) {
+	// branch prediction
+        int cmp = (arr[i] > arr[i - 1]) - (arr[i] < arr[i - 1]);
+
+	if (cmp == 0) {
+	    curr = 1;
+	} else if (cmp * prevCmp == -1){
+	    ++curr;
+	} else {
+            curr = 2;
+	}
+
+	result = max(result, curr);
+	prevCmp = cmp;
+    }
+
+    return result;
+}
+
+int Purgatory::numberOfSubarrays(vector<int> &nums, int k) {
+    int result = 0;
+    int n = nums.size();
+
+    int left = 0;
+    int prefix = 0;
+    int oddCount = 0;
+
+    for (int right = 0; right < n; ++right) {
+	// register vs memory
+        bool isOdd = nums[right] & 1;
+
+	// branch prediction
+	oddCount += isOdd;
+	prefix *= (!isOdd);
+
+	while (oddCount == k) {
+            ++prefix;
+	    oddCount -= (nums[left] & 1);
+	    ++left;
+	}
+
+	result += prefix;
+    }
+
+    return result;
+}
+
+int Purgatory::maximumUniqueSubarray(vector<int> &nums) {
+    int result = 0;
+    // cache behavior
+    vector<int> freq(10001, 0);
+
+    int left = 0;
+    int currSum = 0;
+
+    for (int right = 0; right < nums.size(); ++right) {
+
+	// register vs memory
+	int num = nums[right];
+        freq[num]++;
+	currSum += num;
+
+	while (freq[num] > 1) {
+	    // register vs memory
+            int leftNum = nums[left];
+	    freq[leftNum]--;
+	    currSum -= leftNum;
+	    ++left;
+	}
+
+	result = max(result, currSum); 
+    }
+
+    return result;
+}
+
+
 }

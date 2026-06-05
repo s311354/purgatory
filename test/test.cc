@@ -2895,6 +2895,126 @@ TEST(X86_64Test, removeElemetsCheck) {
     EXPECT_EQ(expected, purgatory::toVector(solutions.removeElements(purgatory::buildLinkedList(head), val)));
 }
 
+TEST(X86_64Test, minimumSumSubarrayCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {3, -2, 1, 4};
+    int l = 2, r = 3;
+
+    int expected = 1;
+
+    EXPECT_EQ(expected, solutions.minimumSumSubarray(nums, l, r));
+
+    // Edge Case:
+    nums = {1, 1};
+    l = 2; r = 2;
+
+    expected = 2;
+
+    EXPECT_EQ(expected, solutions.minimumSumSubarray(nums, l, r));
+}
+
+TEST(X86_64Test, numSubarraysWithSumCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 0, 1, 0, 1};
+    
+    int goal = 2;
+
+    int expected = 4;
+
+    EXPECT_EQ(expected, solutions.numSubarraysWithSum(nums, goal));
+
+    // Edge Case:
+    nums = {0, 0, 0};
+
+    goal = 0;
+
+    expected = 6;
+
+    EXPECT_EQ(expected, solutions.numSubarraysWithSum(nums, goal));
+}
+
+TEST(X86_64Test, maxLengthCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {2, 3, 4, 5, 6};
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.maxLength(nums));
+
+    // Edge Case:
+    nums = {1, 1};
+
+    expected = 2;
+
+    EXPECT_EQ(expected, solutions.maxLength(nums));
+
+}
+
+TEST(X86_64Test, characterReplacementCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "ABAB";
+    int k = 2;
+
+    int expected = 4;
+
+    EXPECT_EQ(expected, solutions.characterReplacement(s, k));
+
+    // Edge Case:
+    s = "AAAA";
+    k = 0;
+
+    expected = 4;
+    EXPECT_EQ(expected, solutions.characterReplacement(s, k));
+}
+
+TEST(X86_64Test, numSubarrayProductLessThanKCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {10, 5, 2, 6};
+
+    int k = 100;
+
+    int expected = 8;
+
+    EXPECT_EQ(expected, solutions.numSubarrayProductLessThanK(nums, k));
+
+    // Edge Case:
+    nums = {1, 1, 1};
+
+    k = 2;
+
+    expected = 6;
+
+    EXPECT_EQ(expected, solutions.numSubarrayProductLessThanK(nums, k));
+}
+
+TEST(X86_64Test, totalFruitCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> fruits = {1, 2, 1};
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.totalFruit(fruits));
+
+    // Edge Case:
+    fruits = {1, 1, 1};
+
+    expected = 3;
+
+    EXPECT_EQ(expected, solutions.totalFruit(fruits));
+}
+
 
 TEST(X86_64Test, totalStepsCheck) {
      purgatory::Purgatory solutions;
@@ -3865,6 +3985,154 @@ TEST(X86_64Test, wordSubsetsCheck) {
     expected = {};
 
     EXPECT_EQ(expected, solutions.wordSubsets(words1, words2));
+}
+
+TEST(X86_64Test, numberOfAlternatingGroupsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> colors = {0, 1, 0, 0, 1};
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.numberOfAlternatingGroups(colors));
+
+    // Edge Case:
+    colors = {1, 1, 1};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.numberOfAlternatingGroups(colors));
+}
+
+TEST(X86_64Test, findLengthCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums1 = {1, 2, 3, 2, 1};
+
+    vector<int> nums2 = {3, 2, 1, 4, 7};
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.findLength(nums1, nums2));
+
+    // Edge Case:
+    nums1 = {0, 0, 0, 0, 0};
+    nums2 = {0, 0, 0, 0, 0};
+
+    expected = 5;
+
+    EXPECT_EQ(expected, solutions.findLength(nums1, nums2));
+
+}
+
+TEST(X86_64Test, maxSatisfiedCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> customers = {1, 0, 1, 2, 1, 1, 7, 5};
+
+    vector<int> grumpy = {0, 1, 0, 1, 0, 1, 0, 1};
+
+    int minutes = 3;
+
+    int expected = 16;
+
+    EXPECT_EQ(expected, solutions.maxSatisfied(customers, grumpy, minutes));
+
+    // Edge Case:
+    customers = {3, 4, 5};
+
+    grumpy = {1, 1, 1};
+
+    minutes = 3;
+
+    expected = 12;
+
+    EXPECT_EQ(expected, solutions.maxSatisfied(customers, grumpy, minutes));
+}
+
+TEST(X86_64Test, countKConstraintSubstringsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "10101";
+    int k = 1;
+
+    int expected = 12;
+
+    EXPECT_EQ(expected, solutions.countKConstraintSubstrings(s, k));
+
+    // Edge Case:
+    s = "01";
+    k = 0;
+
+    expected = 2;
+
+    EXPECT_EQ(expected, solutions.countKConstraintSubstrings(s, k));
+
+
+}
+
+TEST(X86_64Test, maxTurbulenceSizeCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> arr = {9, 4, 2, 10, 7, 8, 8, 1, 9};
+
+    int expected = 5;
+
+    EXPECT_EQ(expected, solutions.maxTurbulenceSize(arr));
+
+    // Edge Case:
+    arr = {5};
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.maxTurbulenceSize(arr));
+
+}
+
+TEST(X86_64Test, numberOfSubarraysCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 1, 2, 1, 1};
+
+    int k = 3;
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.numberOfSubarrays(nums, k));
+
+    // Edge Case:
+    nums = {2, 4, 6};
+
+    k = 1;
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.numberOfSubarrays(nums, k));
+
+}
+
+TEST(X86_64Test, maximumUniqueSubarrayCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {4, 2, 4, 5, 6};
+
+    int expected = 17;
+
+    EXPECT_EQ(expected, solutions.maximumUniqueSubarray(nums));
+
+    // Edge Case:
+    nums = {1, 2, 3};
+
+    expected = 6;
+
+    EXPECT_EQ(expected, solutions.maximumUniqueSubarray(nums));
 }
 
 

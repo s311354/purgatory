@@ -476,7 +476,7 @@ ListNode *Purgatory::mergeInBetween(ListNode *list1, int a, int b, ListNode *lis
 ListNode *Purgatory::modifiedList(vector<int> &nums, ListNode *head) {
 
     // cache behavior
-    vector<int> buckets(100001, false);
+    vector<bool> buckets(100001, false);
     for (const int num : nums) buckets[num] = true;
 
     ListNode dummy(0);
@@ -545,6 +545,7 @@ ListNode *Purgatory::removeElements(ListNode *head, int val) {
 
 	if (nextNode->val == val) {
 	    tail->next = nextNode->next;
+	    delete nextNode;
 	} else {
             tail = nextNode;
 	}

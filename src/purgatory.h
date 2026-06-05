@@ -234,6 +234,33 @@ public:
 
     vector<double> medianSlidingWindow(vector<int>& nums, int k);
 
+    int minimumSumSubarray(vector<int> &nums, int l, int r);
+
+    int numSubarraysWithSum(vector<int> &nums, int goal);
+
+    int maxLength(vector<int> &nums);
+
+    int characterReplacement(string s, int k);
+
+    int numSubarrayProductLessThanK(vector<int> &nums, int k);
+
+    int totalFruit(vector<int> &fruits);
+
+    int numberOfAlternatingGroups(vector<int> &colors);
+
+    int findLength(vector<int> &nums1, vector<int> &nums2);
+
+    int maxSatisfied(vector<int> &customers, vector<int> &grumpy, int minutes);
+
+    int countKConstraintSubstrings(string s, int k);
+
+    int maxTurbulenceSize(vector<int> &arr);
+
+    int numberOfSubarrays(vector<int> &nums, int k);
+
+    int maximumUniqueSubarray(vector<int> &nums);
+
+
     // prefix sum
     class NumArray {
     private:
