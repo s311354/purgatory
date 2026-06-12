@@ -263,4 +263,37 @@ bool Purgatory::judgePoint24(vector<int>& cards) {
     return dfsJudgePoint(nums);
 }
 
+void dfsFindSubsequences(vector<int> &nums, int start, vector<int> &curr, vector<vector<int>> &result) {
+
+    if (curr.size() >= 2) 
+        result.push_back(curr);
+
+    // cache behavior
+    bool used[201] = {false};
+
+    for (int i = start; i < nums.size(); ++i) {
+        if (!curr.empty() && nums[i] < curr.back())
+	    continue;
+
+	if (used[nums[i] + 100])
+	    continue;
+
+	used[nums[i] + 100] = true;
+
+	curr.push_back(nums[i]);
+	dfsFindSubsequences(nums, i + 1, curr, result);
+	curr.pop_back();
+    }
+}
+
+vector<vector<int>> Purgatory::findSubsequences(vector<int> &nums) {
+    vector<vector<int>> result;
+    vector<int> curr;
+
+    dfsFindSubsequences(nums, 0, curr, result);
+
+    return result;   
+}
+
+
 }

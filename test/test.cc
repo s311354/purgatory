@@ -2607,6 +2607,119 @@ TEST(X86_64Test, numComponentsCheck) {
     expected = 1;
 
     EXPECT_EQ(expected, solutions.numComponents(purgatory::buildLinkedList(head), nums));
+
+    head = {0, 1}; nums = {0, 1};
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.numComponents(purgatory::buildLinkedList(head), nums));
+}
+
+TEST(X86_64Test, longestPalindromeCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "abccccdd";
+
+    int expected = 7;
+
+    EXPECT_EQ(expected, solutions.longestPalindrome(s));
+
+    // Edge Case:
+    s = "";
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.longestPalindrome(s));
+}
+
+TEST(X86_64Test, findSubsequencesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {4, 6, 7, 7};
+
+    vector<vector<int>> expected = {{4, 6}, {4, 6, 7}, {4, 6, 7, 7}, {4, 7}, {4, 7, 7}, {6, 7}, {6, 7, 7}, {7, 7}};
+
+    EXPECT_EQ(expected, solutions.findSubsequences(nums));
+
+    // Edge Case:
+    nums = {1, 1, 1};
+
+    expected = {{1, 1}, {1, 1, 1}};
+
+    EXPECT_EQ(expected, solutions.findSubsequences(nums));
+}
+
+TEST(X86_64Test, findMaxLengthCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {0, 1};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.findMaxLength(nums));
+
+    // Edge Case:
+    nums = {0, 0 , 0};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.findMaxLength(nums));
+}
+
+TEST(X86_64Test, fairCandySwapCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> aliceSizes = {1, 1}, bobSizes = {2, 2};
+
+    vector<int> expected = {1, 2};
+
+    EXPECT_EQ(expected, solutions.fairCandySwap(aliceSizes, bobSizes));
+
+    // Edge Case:
+    aliceSizes = {2};
+    bobSizes = {1, 3};
+
+    expected = {2, 3};
+
+    EXPECT_EQ(expected, solutions.fairCandySwap(aliceSizes, bobSizes));
+}
+
+TEST(X86_64Test, checkSubarraySumCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {23, 2, 4, 6, 7};
+    int k = 6;
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.checkSubarraySum(nums, k));
+
+    // Edge Case:
+    nums = {0, 0}; k = 1;
+
+    expected = true;
+    EXPECT_EQ(expected, solutions.checkSubarraySum(nums, k));
+}
+
+TEST(X86_64Test, findDuplicateContentCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<string> paths = {"root/a 1.txt(abcd) 2.txt(efgh)", "root/c 3.txt(abcd)", "root/c/d 4.txt(efgh)"};
+
+    vector<vector<string>> expected = {{"root/a/2.txt", "root/c/d/4.txt"}, {"root/a/1.txt", "root/c/3.txt"}};
+
+    EXPECT_EQ(expected, solutions.findDuplicate(paths));
+
+    // Edge Case:
+    paths = {"root/a 1.txt(a)"};
+
+    expected = {};
+    EXPECT_EQ(expected, solutions.findDuplicate(paths));
 }
 
 TEST(X86_64Test, nodesBetweenCriticalPointsCheck) {
@@ -2935,6 +3048,24 @@ TEST(X86_64Test, numSubarraysWithSumCheck) {
     expected = 6;
 
     EXPECT_EQ(expected, solutions.numSubarraysWithSum(nums, goal));
+}
+
+TEST(X86_64Test, findErrorNumsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 2, 4};
+
+    vector<int> expected = {2, 3};
+
+    EXPECT_EQ(expected, solutions.findErrorNums(nums));
+
+    // Edge Case:
+    nums = {1, 1};
+
+    expected = {1, 2};
+
+    EXPECT_EQ(expected, solutions.findErrorNums(nums));
 }
 
 TEST(X86_64Test, maxLengthCheck) {

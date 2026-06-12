@@ -523,7 +523,6 @@ int Purgatory::deleteAndEarn(vector<int> &nums) {
 // cache behavior
 struct TrieNode {
     TrieNode *children[26] = {};
-    bool isLeaf = true;
 };
 
 int Purgatory::minimumLengthEncoding(vector<string> &words) {
@@ -596,5 +595,168 @@ vector<string> Purgatory::wordSubsets(vector<string> &words1, vector<string> &wo
 
     return result;
 }
+
+vector<int> Purgatory::findErrorNums(vector<int> & nums) {
+    int n = nums.size();
+    vector<int> freq(n + 1, 0);
+
+    for (const int value : nums) {
+        ++freq[value];
+    }
+
+    // cache behavior
+    vector<int> result(2);
+    for (int i = 1; i <= n; ++i) {
+        if (freq[i] == 2)
+	    result[0] = i;
+        if (freq[i] == 0)
+	    result[1] = i;
+    }
+
+    return result;
+
+}
+
+int Purgatory::longestPalindrome(string s) {
+    // cache behavior
+    int freq[128] = {0};
+    for (const char c : s) {
+        freq[c]++;
+    }
+
+    int result = 0;
+    for (int i = 0; i < 128; i++) {
+        result += (freq[i] >>1) <<1;
+    }
+
+    if (result < s.size()) ++result;
+
+    return result;
+}
+
+int Purgatory::findMaxLength(vector<int> &nums) {
+    int n = nums.size();
+    // cache behavior
+    vector<int> findIndex((n << 1) + 1, -2);
+
+    int prefixSum = 0;
+    int result = 0;
+
+    int offset = n;
+    findIndex[offset] = -1;
+
+    for (int i = 0; i < n; ++i) {
+        prefixSum += (nums[i] == 1 ? 1 : -1);
+
+	int idx = prefixSum + offset;
+
+	if (findIndex[idx] != -2) {
+	    result = max(result, i - findIndex[idx]);
+	} else {
+	    findIndex[idx] = i;
+	}
+    }
+    return result;
+}
+
+vector<int> Purgatory::fairCandySwap(vector<int> &aliceSizes, vector<int> &bobSizes) {
+    int sumA = 0, sumB = 0;
+
+    unordered_set<int> set;
+    // cache behavior
+    set.reserve(bobSizes.size() << 1);
+
+    for (const int a : aliceSizes) sumA += a;
+    for (const int b : bobSizes) {
+        sumB += b;
+	set.insert(b);
+    }
+
+    int diff = (sumA - sumB) >> 1;
+
+    for (const int a : aliceSizes) {
+	// register vs memory
+        int b = a - diff;
+
+	// cache behavior
+	if (set.find(b) != set.end())
+	    return {a, b};
+    }
+
+    return {};
+}
+
+
+bool Purgatory::checkSubarraySum(vector<int> &nums, int k) {
+    int n = nums.size();
+
+    if (n < 2) return false;
+
+    unordered_map<int, int> mp;
+    // cache behavior
+    mp.reserve(n);
+    mp[0] = -1;
+
+    int sum = 0;
+    for (int i = 0; i < n; ++i) {
+        sum += nums[i];
+
+	int mod = (k == 0) ? sum : sum % k;
+
+	// cahce behavior
+	auto it = mp.find(mod);
+        if (it != mp.end()) {
+            if (i - it->second >= 2)
+	        return true;
+	} else {
+	    mp[mod] = i;
+	}
+    }
+
+    return false;
+}
+
+vector<vector<string>> Purgatory::findDuplicate(vector<string> &paths) {
+    unordered_map<string, vector<string>> buckets;
+    // cache behavior
+    buckets.reserve(paths.size() << 2);
+
+    for (string &path: paths) {
+	// cpu pipeline
+        int i = 0, n = path.size();
+
+	while (i < n && path[i] != ' ') ++i;
+	string dir = path.substr(0, i);
+
+	++i;
+	while (i < n) {
+            int start = i;
+	    while (path[i] != '(') ++i;
+	    string file = path.substr(start, i - start);
+
+	    ++i;
+	    int contentStart = i;
+	    while (path[i] != ')') ++i;
+	    string content = path.substr(contentStart, i - contentStart);
+
+	    ++i;
+	    if (i < n && path[i] == ' ') ++i;
+
+	    buckets[content].push_back({dir + '/' + file});
+	}
+    }
+
+    vector<vector<string>> result;
+
+    for (auto & bucket:buckets) {
+        if (bucket.second.size() > 1)
+	    result.push_back(move(bucket.second));
+    }
+
+    return result;
+}
+
+
+
 
 }

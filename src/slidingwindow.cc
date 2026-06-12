@@ -380,10 +380,10 @@ int Purgatory::totalFruit(vector<int> &fruits) {
 
 	    if (count1 == 0) {
 	        type1 = f;
-		count1 = 0;
+		count1 = 1;
 	    } else {
 		type2 = f;
-		count2 = 0;
+		count2 = 1;
 	    }
 	}
 
@@ -421,7 +421,7 @@ int Purgatory::findLength(vector<int> &nums1, vector<int> &nums2) {
 
     for (int i = 1; i <= n; ++i) {
 	// register vs memory
-        const int value = nums1[i];
+        const int value = nums1[i - 1];
 
 	for (int j = m; j >= 1; --j) {
 	    // branch prediction

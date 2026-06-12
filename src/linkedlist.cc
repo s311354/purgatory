@@ -250,7 +250,7 @@ int Purgatory::numComponents(ListNode *head, vector<int> &nums) {
 	// register vs memory
 	ListNode *nextNode = current->next;
 
-	if (!nextNode || nodeSet.count(nextNode->val)) {
+	if (!nextNode || !nodeSet.count(nextNode->val)) {
             ++componentCount;
 	}
     }
@@ -278,7 +278,7 @@ vector<int> Purgatory::nodesBetweenCriticalPoints(ListNode *head) {
 	int nextVal = curr->next->val;
 
 	// branch prediction
-	bool isCritical = ((currVal > prevVal) & (currVal > nextVal)) | ((currVal < prevVal) & (currVal < nextVal));
+	bool isCritical = ((currVal > prevVal) && (currVal > nextVal)) || ((currVal < prevVal) & (currVal < nextVal));
 
 	if (isCritical) {
             if (firstCritical == -1)
@@ -335,6 +335,7 @@ ListNode *Purgatory::removeNodes(ListNode *head) {
 
 	if (isDelete) {
             curr->next = nextNode->next;
+	    delete nextNode;
 	} else {
             curr = nextNode;
 	    maxValue = curr->val;

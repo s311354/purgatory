@@ -170,6 +170,18 @@ public:
 
     vector<string> wordSubsets(vector<string> &words1, vector<string> &word2);
 
+    vector<int> findErrorNums(vector<int> &nums);
+
+    int longestPalindrome(string s);
+
+    int findMaxLength(vector<int> &nums);
+
+    vector<int> fairCandySwap(vector<int> &aliceSizes, vector<int> &bobSizes);
+
+    bool checkSubarraySum(vector<int> &nums, int k);
+
+    vector<vector<string>> findDuplicate(vector<string> &paths);
+
     // two pointers
     bool isPalindrome(string s); 
     
@@ -470,6 +482,8 @@ public:
     vector<int> grayCode(int n);
 
     bool judgePoint24(vector<int>& cards); 
+
+    vector<vector<int>> findSubsequences(vector<int> &nums);
 
     // binary search
     int searchInsert(vector<int>& nums, int target);
