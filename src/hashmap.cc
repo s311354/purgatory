@@ -731,12 +731,12 @@ vector<vector<string>> Purgatory::findDuplicate(vector<string> &paths) {
 	++i;
 	while (i < n) {
             int start = i;
-	    while (path[i] != '(') ++i;
+	    while (i < n && path[i] != '(') ++i;
 	    string file = path.substr(start, i - start);
 
 	    ++i;
 	    int contentStart = i;
-	    while (path[i] != ')') ++i;
+	    while (i < n && path[i] != ')') ++i;
 	    string content = path.substr(contentStart, i - contentStart);
 
 	    ++i;

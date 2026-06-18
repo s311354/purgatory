@@ -2722,6 +2722,101 @@ TEST(X86_64Test, findDuplicateContentCheck) {
     EXPECT_EQ(expected, solutions.findDuplicate(paths));
 }
 
+TEST(X86_64Test, matrixReshapeCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<vector<int>> mat = {{1, 2}, {3, 4}};
+    int r = 1, c = 4;
+
+    vector<vector<int>> expected = {{1, 2, 3, 4}};
+
+    EXPECT_EQ(expected, solutions.matrixReshape(mat, r, c));
+
+    // Edge Case:
+    mat = {{1}};
+    r = 1; c = 1;
+
+    expected = {{1}};
+    EXPECT_EQ(expected, solutions.matrixReshape(mat, r, c));
+}
+
+TEST(X86_64Test, arrayNestingCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {5, 4, 0, 3, 1, 6, 2};
+
+    int expected = 4;
+
+    EXPECT_EQ(expected, solutions.arrayNesting(nums));
+
+    // Edge Case:
+    nums = {0, 1, 2};
+
+    expected = 1;
+    EXPECT_EQ(expected, solutions.arrayNesting(nums));
+}
+
+TEST(X86_64Test, maximumProductCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3};
+
+    int expected = 6;
+
+    EXPECT_EQ(expected, solutions.maximumProduct(nums));
+
+    // Edge Case:
+    nums = {-10, -10, 1, 2};
+
+    expected = 200;
+
+    EXPECT_EQ(expected, solutions.maximumProduct(nums));
+}
+
+TEST(X86_64Test, isPossbileCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3, 3, 4, 5};
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.isPossbile(nums));
+
+    // Edge Case:
+    nums = {1, 2};
+
+    expected = false;
+
+    EXPECT_EQ(expected, solutions.isPossbile(nums));
+}
+
+TEST(X86_64Test, canPartitionKSubsetsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {4, 3, 2, 3, 5, 2, 1};
+
+    int k = 4;
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.canPartitionKSubsets(nums, k));
+
+    // Edge Case:
+    nums = {1, 1, 1, 1};
+
+    k = 2;
+
+    expected = true;
+
+    EXPECT_EQ(expected, solutions.canPartitionKSubsets(nums, k));
+}
+
+
 TEST(X86_64Test, nodesBetweenCriticalPointsCheck) {
     purgatory::Purgatory solutions;
 
@@ -3007,6 +3102,156 @@ TEST(X86_64Test, removeElemetsCheck) {
 
     EXPECT_EQ(expected, purgatory::toVector(solutions.removeElements(purgatory::buildLinkedList(head), val)));
 }
+
+TEST(X86_64Test, findDisappearedNumberCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {4, 3, 2, 7, 8, 2, 3, 1};
+
+    vector<int> expected = {5, 6};
+
+    EXPECT_EQ(expected, solutions.findDisappearedNumber(nums));
+
+    // Edge Case:
+    nums = {1, 1};
+
+    expected = {2};
+
+    EXPECT_EQ(expected, solutions.findDisappearedNumber(nums));
+}
+
+TEST(X86_64Test, minMovesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 3};
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.minMoves(nums));
+
+    // Edge Case:
+    nums = {1, 1, 1};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.minMoves(nums));
+
+}
+
+TEST(X86_64Test, makesquareCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> matchsticks = {1, 1, 2, 2, 2};
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.makesquare(matchsticks));
+
+    // Edge Case:
+    matchsticks = {1, 1, 1, 1};
+
+    expected = true;
+
+    EXPECT_EQ(expected, solutions.makesquare(matchsticks));
+
+}
+
+TEST(X86_64Test, findTargetSumWaysCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 1, 1, 1, 1};
+    int target = 3;
+
+    int expected = 5;
+
+    EXPECT_EQ(expected, solutions.findTargetSumWays(nums, target));
+
+    // Edge Case:
+    nums = {1};
+    target = 1;
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.findTargetSumWays(nums, target));
+}
+
+TEST(X86_64Test, findRestaurantCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<string> list1 = {"Shogun", "Tapioca Express", "Burger King", "KFC"};
+
+    vector<string> list2 = {"Piatti", "The Grill at Torrey Pines", "Hungry Hunter Steakhouse", "Shogun"};
+
+    vector<string> expected = {"Shogun"};
+
+    EXPECT_EQ(expected, solutions.findRestaurant(list1, list2));
+
+    // Edge Case:
+    list1 = {"A"};
+    list2 = {"A"};
+
+    expected = {"A"};
+
+    EXPECT_EQ(expected, solutions.findRestaurant(list1, list2));
+}
+
+TEST(X86_64Test, countPrimesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    int n = 10;
+
+    int expected = 4;
+
+    EXPECT_EQ(expected, solutions.countPrimes(n));
+
+    // Edge Case:
+    n = 2;
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.countPrimes(n));
+}
+
+TEST(X86_64Test, wiggleMaxLengthCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 7, 4, 9, 2, 5};
+
+    int expected = 6;
+
+    EXPECT_EQ(expected, solutions.wiggleMaxLength(nums));
+
+    // Edge Case:
+    nums = {1};
+
+    expected = 1;
+    EXPECT_EQ(expected, solutions.wiggleMaxLength(nums));
+}
+
+TEST(X86_64Test, findDuplicatesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {4, 3, 2, 7, 8, 2, 3, 1};
+
+    vector<int> expected = {2, 3};
+
+    EXPECT_EQ(expected, solutions.findDuplicates(nums));
+
+    // Edge Case:
+    nums = {1, 1};
+
+    expected = {1};
+    EXPECT_EQ(expected, solutions.findDuplicates(nums));
+}
+
 
 TEST(X86_64Test, minimumSumSubarrayCheck) {
     purgatory::Purgatory solutions;

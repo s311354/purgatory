@@ -133,6 +133,16 @@ public:
 
     int minimumPairRemoval(vector<int> &nums);
 
+    vector<vector<int>> matrixReshape(vector<vector<int>> &mat, int r, int c);
+
+    int arrayNesting(vector<int> &nums);
+
+    int maximumProduct(vector<int>& nums);
+
+    bool isPossbile(vector<int> &nums);
+
+    bool canPartitionKSubsets(vector<int> &nums, int k);
+
     // hashmap
     bool canConstruct(string ransomNot, string magazine);
 
@@ -181,6 +191,22 @@ public:
     bool checkSubarraySum(vector<int> &nums, int k);
 
     vector<vector<string>> findDuplicate(vector<string> &paths);
+
+    vector<int> findDisappearedNumber(vector<int> &nums);
+
+    int minMoves(vector<int> &nums);
+
+    bool makesquare(vector<int> &matchsticks);
+
+    int findTargetSumWays(vector<int> &nums, int target);
+
+    vector<string> findRestaurant(vector<string> &list1, vector<string> &list2);
+
+    int countPrimes(int n);
+
+    int wiggleMaxLength(vector<int> &nums);
+
+    vector<int> findDuplicates(vector<int> &nums);
 
     // two pointers
     bool isPalindrome(string s); 

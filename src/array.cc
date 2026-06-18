@@ -785,5 +785,366 @@ int Purgatory::minimumPairRemoval(vector<int> &nums) {
     return count;
 }
 
+vector<vector<int>> Purgatory::matrixReshape(vector<vector<int>> &mat, int r, int c) {
+    int rows = mat.size();
+    int cols = mat[0].size();
+
+    vector<vector<int>> result(r, vector<int>(c));
+
+    int idx = 0;
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+	    // register vs memory
+            int newRow = idx / c;
+	    int newCol = idx % c;
+
+	    result[newRow][newCol] = mat[i][j];
+	    ++idx;
+	}
+    }
+
+    return result;
+}
+
+int Purgatory::arrayNesting(vector<int>& nums) {
+    int n = nums.size();
+    int result = 0;
+
+    for (int i = 0; i < n; ++i) {
+        if (nums[i] == -1)
+	    continue;
+
+	int idx = i;
+	int len = 0;
+
+	while (nums[idx] != -1) {
+	    // cache behavior
+	    int next = nums[idx];
+	    nums[idx] = -1;
+	    idx = next;
+	    ++len;
+	}
+
+	result = max(result, len);
+    }
+
+    return result;
+}
+
+int Purgatory::maximumProduct(vector<int> &nums) {
+    // register vs memory
+    int max1 = INT_MIN;
+    int max2 = INT_MIN;
+    int max3 = INT_MIN;
+
+    int min1 = INT_MAX;
+    int min2 = INT_MAX;
+
+    for (const int num: nums) {
+        if (num > max1) {
+	    max3 = max2;
+	    max2 = max1;
+	    max1 = num;
+	} else if (num > max2) {
+	    max3 = max2;
+	    max2 = num;
+	} else if (num > max3) {
+	    max3 = num;
+	}
+
+	if (num < min1) {
+	    min2 = min1;
+	    min1 = num;
+	} else if (num < min2) {
+	    min2 = num;
+	}
+    }
+
+    int case1 = max1 * max2 * max3;
+    int case2 = min1 * min2 * max1;
+
+    return max(case1, case2);
+}
+
+bool Purgatory::isPossbile(vector<int> &nums) {
+    // register vs memory
+    vector<int> freq(2005, 0);
+    vector<int> need(2005, 0);
+
+    const int OFFSET = 1000;
+
+    for (int num:nums) {
+        freq[num + OFFSET]++;
+    }
+
+    for (const int num : nums) {
+        int i = num + OFFSET;
+
+	if (freq[i] == 0) continue;
+
+        --freq[i];
+
+	if (need[i] > 0) {
+	    --need[i];
+	    ++need[i + 1];
+	} else if (freq[i + 1] > 0 && freq[i + 2]> 0) {
+	    --freq[i + 1];
+	    --freq[i + 2];
+	    ++need[i + 3];
+	} else {
+	    return false;
+	}
+    }
+
+    return true;
+}
+
+bool backtrackCanPartitionKSubsets(vector<int> & nums, vector<int> &buckets, int index, int target) {
+    if (index == nums.size()) return true;
+
+    int num = nums[index];
+
+    for (int i = 0; i < buckets.size(); ++i) {
+	// branch prediction
+        if (buckets[i] + num > target)
+            continue;
+
+        buckets[i] += num;
+
+	if (backtrackCanPartitionKSubsets(nums, buckets, index + 1, target))
+	    return true;
+
+	buckets[i] -= num;
+
+	if (buckets[i] == 0)
+            break;
+    }
+
+    return false;
+}
+
+bool Purgatory::canPartitionKSubsets(vector<int> &nums, int k) {
+    int total = accumulate(nums.begin(), nums.end(), 0);
+
+    if (k <= 0 || total % k != 0) return false;
+
+    int target = total/k;
+
+    sort(nums.begin(), nums.end(), greater<int>());
+
+    if (nums[0] > target) return false;
+
+    // cache behavior
+    vector<int> buckets(k, 0);
+
+    return backtrackCanPartitionKSubsets(nums, buckets, 0, target);
+}
+
+
+vector<int> Purgatory::findDisappearedNumber(vector<int> &nums) {
+    int n = nums.size();
+
+    for (int i = 0; i < n; ++i) {
+	// register vs memory
+        int val = nums[i];
+	int index = val > 0 ? val - 1: -val - 1;
+
+	if (nums[index] > 0)
+	    nums[index] = -nums[index];
+    }
+
+    vector<int> result;
+    result.reserve(n);
+
+    for (int i = 0; i < n; ++i) {
+        if (nums[i] > 0)
+	    result.push_back(i + 1);
+    }
+
+    return result;
+}
+
+int Purgatory::minMoves(vector<int> &nums) {
+    int min = INT_MAX;
+    long long sum = 0;
+
+    // cpu pipeline
+    for (const int num : nums ) {
+        sum += num;
+
+	if (min > num) min = num;
+    }
+
+    return static_cast<int>(sum - (long long) nums.size() * min);
+}
+
+bool Purgatory::makesquare(vector<int> &matchsticks) {
+    int n = matchsticks.size();
+
+    if (n < 4) return false;
+
+    int target = 0;
+    long long sum = 0;
+
+    for (const int num : matchsticks) {
+        sum += num;
+    }
+
+    if (sum % 4 != 0) return false;
+
+    target = sum / 4;
+    
+    sort(matchsticks.rbegin(), matchsticks.rend());
+
+    int sides[4] = {0};
+
+    function<bool(int)> dfs = [&](int i) {
+        if (i == n) return true;
+
+	// register vs memory
+	int val = matchsticks[i];
+
+	for (int j = 0; j < 4; ++j) {
+            if (sides[j] + val > target) return false;
+
+	    sides[j] += val;
+
+	    if (dfs(i + 1)) return true;
+
+	    sides[j] -= val;
+
+	}
+	return false;
+    };
+
+    return dfs(0);
+
+}
+
+int Purgatory::findTargetSumWays(vector<int> &nums, int target) {
+    int totalSum = accumulate(nums.begin(), nums.end(), 0);
+
+    // register vs memory
+    const int transformed = totalSum + target;
+
+    if ((abs(target) > totalSum) || (transformed & 1))
+        return 0;
+
+    const int subsetSum = transformed >> 1;
+
+    // cache behavior
+    vector<int> dp(subsetSum + 1, 0);
+
+    dp[0] = 1;
+
+    for (const int num : nums) {
+        for (int sum = subsetSum; sum >= num; --sum) {
+	    dp[sum] += dp[sum - num];
+	}
+    }
+
+    return dp[subsetSum];
+}
+
+vector<string> Purgatory::findRestaurant(vector<string> &list1, vector<string> &list2) {
+    int n = list1.size(), m = list2.size();
+
+    unordered_map<string, int> list1Index;
+    // cache behavior
+    list1Index.reserve(n);
+
+    for (int i = 0; i < n; ++i)
+        list1Index.emplace(list1[i], i);
+
+    int min = INT_MAX;
+    vector<string> result;
+
+    for (int j = 0; j < m; ++j) {
+        auto it = list1Index.find(list2[j]);
+
+	if (it == list1Index.end())
+	    continue;
+
+        int sum = it->second + j;
+
+	if (sum < min) {
+	    min = sum;
+	    result.clear();
+	    result.push_back(list2[j]);
+	} else if (sum == min) {
+	    result.push_back(list2[j]);
+	}
+    }
+
+    return result;
+}
+
+int Purgatory::countPrimes(int n) {
+    if (n <= 2) return 0;
+
+    // cahce behavior
+    vector<char> isPrime(n, 1);
+    isPrime[0] = isPrime[1] = 0;
+
+    for (int i = 2; i * i < n; ++i) {
+        if (!isPrime[i])
+	    continue;
+
+	for (int j = i * i; j < n; j += i) {
+	    isPrime[j] = 0;
+	}
+    }
+
+    int count = 0;
+    for (int i = 2; i < n; ++i) {
+        count += isPrime[i];
+    }
+
+    return count;
+
+}
+
+int Purgatory::wiggleMaxLength(vector<int> &nums) {
+    int n = nums.size();
+    if (n < 2) return n;
+
+    int up = 1, down = 1;
+
+    for (int i = 1; i < n; ++i) {
+	// register vs memory
+        int prev = nums[i - 1];
+	int curr = nums[i];
+
+	if (curr > prev) {
+	    up = down + 1;
+	} else if (curr < prev) {
+	    down = up + 1;
+	}
+    }
+
+    return up > down ? up : down;
+}
+
+vector<int> Purgatory::findDuplicates(vector<int> &nums) {
+    int n = nums.size();
+    vector<int> result;
+    result.reserve(n >> 1);
+
+    for (int i = 0; i < n; ++i) {
+	// register vs memory
+        int idx = abs(nums[i]) - 1;
+	int &val = nums[idx];
+
+	if (val < 0) {
+	    result.push_back(idx + 1);
+	} else {
+	    val = -val;
+	}
+    }
+
+    return result;
+}
+
+
 
 }
