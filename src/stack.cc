@@ -967,5 +967,212 @@ int Purgatory::totalSteps(vector<int> &nums) {
     return result;
 }
 
+int Purgatory::minOperations(vector<string> &logs) {
+    int result = 0;
+
+    for (const string &log : logs) {
+	// register vs memory
+        char c = log[0];
+
+	if (c == '.') {
+            if (log[1] == '.') {
+                if (result > 0) --result;
+	    }
+	} else {
+	    ++result;
+	}
+    }
+    return result;
+}
+
+int Purgatory::scoreOfParentheses(string s) {
+    // register vs memory
+    int depth = 0, count = 0;
+
+    // cpu pipelie
+    for (int i = 0; i< s.size(); ++i) {
+        if (s[i] == '(') {
+            ++depth;
+	} else {
+	    --depth;
+
+	    // branch prediction
+	    if (s[i - 1] == '(') {
+	        count += (1 << depth);
+	    }
+	}
+    }
+
+    return count;
+}
+
+int Purgatory::maximumPossibleSize(vector<int> &nums) {
+    int n = nums.size();
+    int count = 1;
+    int last = nums[0];
+
+    // cpu pipelie
+    for (int i = 1; i < n; ++i) {
+        int curr = nums[i];
+
+	if (curr >= last) {
+	    ++count;
+	    last = curr;
+	}
+    }
+
+    return count;
+}
+
+void dfsPreorderTraversal(TreeNode *node, vector<int> &result) {
+    // branch prediction
+    if (!node) return;
+
+    result.push_back(node->val);
+
+    dfsPreorderTraversal(node->left, result);
+    dfsPreorderTraversal(node->right, result);
+}
+
+vector<int> Purgatory::preorderTraversal(TreeNode *root) {
+    vector<int> result;
+
+    dfsPreorderTraversal(root, result);
+
+    return result;
+}
+
+int Purgatory::maxBalanceShipments(vector<int> &weights) {
+    int n = weights.size();
+    int count = 0;
+
+    for (int i = 0; i < n;) {
+	// branch prediction
+        const bool split = weights[i] < weights[i - 1];
+	count += split;
+
+	i += split ? 2: 1;
+    }
+
+    return count;
+}
+
+long long Purgatory::bowlSubarrays(vector<int> &nums) {
+    int n = nums.size();
+   
+    // cache behavior
+    vector<int> stack;
+    stack.reserve(n);
+
+    long long count = 0;
+    for (const int val : nums) {
+        while (!stack.empty() && val > stack.back()) {
+	    stack.pop_back();
+
+	    // branch prediction
+	    if (!stack.empty())
+                ++count;
+
+	}
+
+	stack.push_back(val);
+    }
+
+    return count;
+}
+
+
+vector<long long> Purgatory::mergeAdjacent(vector<int> &nums) {
+    int n = nums.size();
+    // cache behavior
+    vector<long long> result;
+    result.reserve(n);
+
+    for (const int num : nums) {
+        result.push_back(num);
+
+	while (result.size() >= 2) {
+	    // register vs memory
+            const size_t top = result.size() - 1;
+	    const long long right = result[top];
+	    const long long left = result[top - 1];
+
+	    if (right != left) break;
+
+	    result.pop_back();
+	    result.back() = right + left;
+	}
+    }
+
+    return result;
+}
+
+void dfsPostorderTraversal(TreeNode *node, vector<int> &result) {
+    if (!node) return;
+
+    dfsPostorderTraversal(node->left, result);
+    dfsPostorderTraversal(node->right, result);
+
+    result.push_back(node->val);
+
+}
+
+vector<int> Purgatory::postorderTraversal(TreeNode *root) {
+    vector<int> result;
+    // cache behavior
+    result.reserve(100);
+
+    dfsPostorderTraversal(root, result);
+
+    return result;
+}
+
+string Purgatory::decodeAtIndex(string s, int k) {
+    long long size = 0;
+
+    for (const char c : s) {
+        if (!isdigit(c)) {
+	    size += 1;
+	} else {
+	    size *= (c - '0');
+	}
+    }
+
+    for (int i = s.size() - 1; i >= 0; --i) {
+        char c = s[i];
+
+	// cpu pipelie
+	if (c >= '2' && c <= '9') {
+            int d = c - '0';
+	    size /= d;
+	    if (k > size) k %= size;
+	} else {
+	    // branch prediction
+	    if (k == 0 || k == size) {
+	        return string(1, c);
+	    }
+	    --size;
+	}
+    }
+    return "";
+}
+
+bool Purgatory::isValidString(string s) {
+    string st;
+    // cache behavior
+    st.reserve(s.size());
+
+    for (char c : s) {
+        st.push_back(c);
+	int n = st.size();
+
+	// branch prediction
+	if (n >= 3 && st[n - 3] == 'a' && st[n - 2] == 'b' && st[n - 1] == 'c') {
+	    st.resize(n - 3);
+	}
+    }
+    return st.empty();
+}
+
 
 }

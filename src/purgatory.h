@@ -407,6 +407,26 @@ public:
 
     int totalSteps(vector<int> &nums);
 
+    int minOperations(vector<string> &logs);
+
+    int scoreOfParentheses(string s);
+
+    int maximumPossibleSize(vector<int> &nums);
+
+    vector<int> preorderTraversal(TreeNode *root);
+
+    int maxBalanceShipments(vector<int> &weight);
+
+    long long bowlSubarrays(vector<int> &nums);
+
+    vector<long long> mergeAdjacent(vector<int> &nums);
+
+    vector<int> postorderTraversal(TreeNode *root);
+
+    string decodeAtIndex(string s, int k);
+
+    bool isValidString(string s);
+
     // graph bfs
     vector<vector<int>> levelOrderBottom(TreeNode* root); 
 

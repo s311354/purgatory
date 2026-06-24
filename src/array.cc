@@ -789,17 +789,25 @@ vector<vector<int>> Purgatory::matrixReshape(vector<vector<int>> &mat, int r, in
     int rows = mat.size();
     int cols = mat[0].size();
 
+    if (rows * cols != r * c) return mat;
+
     vector<vector<int>> result(r, vector<int>(c));
 
-    int idx = 0;
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-	    // register vs memory
-            int newRow = idx / c;
-	    int newCol = idx % c;
+    int src_i = 0, src_j = 0;
 
-	    result[newRow][newCol] = mat[i][j];
-	    ++idx;
+    for (int i = 0; i < r; ++i) {
+	// register vs memory
+	int *dst_row = result[i].data();
+
+        for (int j = 0; j < c; ++j) {
+	    // cache behavior
+            dst_row[j] = mat[src_i][src_j];
+
+	    // branch prediction
+	    if (++src_j == cols) {
+	        src_j = 0;
+		++src_i;
+	    }
 	}
     }
 
@@ -817,15 +825,18 @@ int Purgatory::arrayNesting(vector<int>& nums) {
 	int idx = i;
 	int len = 0;
 
-	while (nums[idx] != -1) {
-	    // cache behavior
+	while (true) {
+	    // register vs memory
 	    int next = nums[idx];
+	    if (next == -1) break;
+
 	    nums[idx] = -1;
 	    idx = next;
 	    ++len;
 	}
 
-	result = max(result, len);
+	// branch prediction
+	result = result > len ? result : len;
     }
 
     return result;
@@ -841,18 +852,18 @@ int Purgatory::maximumProduct(vector<int> &nums) {
     int min2 = INT_MAX;
 
     for (const int num: nums) {
-        if (num > max1) {
+        if (num >= max1) {
 	    max3 = max2;
 	    max2 = max1;
 	    max1 = num;
-	} else if (num > max2) {
+	} else if (num >= max2) {
 	    max3 = max2;
 	    max2 = num;
 	} else if (num > max3) {
 	    max3 = num;
 	}
 
-	if (num < min1) {
+	if (num <= min1) {
 	    min2 = min1;
 	    min1 = num;
 	} else if (num < min2) {
@@ -863,7 +874,8 @@ int Purgatory::maximumProduct(vector<int> &nums) {
     int case1 = max1 * max2 * max3;
     int case2 = min1 * min2 * max1;
 
-    return max(case1, case2);
+    // branch prediction
+    return case1 > case2 ? case1 : case2;
 }
 
 bool Purgatory::isPossbile(vector<int> &nums) {
@@ -1005,7 +1017,7 @@ bool Purgatory::makesquare(vector<int> &matchsticks) {
 	int val = matchsticks[i];
 
 	for (int j = 0; j < 4; ++j) {
-            if (sides[j] + val > target) return false;
+            if (sides[j] + val > target) continue;
 
 	    sides[j] += val;
 

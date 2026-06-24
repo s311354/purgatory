@@ -841,6 +841,136 @@ TEST(X86_64Test, averageOfLevelsCheck) {
     EXPECT_EQ(expected, solutions.averageOfLevels(purgatory::buildTree(nums)));
 }
 
+TEST(X86_64Test, preorderTraversalCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> root = {1, -1, 2, 3};
+
+    vector<int> expected = {1, 2, 3};
+
+    EXPECT_EQ(expected, solutions.preorderTraversal(purgatory::buildTree(root)));
+
+
+    // Edge Case:
+    root = {1};
+
+    expected = {1};
+
+    EXPECT_EQ(expected, solutions.preorderTraversal(purgatory::buildTree(root)));
+}
+
+TEST(X86_64Test, maxBalanceShipmentsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> weights = {2, 5, 1, 4, 3};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.maxBalanceShipments(weights));
+
+    // Edge Case:
+    weights = {4, 4};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.maxBalanceShipments(weights));
+}
+
+TEST(X86_64Test, bowlSubarraysCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {2, 5, 3, 1, 4};
+
+    long long expected = 2;
+
+    EXPECT_EQ(expected, solutions.bowlSubarrays(nums));
+
+    // Edge Case:
+    nums = {1, 2, 3};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.bowlSubarrays(nums));
+}
+
+TEST(X86_64Test, mergeAdjacentCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {3, 1, 1, 2};
+
+    vector<long long> expected = {3, 4};
+
+    EXPECT_EQ(expected, solutions.mergeAdjacent(nums));
+
+    // Edge Case:
+    nums = {1, 1, 1, 1};
+
+    expected = {4};
+
+    EXPECT_EQ(expected, solutions.mergeAdjacent(nums));
+}
+
+TEST(X86_64Test, postorderTraversalCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> root = {1, -1, 2, 3};
+
+    vector<int> expected = {3, 2, 1};
+
+    EXPECT_EQ(expected, solutions.postorderTraversal(purgatory::buildTree(root)));
+
+    // Edge Case:
+    root = {1};
+
+    expected = {1};
+    EXPECT_EQ(expected, solutions.postorderTraversal(purgatory::buildTree(root)));
+
+}
+
+TEST(X86_64Test, decodeAtIndexCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "leet2code3";
+
+    int k = 10;
+
+    string expected = "o";
+
+    EXPECT_EQ(expected, solutions.decodeAtIndex(s, k));
+
+    // Edge Case:
+    s = "a";
+
+    k = 1;
+
+    expected = "a";
+
+    EXPECT_EQ(expected, solutions.decodeAtIndex(s, k));
+}
+
+TEST(X86_64Test, isValidStringCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "aabcbc";
+
+    bool expected = true;
+
+    EXPECT_EQ(expected, solutions.isValidString(s));
+
+    // Edge Case:
+    s = "abc";
+
+    expected = true;
+    EXPECT_EQ(expected, solutions.isValidString(s));
+}
+
 TEST(X86_64Test, rightSideViewCheck) {
     purgatory::Purgatory solutions;
 
@@ -2774,6 +2904,59 @@ TEST(X86_64Test, maximumProductCheck) {
     expected = 200;
 
     EXPECT_EQ(expected, solutions.maximumProduct(nums));
+}
+
+TEST(X86_64Test, minOperationsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<string> logs = {"d1/", "d2/", "../", "d21/", "./"};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.minOperations(logs));
+
+    // Edge Case:
+    logs = {"../", "../"};
+
+    expected = 0;
+
+    EXPECT_EQ(expected, solutions.minOperations(logs));
+}
+
+TEST(X86_64Test, scoreOfParenthesesCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "()()";
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.scoreOfParentheses(s));
+
+    // Edge Case:
+    s = "()";
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.scoreOfParentheses(s));
+}	
+
+TEST(X86_64Test, maximumPossibleSizeCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {4, 2, 5, 3, 5};
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.maximumPossibleSize(nums));
+
+    // Edge Case:
+    nums = {1, 2, 3};
+
+    expected = 3;
+    EXPECT_EQ(expected, solutions.maximumPossibleSize(nums));
 }
 
 TEST(X86_64Test, isPossbileCheck) {
