@@ -257,6 +257,16 @@ public:
 
     long long minimumSteps(string s);
 
+    int getCommon(vector<int> &nums1, vector<int> &nums2);
+
+    int numFriendRequests(vector<int> &ages);
+
+    string reverseOnlyLetters(string s);
+
+    int numRescueBoats(vector<int> &people, int limit);
+
+    int waysToSplit(vector<int> &nums);
+
     // sliding window
     bool containsNearbyDuplicate(vector<int>& nums, int k);
 

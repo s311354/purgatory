@@ -748,5 +748,143 @@ long long Purgatory::minimumSteps(string s) {
     return totalSwaps;
 }
 
+int Purgatory::getCommon(vector<int> &nums1, vector<int> &nums2) {
+    // register vs memory
+    int n1 = nums1.size(), n2 = nums2.size();
+
+    int i = 0, j = 0;
+
+    while (i < n1 && j < n2) {
+	//register vs memory
+        const int a = nums1[i];
+	const int b = nums2[j];
+
+	if (a == b) {
+	    return a;
+	}
+
+	if (a < b) {
+	    ++i;
+	} else {
+	    ++j;
+	}
+    }
+
+    return -1;
+}
+
+int Purgatory::numFriendRequests(vector<int> &ages) {
+
+    // cache behavior
+    int cnt[121] = {};
+
+    for (int age: ages)
+        ++cnt[age];
+
+    int total = 0;
+    for (int i = 1; i <= 120; ++i) {
+        if (cnt[i] == 0) continue;
+	for (int j = 1; j <= 120; ++j) {
+            if (cnt[j] == 0) continue;
+
+	    if (j <= (i >> 1) + 7) continue;
+
+	    if (j > i) continue;
+
+	    if (j > 100 && i < 100) continue;
+
+	    if (i == j) {
+	        total += cnt[i] * (cnt[i] - 1);
+	    } else {
+	        total += cnt[i] * cnt[j];
+	    }
+	}
+    }
+
+    return total;
+}
+
+string Purgatory::reverseOnlyLetters(string s) {
+    int left = 0, right = s.size() - 1;
+
+    while (left < right) {
+	// function call
+        while (left < right && !((s[left] >= 'a' && s[left] <= 'z') || (s[left] >= 'A' && s[left] <= 'Z'))) ++left;
+
+        while (left < right && !((s[right] >= 'a' && s[right] <= 'z') || (s[right] >= 'A' && s[right] <= 'Z'))) --right;
+
+	if (left < right) {
+	    char c = s[left];
+	    s[left] = s[right];
+	    s[right] = c;
+
+	    ++left; --right;
+	}
+    }
+
+    return s;
+}
+
+int Purgatory::numRescueBoats(vector<int> &people, int limit) {
+    int count = 0;
+    sort(people.begin(), people.end());
+    int left = 0, right = people.size() - 1;
+
+    while (left <= right) {
+	// register vs memory
+        int sum = people[right];
+
+	if (left != right) {
+	    sum += people[left];
+
+	    if (sum <= limit) {
+	        ++left;
+	    }
+	}
+
+	++count; --right;
+    }
+
+    return count;
+}
+
+int Purgatory::waysToSplit(vector<int> &nums) {
+    int n = nums.size();
+    const int MOD = 1e9 + 7;
+
+    // cache behavior
+    vector<long long> prefixSum(n);
+    prefixSum[0] = nums[0];
+
+    for (int i = 1; i < n; ++i) {
+        prefixSum[i] = prefixSum[i - 1] + nums[i];
+    }
+
+    long long total = prefixSum.back();
+    long long count = 0;
+
+    // register vs memory
+    const auto begin = prefixSum.begin();
+    const auto end = prefixSum.end() - 1;
+
+    for (int leftEnd = 0; leftEnd < n - 2; ++leftEnd) {
+	// register vs memory
+        long long leftSum = prefixSum[leftEnd];
+
+	const long long lowerTarget = leftSum << 1;
+	const long long upperTarget = (leftSum + total) >> 1;
+
+	int leftBound = lower_bound(begin + leftEnd + 1, end, lowerTarget) - begin;
+	int rightBound = upper_bound(begin + leftEnd + 1, end, upperTarget) - begin - 1;
+
+	if (leftBound <= rightBound)
+	    count += rightBound - leftBound + 1;
+    }
+
+    return static_cast<int>(count % MOD);
+
+}
+
+
 
 }

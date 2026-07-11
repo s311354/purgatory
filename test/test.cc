@@ -483,6 +483,65 @@ TEST(X86_64Test, isPalindromeCheck) {
     EXPECT_EQ(expected, solutions.isPalindrome(s));
 }
 
+TEST(X86_64Test, waysToSplitCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 2, 2, 5, 0};
+
+    int expected = 3;
+
+    EXPECT_EQ(expected, solutions.waysToSplit(nums));
+
+    // Edge Case:
+    nums = {1, 1, 1};
+
+    expected = 1;
+    EXPECT_EQ(expected, solutions.waysToSplit(nums));
+}
+
+
+TEST(X86_64Test, numRescueBoatsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> people = {3, 5, 3, 4};
+
+    int limit = 5;
+
+    int expected = 4;
+
+    EXPECT_EQ(expected, solutions.numRescueBoats(people, limit));
+
+    // Edge Case:
+    people = {1};
+
+    limit = 3;
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.numRescueBoats(people, limit));
+}
+
+
+TEST(X86_64Test, reverseOnlyLettersCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    string s = "ab-cd";
+
+    string expected = "dc-ba";
+
+    EXPECT_EQ(expected, solutions.reverseOnlyLetters(s));
+
+    // Edge Case:
+    s = "--";
+
+    expected = "--";
+
+    EXPECT_EQ(expected, solutions.reverseOnlyLetters(s));
+}
+
 TEST(X86_64Test, twoSumCheck) {
     purgatory::Purgatory solutions;
 
@@ -876,6 +935,42 @@ TEST(X86_64Test, maxBalanceShipmentsCheck) {
     expected = 0;
 
     EXPECT_EQ(expected, solutions.maxBalanceShipments(weights));
+}
+
+TEST(X86_64Test, getCommonCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums1 = {1, 2, 3}, nums2 = {2, 4};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.getCommon(nums1, nums2));
+
+    // Edge Case:
+    nums1 = {1}; nums2 = {1};
+
+    expected = 1;
+
+    EXPECT_EQ(expected, solutions.getCommon(nums1, nums2));
+}
+
+TEST(X86_64Test, numFriendRequestsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> ages = {16, 17, 18};
+
+    int expected = 2;
+
+    EXPECT_EQ(expected, solutions.numFriendRequests(ages));
+
+    // Edge Case:
+    ages = {16, 16};
+
+    expected = 2;
+
+    EXPECT_EQ(expected, solutions.numFriendRequests(ages));
 }
 
 TEST(X86_64Test, bowlSubarraysCheck) {
