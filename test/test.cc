@@ -500,6 +500,24 @@ TEST(X86_64Test, waysToSplitCheck) {
     EXPECT_EQ(expected, solutions.waysToSplit(nums));
 }
 
+TEST(X86_64Test, applyOperationsCheck) {
+    purgatory::Purgatory solutions;
+
+    // Basic Case:
+    vector<int> nums = {1, 2, 2, 1, 1, 0};
+
+    vector<int> expected = {1, 4, 2, 0, 0, 0};
+
+    EXPECT_EQ(expected, applyOperations(nums));
+
+    // Edge Case:
+    nums = {0, 1};
+
+    expected = {1, 0};
+
+    EXPECT_EQ(expected, applyOperations(nums));
+}
+
 
 TEST(X86_64Test, numRescueBoatsCheck) {
     purgatory::Purgatory solutions;

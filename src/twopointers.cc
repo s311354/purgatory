@@ -885,6 +885,32 @@ int Purgatory::waysToSplit(vector<int> &nums) {
 
 }
 
+vector<int> Purgatory::applyOperations(vector<int> &nums) {
+    int n = nums.size();
+
+    for (int i = 0; i < n - 1; ++i) {
+	// register vs memory
+        int current = nums[i];
+	int next = nums[i + 1];
+
+	if( current == next) {
+	    nums[i] = current << 1;
+	    nums[i + 1] = 0;
+	}
+
+	int write = 0;
+	for (read = 0; read < n ; ++read) {
+	    if (nums[read] != 0)
+	        nums[write++] = nums[read];
+	}
+
+	for (write < n) {
+	    nums[write++] = 0;
+	}
+
+	return nums;
+    }
+}
 
 
 }

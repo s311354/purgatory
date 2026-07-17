@@ -267,6 +267,9 @@ public:
 
     int waysToSplit(vector<int> &nums);
 
+    vector<int> applyOperations(vector<int> &nums);
+
+
     // sliding window
     bool containsNearbyDuplicate(vector<int>& nums, int k);
 
@@ -307,6 +310,7 @@ public:
     int numberOfSubarrays(vector<int> &nums, int k);
 
     int maximumUniqueSubarray(vector<int> &nums);
+
 
 
     // prefix sum
