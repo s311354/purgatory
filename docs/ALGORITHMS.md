@@ -7,7 +7,7 @@ Comprehensive catalog of all algorithms implemented in purgatory, organized by p
 - **Total Algorithms**: 300+
 - **Total Test Cases**: 248
 - **Lines of Code**: ~9,114
-- **C++ Standard**: C++11
+- **C++ Standard**: C++17
 
 ## Pattern Overview
 

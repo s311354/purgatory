@@ -1,4837 +1,4941 @@
-#include <gtest/gtest.h>
 #include "purgatory.h"
 #include "query.h"
+#include <gtest/gtest.h>
 
 #ifdef PURGATORY_X86_64
 
 namespace purgatory {
 // Build tree from level-order vector with INT_MIN as null
-TreeNode* buildTree(const vector<int>& arr) {
-    if (arr.empty() || arr[0] == INT_MIN) return nullptr;
+TreeNode *buildTree(const vector<int> &arr) {
+  if (arr.empty() || arr[0] == INT_MIN)
+    return nullptr;
 
-    TreeNode* root = new TreeNode(arr[0]);
-    queue<TreeNode*> q;
-    q.push(root);
+  TreeNode *root = new TreeNode(arr[0]);
+  queue<TreeNode *> q;
+  q.push(root);
 
-    int i = 1;
+  int i = 1;
 
-    while (!q.empty() && i < arr.size()) {
-        TreeNode* node = q.front(); q.pop();
+  while (!q.empty() && i < arr.size()) {
+    TreeNode *node = q.front();
+    q.pop();
 
-	if (i < arr.size() && arr[i] != INT_MIN) {
-	    if(arr[i] != -1) { 
-            	node->left = new TreeNode(arr[i]);
-       	        q.push(node->left);
-	    }
-	    else
-		node->left = nullptr;
-	}
-	i++;
-
-	if (i < arr.size() && arr[i] != INT_MIN) {
-	    if(arr[i] != -1) {
-                node->right = new TreeNode(arr[i]);
-       	        q.push(node->right);
-	    } else
-		node->right = nullptr;
-	}
-	i++;
+    if (i < arr.size() && arr[i] != INT_MIN) {
+      if (arr[i] != -1) {
+        node->left = new TreeNode(arr[i]);
+        q.push(node->left);
+      } else
+        node->left = nullptr;
     }
+    i++;
 
-    return root;
+    if (i < arr.size() && arr[i] != INT_MIN) {
+      if (arr[i] != -1) {
+        node->right = new TreeNode(arr[i]);
+        q.push(node->right);
+      } else
+        node->right = nullptr;
+    }
+    i++;
+  }
+
+  return root;
 }
 
-// Build node from level-order vector 
-Node* buildNode(const vector<int>& arr) {
-    if (arr.empty()) return nullptr;
+// Build node from level-order vector
+Node *buildNode(const vector<int> &arr) {
+  if (arr.empty())
+    return nullptr;
 
-    vector<Node*> nodes(arr.size(), nullptr);
+  vector<Node *> nodes(arr.size(), nullptr);
 
-    // Create nodes
-    for (int i = 0; i < arr.size(); ++i) {
-	if (arr[i] == -1) return nullptr;
+  // Create nodes
+  for (int i = 0; i < arr.size(); ++i) {
+    if (arr[i] == -1)
+      return nullptr;
 
-        nodes[i] = new Node(arr[i]);
-    }
+    nodes[i] = new Node(arr[i]);
+  }
 
-    // Link children
-    for (int i = 0; i < arr.size(); ++i) {
-        int leftIdx = 2 * i + 1;
-	int rightIdx = 2 * i + 2;
+  // Link children
+  for (int i = 0; i < arr.size(); ++i) {
+    int leftIdx = 2 * i + 1;
+    int rightIdx = 2 * i + 2;
 
-	if (leftIdx < arr.size()) nodes[i]->left = nodes[leftIdx];
+    if (leftIdx < arr.size())
+      nodes[i]->left = nodes[leftIdx];
 
-	if (rightIdx < arr.size()) nodes[i]->right = nodes[rightIdx];
-    }
+    if (rightIdx < arr.size())
+      nodes[i]->right = nodes[rightIdx];
+  }
 
-    return nodes[0]; // root
+  return nodes[0]; // root
 }
 
-ListNode* buildLinkedList(const vector<int>& values, int pos) {
-    if (values.empty())
-        return nullptr;
+ListNode *buildLinkedList(const vector<int> &values, int pos) {
+  if (values.empty())
+    return nullptr;
 
-    ListNode dummy(0);
-    ListNode* head = &dummy;
+  ListNode dummy(0);
+  ListNode *head = &dummy;
 
-    ListNode* cycleNode = nullptr;
+  ListNode *cycleNode = nullptr;
 
-    for (int i = 0; i < values.size(); ++i) {
-        head->next = new ListNode(values[i]);
-	head = head->next;
+  for (int i = 0; i < values.size(); ++i) {
+    head->next = new ListNode(values[i]);
+    head = head->next;
 
-	if (i == pos)
-	    cycleNode = head;
-    }
+    if (i == pos)
+      cycleNode = head;
+  }
 
-    if (pos >= 0)
-        head->next = cycleNode;
+  if (pos >= 0)
+    head->next = cycleNode;
 
-    return dummy.next;
+  return dummy.next;
 }
 
-ListNode* buildLinkedList(const vector<int>& values) {
-    if (values.empty())
-        return nullptr;
+ListNode *buildLinkedList(const vector<int> &values) {
+  if (values.empty())
+    return nullptr;
 
-    ListNode dummy(0);
-    ListNode* head = &dummy;
+  ListNode dummy(0);
+  ListNode *head = &dummy;
 
-    for (int x : values) {
-        head->next = new ListNode(x);
-	head = head->next;
-    }
+  for (int x : values) {
+    head->next = new ListNode(x);
+    head = head->next;
+  }
 
-    return dummy.next;
+  return dummy.next;
 }
 
 // Convert connected node into vector
-vector<int> serializeWithNext(Node* root) {
-    vector<int> result;
+vector<int> serializeWithNext(Node *root) {
+  vector<int> result;
 
-    if (!root) return result;
+  if (!root)
+    return result;
 
-    Node* leftmost = root;
+  Node *leftmost = root;
 
-    while(leftmost) {
-        Node* cur = leftmost;
+  while (leftmost) {
+    Node *cur = leftmost;
 
-	while (cur) {
-	    result.push_back(cur->val);
-	    cur = cur->next;
-	}
-
-	result.push_back(-1);
-	leftmost = leftmost->left;
+    while (cur) {
+      result.push_back(cur->val);
+      cur = cur->next;
     }
 
-    return result;
+    result.push_back(-1);
+    leftmost = leftmost->left;
+  }
+
+  return result;
 }
 
 // Convert connected Linked List node into vector
-vector<int> toVector(ListNode* head) {
-    vector<int> result;
+vector<int> toVector(ListNode *head) {
+  vector<int> result;
 
-    for (ListNode* curr = head; curr != nullptr; curr = curr->next) {
-        result.push_back(curr->val);
-    }
+  for (ListNode *curr = head; curr != nullptr; curr = curr->next) {
+    result.push_back(curr->val);
+  }
 
-    return result;
+  return result;
 }
 
-}
+} // namespace purgatory
 
-TEST(X86_64Test, BasicCheck) {
-	EXPECT_EQ(1 + 1, 2);
-}
+TEST(X86_64Test, BasicCheck) { EXPECT_EQ(1 + 1, 2); }
 
 TEST(X86_64Test, increasingTripletCheck) {
 
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, 4, 5};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, 4, 5};
 
-    bool output = solutions.increasingTriplet(nums);
+  bool output = solutions.increasingTriplet(nums);
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(output, expected);
+  EXPECT_EQ(output, expected);
 }
 
 TEST(X86_64Test, mergeCheck) {
 
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums1 = {1, 2, 3, 0, 0, 0};
-    vector<int> nums2 = {2, 5, 6};
-    int m = 3, n = 3;
+  // Basic Case:
+  vector<int> nums1 = {1, 2, 3, 0, 0, 0};
+  vector<int> nums2 = {2, 5, 6};
+  int m = 3, n = 3;
 
-    solutions.merge(nums1, m, nums2, n);
+  solutions.merge(nums1, m, nums2, n);
 
-    vector<int> expected = {1, 2, 2, 3, 5 ,6};
+  vector<int> expected = {1, 2, 2, 3, 5, 6};
 
-    EXPECT_EQ(expected, nums1);
+  EXPECT_EQ(expected, nums1);
 
-    // Edge Case:
-    nums1 = {1, 0}; nums2 = {2}; m = 1; n = 1;
-	
-    solutions.merge(nums1, m, nums2, n);
+  // Edge Case:
+  nums1 = {1, 0};
+  nums2 = {2};
+  m = 1;
+  n = 1;
 
-    expected = {1, 2};
+  solutions.merge(nums1, m, nums2, n);
 
-    EXPECT_EQ(expected, nums1);
+  expected = {1, 2};
+
+  EXPECT_EQ(expected, nums1);
 }
 
 TEST(X86_64Test, removeDuplicatesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 1, 1, 2, 2, 3};
-    int k = solutions.removeDuplicates(nums);
+  // Basic Case:
+  vector<int> nums = {1, 1, 1, 2, 2, 3};
+  int k = solutions.removeDuplicates(nums);
 
-    int expected = 5;
+  int expected = 5;
 
-    EXPECT_EQ(expected, k);
+  EXPECT_EQ(expected, k);
 
-    // Edge Case:
-    nums = {1, 1, 1};
-    k = solutions.removeDuplicates(nums);
+  // Edge Case:
+  nums = {1, 1, 1};
+  k = solutions.removeDuplicates(nums);
 
-    expected = 2;
+  expected = 2;
 
-    EXPECT_EQ(expected, k);
+  EXPECT_EQ(expected, k);
 }
 
 TEST(X86_64Test, rotateCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, 4, 5, 6, 7};
-    int k = 3;
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, 4, 5, 6, 7};
+  int k = 3;
 
-    solutions.rotate(nums, k);
+  solutions.rotate(nums, k);
 
-    vector<int> expected = {5, 6, 7, 1, 2, 3, 4};
+  vector<int> expected = {5, 6, 7, 1, 2, 3, 4};
 
-    EXPECT_EQ(expected, nums);
+  EXPECT_EQ(expected, nums);
 
-    // Edge Case:
-    nums = {1, 2}; k = 1;
+  // Edge Case:
+  nums = {1, 2};
+  k = 1;
 
-    solutions.rotate(nums, k);
+  solutions.rotate(nums, k);
 
-    expected = {2, 1};
+  expected = {2, 1};
 
-    EXPECT_EQ(expected, nums);
+  EXPECT_EQ(expected, nums);
 }
 
-TEST(X86_64Test, candyCheck) { 
-    purgatory::Purgatory solutions;
+TEST(X86_64Test, candyCheck) {
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> ratings = {1, 0, 2};
+  // Basic Case:
+  vector<int> ratings = {1, 0, 2};
 
-    int expected = 5;
+  int expected = 5;
 
-    EXPECT_EQ(expected, solutions.candy(ratings));
+  EXPECT_EQ(expected, solutions.candy(ratings));
 
-    // Edge Case:
-    ratings = {1, 2, 2};
+  // Edge Case:
+  ratings = {1, 2, 2};
 
-    expected = 4;
+  expected = 4;
 
-    EXPECT_EQ(expected, solutions.candy(ratings));
+  EXPECT_EQ(expected, solutions.candy(ratings));
 }
-
 
 TEST(X86_64Test, removeElemetCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, 2, 2, 3};
-    int val = 3;
-        
-    int k = solutions.removeElemet(nums, val);
+  // Basic Case:
+  vector<int> nums = {3, 2, 2, 3};
+  int val = 3;
 
-    int expected = 2;
+  int k = solutions.removeElemet(nums, val);
 
-    EXPECT_EQ(expected, k);
+  int expected = 2;
 
-    // Edge Case:
-    nums = {0, 1, 2, 2, 3, 0, 4, 2}; val = 2;
+  EXPECT_EQ(expected, k);
 
-    k = solutions.removeElemet(nums, val);
+  // Edge Case:
+  nums = {0, 1, 2, 2, 3, 0, 4, 2};
+  val = 2;
 
-    expected = 5;
+  k = solutions.removeElemet(nums, val);
 
-    EXPECT_EQ(expected, k);
+  expected = 5;
+
+  EXPECT_EQ(expected, k);
 }
 
 TEST(X86_64Test, canJumpCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {2, 3, 1, 1, 4};
+  // Basic Case:
+  vector<int> nums = {2, 3, 1, 1, 4};
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.canJump(nums));
+  EXPECT_EQ(expected, solutions.canJump(nums));
 
-    // Edge Case:
-    nums = {3, 2, 1, 0, 4};
+  // Edge Case:
+  nums = {3, 2, 1, 0, 4};
 
-    expected = false;
+  expected = false;
 
-    EXPECT_EQ(expected, solutions.canJump(nums));
+  EXPECT_EQ(expected, solutions.canJump(nums));
 }
 
 TEST(X86_64Test, productExceptSelfCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case: 
-    vector<int> nums = {1, 2, 3, 4};
-    
-    vector<int> result = solutions.productExceptSelf(nums);
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, 4};
 
-    vector<int> expected = {24, 12, 8, 6};
+  vector<int> result = solutions.productExceptSelf(nums);
 
-    EXPECT_EQ(expected, result);
+  vector<int> expected = {24, 12, 8, 6};
 
-    // Edge Case:
-    nums = {2, 3, 4, 5};
+  EXPECT_EQ(expected, result);
 
-    result = solutions.productExceptSelf(nums);
+  // Edge Case:
+  nums = {2, 3, 4, 5};
 
-    expected = {60, 40, 30, 24};
+  result = solutions.productExceptSelf(nums);
 
-    EXPECT_EQ(expected, result);
+  expected = {60, 40, 30, 24};
+
+  EXPECT_EQ(expected, result);
 }
 
 TEST(X86_64Test, fullJustifyCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<string> words = {"This", "is", "an", "example", "of", "text", "justification."};
+  // Basic Case:
+  vector<string> words = {"This",          "is", "an", "example", "of", "text",
+                          "justification."};
 
-    int maxWidth = 16;
+  int maxWidth = 16;
 
-    vector<string> result = solutions.fullJustify(words, maxWidth);
+  vector<string> result = solutions.fullJustify(words, maxWidth);
 
-    vector<string> expected = {"This    is    an", "example  of text", "justification.  "};
+  vector<string> expected = {"This    is    an", "example  of text",
+                             "justification.  "};
 
-    EXPECT_EQ(expected, result);
+  EXPECT_EQ(expected, result);
 
-    // Edge Case:
-    words = {""}; maxWidth = 1;
+  // Edge Case:
+  words = {""};
+  maxWidth = 1;
 
-    result = solutions.fullJustify(words, maxWidth);
+  result = solutions.fullJustify(words, maxWidth);
 
-    expected = {" "};
+  expected = {" "};
 
-    EXPECT_EQ(expected, result);
+  EXPECT_EQ(expected, result);
 }
 
 TEST(X86_64Test, canConstructChecl) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string ransomNot = "a", magazine = "b";
+  // Basic Case:
+  string ransomNot = "a", magazine = "b";
 
-    bool expected = false;
+  bool expected = false;
 
-    EXPECT_EQ(expected, solutions.canConstruct(ransomNot, magazine));
+  EXPECT_EQ(expected, solutions.canConstruct(ransomNot, magazine));
 
-    // Edge Case:
-    ransomNot = "aa"; magazine = "aab";
+  // Edge Case:
+  ransomNot = "aa";
+  magazine = "aab";
 
-    expected = true;
+  expected = true;
 
-    EXPECT_EQ(expected, solutions.canConstruct(ransomNot, magazine));
+  EXPECT_EQ(expected, solutions.canConstruct(ransomNot, magazine));
 }
 
 TEST(X86_64Test, groupAnagramsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<string> strs = {"eat", "tea", "tan", "ate", "nat", "bat"};
+  // Basic Case:
+  vector<string> strs = {"eat", "tea", "tan", "ate", "nat", "bat"};
 
-    vector<vector<string>> result = solutions.groupAnagrams(strs);
+  vector<vector<string>> result = solutions.groupAnagrams(strs);
 
-    vector<vector<string>> expected = {{"bat"}, {"tan", "nat"}, {"eat", "tea", "ate"}};
+  vector<vector<string>> expected = {
+      {"bat"}, {"tan", "nat"}, {"eat", "tea", "ate"}};
 
-    EXPECT_EQ(expected, result);
+  EXPECT_EQ(expected, result);
 
-    // Edge Case:
-    strs = {"", ""};
+  // Edge Case:
+  strs = {"", ""};
 
-    result = solutions.groupAnagrams(strs);
+  result = solutions.groupAnagrams(strs);
 
-    expected = {{"", ""}};
+  expected = {{"", ""}};
 
-    EXPECT_EQ(expected, result);
+  EXPECT_EQ(expected, result);
 }
 
 TEST(X86_64Test, longestConsecutiveCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {100, 4, 200, 1, 3, 2};
+  // Basic Case:
+  vector<int> nums = {100, 4, 200, 1, 3, 2};
 
-    int expected = 4;
+  int expected = 4;
 
-    EXPECT_EQ(expected, solutions.longestConsecutive(nums));
+  EXPECT_EQ(expected, solutions.longestConsecutive(nums));
 
-    // Edge Case:
-    nums = {0, 3, 7, 2, 5, 8, 4, 6, 0, 1};
+  // Edge Case:
+  nums = {0, 3, 7, 2, 5, 8, 4, 6, 0, 1};
 
-    expected = 9;
+  expected = 9;
 
-    EXPECT_EQ(expected, solutions.longestConsecutive(nums));
+  EXPECT_EQ(expected, solutions.longestConsecutive(nums));
 }
 
 TEST(X86_64Test, findSubstringCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "barfoothefoobarman";
+  // Basic Case:
+  string s = "barfoothefoobarman";
 
-    vector<string> words = {"foo", "bar"};
+  vector<string> words = {"foo", "bar"};
 
-    vector<int> expected = {0, 9};
+  vector<int> expected = {0, 9};
 
-    EXPECT_EQ(expected, solutions.findSubstring(s, words));
+  EXPECT_EQ(expected, solutions.findSubstring(s, words));
 
-    // Edge Case:
-    s = "wordgoodgoodgoodbestword"; words = {"word", "good", "best", "word"};
+  // Edge Case:
+  s = "wordgoodgoodgoodbestword";
+  words = {"word", "good", "best", "word"};
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.findSubstring(s, words));
+  EXPECT_EQ(expected, solutions.findSubstring(s, words));
 }
 
 TEST(X86_64Test, containsDuplicateCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, 1};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, 1};
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.containsDuplicate(nums));
+  EXPECT_EQ(expected, solutions.containsDuplicate(nums));
 
-    // Edge Case:
-    nums = {1};
+  // Edge Case:
+  nums = {1};
 
-    expected = false;
+  expected = false;
 
-    EXPECT_EQ(expected, solutions.containsDuplicate(nums));
+  EXPECT_EQ(expected, solutions.containsDuplicate(nums));
 }
 
 TEST(X86_64Test, fractionToDecimalCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int numerator = 2, denominator = 1;
+  // Basic Case:
+  int numerator = 2, denominator = 1;
 
-    string expected = "2";
+  string expected = "2";
 
-    EXPECT_EQ(expected, solutions.fractionToDecimal(numerator, denominator));
+  EXPECT_EQ(expected, solutions.fractionToDecimal(numerator, denominator));
 
-    // Edge Case:
-    numerator = 1; denominator = 6;
+  // Edge Case:
+  numerator = 1;
+  denominator = 6;
 
-    expected = "0.1(6)";
+  expected = "0.1(6)";
 
-    EXPECT_EQ(expected, solutions.fractionToDecimal(numerator, denominator));
+  EXPECT_EQ(expected, solutions.fractionToDecimal(numerator, denominator));
 }
 
 TEST(X86_64Test, firstMissingPositiveCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, 4, -1, 1};
+  // Basic Case:
+  vector<int> nums = {3, 4, -1, 1};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.firstMissingPositive(nums));
+  EXPECT_EQ(expected, solutions.firstMissingPositive(nums));
 
-    // Edge Case:
-    nums = {1, 1};
+  // Edge Case:
+  nums = {1, 1};
 
-    expected = 2;
+  expected = 2;
 
-    EXPECT_EQ(expected, solutions.firstMissingPositive(nums));
+  EXPECT_EQ(expected, solutions.firstMissingPositive(nums));
 }
 
 TEST(X86_64Test, isPalindromeCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "A man, a plan, a canal: Panama";
+  // Basic Case:
+  string s = "A man, a plan, a canal: Panama";
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.isPalindrome(s));
+  EXPECT_EQ(expected, solutions.isPalindrome(s));
 
-    // Edge Case:
-    s = "";
+  // Edge Case:
+  s = "";
 
-    expected = true;
+  expected = true;
 
-    EXPECT_EQ(expected, solutions.isPalindrome(s));
+  EXPECT_EQ(expected, solutions.isPalindrome(s));
 }
 
 TEST(X86_64Test, waysToSplitCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 2, 2, 5, 0};
+  // Basic Case:
+  vector<int> nums = {1, 2, 2, 2, 5, 0};
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.waysToSplit(nums));
+  EXPECT_EQ(expected, solutions.waysToSplit(nums));
 
-    // Edge Case:
-    nums = {1, 1, 1};
+  // Edge Case:
+  nums = {1, 1, 1};
 
-    expected = 1;
-    EXPECT_EQ(expected, solutions.waysToSplit(nums));
+  expected = 1;
+  EXPECT_EQ(expected, solutions.waysToSplit(nums));
 }
 
 TEST(X86_64Test, applyOperationsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 2, 1, 1, 0};
+  // Basic Case:
+  vector<int> nums = {1, 2, 2, 1, 1, 0};
 
-    vector<int> expected = {1, 4, 2, 0, 0, 0};
+  vector<int> expected = {1, 4, 2, 0, 0, 0};
 
-    EXPECT_EQ(expected, solutions.applyOperations(nums));
+  EXPECT_EQ(expected, solutions.applyOperations(nums));
 
-    // Edge Case:
-    nums = {0, 1};
+  // Edge Case:
+  nums = {0, 1};
 
-    expected = {1, 0};
+  expected = {1, 0};
 
-    EXPECT_EQ(expected, solutions.applyOperations(nums));
+  EXPECT_EQ(expected, solutions.applyOperations(nums));
 }
-
 
 TEST(X86_64Test, numRescueBoatsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> people = {3, 5, 3, 4};
+  // Basic Case:
+  vector<int> people = {3, 5, 3, 4};
 
-    int limit = 5;
+  int limit = 5;
 
-    int expected = 4;
+  int expected = 4;
 
-    EXPECT_EQ(expected, solutions.numRescueBoats(people, limit));
+  EXPECT_EQ(expected, solutions.numRescueBoats(people, limit));
 
-    // Edge Case:
-    people = {1};
+  // Edge Case:
+  people = {1};
 
-    limit = 3;
+  limit = 3;
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.numRescueBoats(people, limit));
+  EXPECT_EQ(expected, solutions.numRescueBoats(people, limit));
 }
 
-
 TEST(X86_64Test, reverseOnlyLettersCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "ab-cd";
+  // Basic Case:
+  string s = "ab-cd";
 
-    string expected = "dc-ba";
+  string expected = "dc-ba";
 
-    EXPECT_EQ(expected, solutions.reverseOnlyLetters(s));
+  EXPECT_EQ(expected, solutions.reverseOnlyLetters(s));
 
-    // Edge Case:
-    s = "--";
+  // Edge Case:
+  s = "--";
 
-    expected = "--";
+  expected = "--";
 
-    EXPECT_EQ(expected, solutions.reverseOnlyLetters(s));
+  EXPECT_EQ(expected, solutions.reverseOnlyLetters(s));
 }
 
 TEST(X86_64Test, twoSumCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> numbers = {2, 7, 11, 15};
+  // Basic Case:
+  vector<int> numbers = {2, 7, 11, 15};
 
-    int target = 9;
+  int target = 9;
 
-    vector<int> expected = {0, 1};
+  vector<int> expected = {0, 1};
 
-    EXPECT_EQ(expected, solutions.twoSum(numbers, target));
+  EXPECT_EQ(expected, solutions.twoSum(numbers, target));
 
-    numbers = {3, 2, 4};
+  numbers = {3, 2, 4};
 
-    target = 6;
+  target = 6;
 
-    expected = {1, 2};
+  expected = {1, 2};
 
-    EXPECT_EQ(expected, solutions.twoSum(numbers, target));
+  EXPECT_EQ(expected, solutions.twoSum(numbers, target));
 
-    // Edge Case:
-    numbers = {2, 3, 4}; target = 6;
+  // Edge Case:
+  numbers = {2, 3, 4};
+  target = 6;
 
-    expected = {0, 2};
+  expected = {0, 2};
 
-    EXPECT_EQ(expected, solutions.twoSum(numbers, target));
+  EXPECT_EQ(expected, solutions.twoSum(numbers, target));
 }
 
 TEST(X86_64Test, maxAreaCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> height = {1, 8, 6, 2, 5, 4, 8, 3, 7};
+  // Basic Case:
+  vector<int> height = {1, 8, 6, 2, 5, 4, 8, 3, 7};
 
-    int expected = 49;
+  int expected = 49;
 
-    EXPECT_EQ(expected, solutions.maxArea(height));
+  EXPECT_EQ(expected, solutions.maxArea(height));
 
-    // Edge Case:
-    height = {1, 1};
+  // Edge Case:
+  height = {1, 1};
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.maxArea(height));
+  EXPECT_EQ(expected, solutions.maxArea(height));
 }
 
 TEST(X86_64Test, trapCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> height = {0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1};
+  // Basic Case:
+  vector<int> height = {0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1};
 
-    int expected = 6;
+  int expected = 6;
 
-    EXPECT_EQ(expected, solutions.trap(height));
+  EXPECT_EQ(expected, solutions.trap(height));
 
-    // Edge Case:
-    height = {};
+  // Edge Case:
+  height = {};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.trap(height));
+  EXPECT_EQ(expected, solutions.trap(height));
 }
 
 TEST(X86_64Test, reverseStringCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<char> s = {'h', 'e', 'l', 'l', 'o'};
+  // Basic Case:
+  vector<char> s = {'h', 'e', 'l', 'l', 'o'};
 
-    vector<char> expected = {'o', 'l', 'l', 'e', 'h'};
+  vector<char> expected = {'o', 'l', 'l', 'e', 'h'};
 
-    solutions.reverseString(s);
+  solutions.reverseString(s);
 
-    EXPECT_EQ(expected, s);
+  EXPECT_EQ(expected, s);
 
-    // Edge Case:
-    s = {'a'};
+  // Edge Case:
+  s = {'a'};
 
-    expected = {'a'};
+  expected = {'a'};
 
-    EXPECT_EQ(expected, s);
+  EXPECT_EQ(expected, s);
 }
 
 TEST(X86_64Test, sortColorsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {2, 0, 2, 1, 1, 0};
+  // Basic Case:
+  vector<int> nums = {2, 0, 2, 1, 1, 0};
 
-    vector<int> expected = {0, 0, 1, 1, 2, 2};
+  vector<int> expected = {0, 0, 1, 1, 2, 2};
 
-    solutions.sortColors(nums);
+  solutions.sortColors(nums);
 
-    EXPECT_EQ(expected, nums);
+  EXPECT_EQ(expected, nums);
 
-    // Edge Case:
-    nums = {0, 2, 1};
+  // Edge Case:
+  nums = {0, 2, 1};
 
-    expected = {0, 1, 2};
+  expected = {0, 1, 2};
 
-    solutions.sortColors(nums);
+  solutions.sortColors(nums);
 
-    EXPECT_EQ(expected, nums);
+  EXPECT_EQ(expected, nums);
 }
 
 TEST(X86_64Test, compareVersionCheck) {
-   purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-   // Basic Case:
-   string version1 = "1.0", version2 = "1.0.0";
+  // Basic Case:
+  string version1 = "1.0", version2 = "1.0.0";
 
-   int expected = 0;
+  int expected = 0;
 
-   EXPECT_EQ(expected, solutions.compareVersion(version1, version2));
+  EXPECT_EQ(expected, solutions.compareVersion(version1, version2));
 
-   // Edge Case:
-   version1 = "1.0.1"; version2 = "1";
+  // Edge Case:
+  version1 = "1.0.1";
+  version2 = "1";
 
-   expected = 1;
+  expected = 1;
 
-   EXPECT_EQ(expected, solutions.compareVersion(version1, version2));
+  EXPECT_EQ(expected, solutions.compareVersion(version1, version2));
 }
 
 TEST(X86_64Test, maxNumberCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums1 = {3, 4, 6, 5}, nums2 = {9, 1, 2, 5, 8, 3};
+  // Basic Case:
+  vector<int> nums1 = {3, 4, 6, 5}, nums2 = {9, 1, 2, 5, 8, 3};
 
-    int k = 5;
+  int k = 5;
 
-    vector<int> expected = {9, 8, 6, 5, 3};
+  vector<int> expected = {9, 8, 6, 5, 3};
 
-    EXPECT_EQ(expected, solutions.maxNumber(nums1, nums2, k));
+  EXPECT_EQ(expected, solutions.maxNumber(nums1, nums2, k));
 
-    // Edge Case:
-    nums1 = {3, 9}; nums2 = {8,9};
-    k = 3;
+  // Edge Case:
+  nums1 = {3, 9};
+  nums2 = {8, 9};
+  k = 3;
 
-    expected = {9, 8, 9};
+  expected = {9, 8, 9};
 
-    EXPECT_EQ(expected, solutions.maxNumber(nums1, nums2, k));
+  EXPECT_EQ(expected, solutions.maxNumber(nums1, nums2, k));
 }
 
 TEST(X86_64Test, containsNearbyDuplicateCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, 1};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, 1};
 
-    int k = 3;
+  int k = 3;
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.containsNearbyDuplicate(nums, k));
+  EXPECT_EQ(expected, solutions.containsNearbyDuplicate(nums, k));
 
-    // Edge Case:
-    nums = {1, 2, 3, 1, 2, 3}; k = 0;
+  // Edge Case:
+  nums = {1, 2, 3, 1, 2, 3};
+  k = 0;
 
-    expected = false;
+  expected = false;
 
-    EXPECT_EQ(expected, solutions.containsNearbyDuplicate(nums, k));
+  EXPECT_EQ(expected, solutions.containsNearbyDuplicate(nums, k));
 }
 
 TEST(X86_64Test, minSubArrayLenCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {2, 3, 1, 2, 4, 3};
+  // Basic Case:
+  vector<int> nums = {2, 3, 1, 2, 4, 3};
 
-    int target = 7;
+  int target = 7;
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.minSubArrayLen(target, nums));
+  EXPECT_EQ(expected, solutions.minSubArrayLen(target, nums));
 
-    // Edge Case:
-    nums = {}; target = 4;
+  // Edge Case:
+  nums = {};
+  target = 4;
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.minSubArrayLen(target, nums));
+  EXPECT_EQ(expected, solutions.minSubArrayLen(target, nums));
 }
 
 TEST(X86_64Test, lengthOfLongestSubstringCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "abcabcbb";
+  // Basic Case:
+  string s = "abcabcbb";
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.lengthOfLongestSubstring(s));
+  EXPECT_EQ(expected, solutions.lengthOfLongestSubstring(s));
 
-    // Edge Case:
-    s = "bbbb";
+  // Edge Case:
+  s = "bbbb";
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.lengthOfLongestSubstring(s));
+  EXPECT_EQ(expected, solutions.lengthOfLongestSubstring(s));
 }
 
-
 TEST(X86_64Test, longestNiceSubstringCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "YazaAay";
+  // Basic Case:
+  string s = "YazaAay";
 
-    string expected = "aAa";
+  string expected = "aAa";
 
-    EXPECT_EQ(expected, solutions.longestNiceSubstring(s));
+  EXPECT_EQ(expected, solutions.longestNiceSubstring(s));
 
-    // Edge Case:
-    s = "c";
+  // Edge Case:
+  s = "c";
 
-    expected = "";
+  expected = "";
 
-    EXPECT_EQ(expected, solutions.longestNiceSubstring(s));
+  EXPECT_EQ(expected, solutions.longestNiceSubstring(s));
 }
 
 TEST(X86_64Test, longestSubstringCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "aaabb";
-    int k = 3;
+  // Basic Case:
+  string s = "aaabb";
+  int k = 3;
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.longestSubstring(s, k));
+  EXPECT_EQ(expected, solutions.longestSubstring(s, k));
 
-    // Edge Case:
-    s = "a";
-    k = 2;
+  // Edge Case:
+  s = "a";
+  k = 2;
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.longestSubstring(s, k));
+  EXPECT_EQ(expected, solutions.longestSubstring(s, k));
 }
 
 TEST(X86_64Test, numberOfArithmeticSlicesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, 4};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, 4};
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.numberOfArithmeticSlices(nums));
+  EXPECT_EQ(expected, solutions.numberOfArithmeticSlices(nums));
 
-    // Edge Case:
-    nums = {1};
+  // Edge Case:
+  nums = {1};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.numberOfArithmeticSlices(nums));
-}	
+  EXPECT_EQ(expected, solutions.numberOfArithmeticSlices(nums));
+}
 
 TEST(X86_64Test, medianSlidingWindowCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, 4};
-    int k = 2;
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, 4};
+  int k = 2;
 
-    vector<double> expected = {1.5, 2.5, 3.5};
+  vector<double> expected = {1.5, 2.5, 3.5};
 
-    EXPECT_EQ(expected, solutions.medianSlidingWindow(nums, k));
+  EXPECT_EQ(expected, solutions.medianSlidingWindow(nums, k));
 
-    // Edge Case:
-    nums = {5};
-    k = 1;
+  // Edge Case:
+  nums = {5};
+  k = 1;
 
-    expected = {5.0};
+  expected = {5.0};
 
-    EXPECT_EQ(expected, solutions.medianSlidingWindow(nums, k));
+  EXPECT_EQ(expected, solutions.medianSlidingWindow(nums, k));
 }
 
 TEST(X86_64Test, NumArrayCheck) {
 
-    vector<int> nums = {-2, 0, 3, -5, 2, -1};
+  vector<int> nums = {-2, 0, 3, -5, 2, -1};
 
-    // Basic Case:
-    int left = 0, right = 2;
+  // Basic Case:
+  int left = 0, right = 2;
 
-    int expected = 1;
+  int expected = 1;
 
-    purgatory::Purgatory::NumArray numarray(nums);
+  purgatory::Purgatory::NumArray numarray(nums);
 
-    EXPECT_EQ(expected, numarray.sumRanges(left, right));
+  EXPECT_EQ(expected, numarray.sumRanges(left, right));
 
-    // Edge Case:
-    left = 0; right = 5;
+  // Edge Case:
+  left = 0;
+  right = 5;
 
-    expected = -3;
+  expected = -3;
 
-    EXPECT_EQ(expected, numarray.sumRanges(left, right));
+  EXPECT_EQ(expected, numarray.sumRanges(left, right));
 }
 
 TEST(X86_64Test, NumMatrixCheck) {
 
-    // Basic Case:
-    vector<vector<int>> matrix = {{3, 0, 1, 4, 2}, {5, 6, 3, 2, 1}, {1, 2, 0, 1, 5}, {4, 1, 0, 1, 7}, {1, 0, 3, 0, 5}};
-    int row1 = 2, col1 = 1, row2 = 4, col2 = 3;
+  // Basic Case:
+  vector<vector<int>> matrix = {{3, 0, 1, 4, 2},
+                                {5, 6, 3, 2, 1},
+                                {1, 2, 0, 1, 5},
+                                {4, 1, 0, 1, 7},
+                                {1, 0, 3, 0, 5}};
+  int row1 = 2, col1 = 1, row2 = 4, col2 = 3;
 
-    int expected = 8;
+  int expected = 8;
 
-    purgatory::Purgatory::NumMatrix nummatrix(matrix);
+  purgatory::Purgatory::NumMatrix nummatrix(matrix);
 
-    EXPECT_EQ(expected, nummatrix.sumRegion(row1, col1, row2, col2));
+  EXPECT_EQ(expected, nummatrix.sumRegion(row1, col1, row2, col2));
 
-    // Edge Case:
-    row1 = 1; col1 = 2; row2 = 2; col2 = 4;
+  // Edge Case:
+  row1 = 1;
+  col1 = 2;
+  row2 = 2;
+  col2 = 4;
 
-    expected = 12;
+  expected = 12;
 
-    EXPECT_EQ(expected, nummatrix.sumRegion(row1, col1, row2, col2));
+  EXPECT_EQ(expected, nummatrix.sumRegion(row1, col1, row2, col2));
 }
 
 TEST(X86_64Test, maxSumSubmatrixCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> matrix = {{1, 0, 1}, {0, -2, 3}};
-    int k = 2;
+  // Basic Case:
+  vector<vector<int>> matrix = {{1, 0, 1}, {0, -2, 3}};
+  int k = 2;
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.maxSumSubmatrix(matrix, k));
+  EXPECT_EQ(expected, solutions.maxSumSubmatrix(matrix, k));
 
-    // Edge Case:
-    matrix = {{2, 2, -1}}; k = 3;
+  // Edge Case:
+  matrix = {{2, 2, -1}};
+  k = 3;
 
-    expected = 3;
+  expected = 3;
 
-    EXPECT_EQ(expected, solutions.maxSumSubmatrix(matrix, k));
+  EXPECT_EQ(expected, solutions.maxSumSubmatrix(matrix, k));
 }
 
 TEST(X86_64Test, averageOfLevelsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, 9, 20, -1, -1, 15, 7}; // -1 represents "null"
+  // Basic Case:
+  vector<int> nums = {3, 9, 20, -1, -1, 15, 7}; // -1 represents "null"
 
-    vector<double> expected = {3, 14.5, 11};
+  vector<double> expected = {3, 14.5, 11};
 
-    EXPECT_EQ(expected, solutions.averageOfLevels(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, solutions.averageOfLevels(purgatory::buildTree(nums)));
 
-    // Edge Case:
-    nums = {};
+  // Edge Case:
+  nums = {};
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.averageOfLevels(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, solutions.averageOfLevels(purgatory::buildTree(nums)));
 }
 
 TEST(X86_64Test, preorderTraversalCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> root = {1, -1, 2, 3};
+  // Basic Case:
+  vector<int> root = {1, -1, 2, 3};
 
-    vector<int> expected = {1, 2, 3};
+  vector<int> expected = {1, 2, 3};
 
-    EXPECT_EQ(expected, solutions.preorderTraversal(purgatory::buildTree(root)));
+  EXPECT_EQ(expected, solutions.preorderTraversal(purgatory::buildTree(root)));
 
+  // Edge Case:
+  root = {1};
 
-    // Edge Case:
-    root = {1};
+  expected = {1};
 
-    expected = {1};
-
-    EXPECT_EQ(expected, solutions.preorderTraversal(purgatory::buildTree(root)));
+  EXPECT_EQ(expected, solutions.preorderTraversal(purgatory::buildTree(root)));
 }
 
 TEST(X86_64Test, maxBalanceShipmentsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> weights = {2, 5, 1, 4, 3};
+  // Basic Case:
+  vector<int> weights = {2, 5, 1, 4, 3};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.maxBalanceShipments(weights));
+  EXPECT_EQ(expected, solutions.maxBalanceShipments(weights));
 
-    // Edge Case:
-    weights = {4, 4};
+  // Edge Case:
+  weights = {4, 4};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.maxBalanceShipments(weights));
+  EXPECT_EQ(expected, solutions.maxBalanceShipments(weights));
 }
 
 TEST(X86_64Test, getCommonCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums1 = {1, 2, 3}, nums2 = {2, 4};
+  // Basic Case:
+  vector<int> nums1 = {1, 2, 3}, nums2 = {2, 4};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.getCommon(nums1, nums2));
+  EXPECT_EQ(expected, solutions.getCommon(nums1, nums2));
 
-    // Edge Case:
-    nums1 = {1}; nums2 = {1};
+  // Edge Case:
+  nums1 = {1};
+  nums2 = {1};
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.getCommon(nums1, nums2));
+  EXPECT_EQ(expected, solutions.getCommon(nums1, nums2));
 }
 
 TEST(X86_64Test, numFriendRequestsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> ages = {16, 17, 18};
+  // Basic Case:
+  vector<int> ages = {16, 17, 18};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.numFriendRequests(ages));
+  EXPECT_EQ(expected, solutions.numFriendRequests(ages));
 
-    // Edge Case:
-    ages = {16, 16};
+  // Edge Case:
+  ages = {16, 16};
 
-    expected = 2;
+  expected = 2;
 
-    EXPECT_EQ(expected, solutions.numFriendRequests(ages));
+  EXPECT_EQ(expected, solutions.numFriendRequests(ages));
 }
 
 TEST(X86_64Test, bowlSubarraysCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {2, 5, 3, 1, 4};
+  // Basic Case:
+  vector<int> nums = {2, 5, 3, 1, 4};
 
-    long long expected = 2;
+  long long expected = 2;
 
-    EXPECT_EQ(expected, solutions.bowlSubarrays(nums));
+  EXPECT_EQ(expected, solutions.bowlSubarrays(nums));
 
-    // Edge Case:
-    nums = {1, 2, 3};
+  // Edge Case:
+  nums = {1, 2, 3};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.bowlSubarrays(nums));
+  EXPECT_EQ(expected, solutions.bowlSubarrays(nums));
 }
 
 TEST(X86_64Test, mergeAdjacentCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, 1, 1, 2};
+  // Basic Case:
+  vector<int> nums = {3, 1, 1, 2};
 
-    vector<long long> expected = {3, 4};
+  vector<long long> expected = {3, 4};
 
-    EXPECT_EQ(expected, solutions.mergeAdjacent(nums));
+  EXPECT_EQ(expected, solutions.mergeAdjacent(nums));
 
-    // Edge Case:
-    nums = {1, 1, 1, 1};
+  // Edge Case:
+  nums = {1, 1, 1, 1};
 
-    expected = {4};
+  expected = {4};
 
-    EXPECT_EQ(expected, solutions.mergeAdjacent(nums));
+  EXPECT_EQ(expected, solutions.mergeAdjacent(nums));
 }
 
 TEST(X86_64Test, postorderTraversalCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> root = {1, -1, 2, 3};
+  // Basic Case:
+  vector<int> root = {1, -1, 2, 3};
 
-    vector<int> expected = {3, 2, 1};
+  vector<int> expected = {3, 2, 1};
 
-    EXPECT_EQ(expected, solutions.postorderTraversal(purgatory::buildTree(root)));
+  EXPECT_EQ(expected, solutions.postorderTraversal(purgatory::buildTree(root)));
 
-    // Edge Case:
-    root = {1};
+  // Edge Case:
+  root = {1};
 
-    expected = {1};
-    EXPECT_EQ(expected, solutions.postorderTraversal(purgatory::buildTree(root)));
-
+  expected = {1};
+  EXPECT_EQ(expected, solutions.postorderTraversal(purgatory::buildTree(root)));
 }
 
 TEST(X86_64Test, decodeAtIndexCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "leet2code3";
+  // Basic Case:
+  string s = "leet2code3";
 
-    int k = 10;
+  int k = 10;
 
-    string expected = "o";
+  string expected = "o";
 
-    EXPECT_EQ(expected, solutions.decodeAtIndex(s, k));
+  EXPECT_EQ(expected, solutions.decodeAtIndex(s, k));
 
-    // Edge Case:
-    s = "a";
+  // Edge Case:
+  s = "a";
 
-    k = 1;
+  k = 1;
 
-    expected = "a";
+  expected = "a";
 
-    EXPECT_EQ(expected, solutions.decodeAtIndex(s, k));
+  EXPECT_EQ(expected, solutions.decodeAtIndex(s, k));
 }
 
 TEST(X86_64Test, isValidStringCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "aabcbc";
+  // Basic Case:
+  string s = "aabcbc";
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.isValidString(s));
+  EXPECT_EQ(expected, solutions.isValidString(s));
 
-    // Edge Case:
-    s = "abc";
+  // Edge Case:
+  s = "abc";
 
-    expected = true;
-    EXPECT_EQ(expected, solutions.isValidString(s));
+  expected = true;
+  EXPECT_EQ(expected, solutions.isValidString(s));
 }
 
 TEST(X86_64Test, rightSideViewCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, -1, 5, -1, 4};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, -1, 5, -1, 4};
 
-    vector<int> expected = {1, 3, 4};
+  vector<int> expected = {1, 3, 4};
 
-    EXPECT_EQ(expected, solutions.rightSideView(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, solutions.rightSideView(purgatory::buildTree(nums)));
 
-    // Edge Case:
-    nums = {};
+  // Edge Case:
+  nums = {};
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.rightSideView(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, solutions.rightSideView(purgatory::buildTree(nums)));
 }
 
 TEST(X86_64Test, levelOrderCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, 9, 20, -1, -1, 15, 7};
+  // Basic Case:
+  vector<int> nums = {3, 9, 20, -1, -1, 15, 7};
 
-    vector<vector<int>> expected = {{3}, {9, 20}, {15, 7}};
+  vector<vector<int>> expected = {{3}, {9, 20}, {15, 7}};
 
-    EXPECT_EQ(expected, solutions.levelOrder(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, solutions.levelOrder(purgatory::buildTree(nums)));
 
-    // Edge Case:
-    nums = {};
+  // Edge Case:
+  nums = {};
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.levelOrder(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, solutions.levelOrder(purgatory::buildTree(nums)));
 }
 
 TEST(X86_64Test, sumOfLeftLeavesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, 9, 20, -1, -1, 15, 7};
+  // Basic Case:
+  vector<int> nums = {3, 9, 20, -1, -1, 15, 7};
 
-    int expected = 24;
+  int expected = 24;
 
-    EXPECT_EQ(expected, solutions.sumOfLeftLeaves(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, solutions.sumOfLeftLeaves(purgatory::buildTree(nums)));
 
-    // Edge Case:
-    nums = {1};
+  // Edge Case:
+  nums = {1};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.sumOfLeftLeaves(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, solutions.sumOfLeftLeaves(purgatory::buildTree(nums)));
 }
 
 TEST(X86_64Test, numSquaresCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int n = 12;
+  // Basic Case:
+  int n = 12;
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.numSquares(n));
+  EXPECT_EQ(expected, solutions.numSquares(n));
 
-    // Edge Case:
-    n = 0;
+  // Edge Case:
+  n = 0;
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.numSquares(n));
+  EXPECT_EQ(expected, solutions.numSquares(n));
 }
 
 TEST(X86_64Test, canMeasureWaterCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int x = 3, y = 5, target = 4;
+  // Basic Case:
+  int x = 3, y = 5, target = 4;
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.canMeasureWater(x, y, target));
+  EXPECT_EQ(expected, solutions.canMeasureWater(x, y, target));
 
-    // Edge Case:
-    x = 2; y = 6; target = 5;
+  // Edge Case:
+  x = 2;
+  y = 6;
+  target = 5;
 
-    expected = false;
+  expected = false;
 
-    EXPECT_EQ(expected, solutions.canMeasureWater(x, y, target));
+  EXPECT_EQ(expected, solutions.canMeasureWater(x, y, target));
 }
 
 TEST(X86_64Test, findLaddersCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string beginWord = "hit", endWord = "cog";
-    vector<string> wordList = {"hot", "dot", "dog", "lot", "log", "cog"};
+  // Basic Case:
+  string beginWord = "hit", endWord = "cog";
+  vector<string> wordList = {"hot", "dot", "dog", "lot", "log", "cog"};
 
-    vector<vector<string>> expected = {{"hit", "hot", "dot", "dog", "cog"}, 
-                              {"hit", "hot", "lot", "log", "cog"}};
+  vector<vector<string>> expected = {{"hit", "hot", "dot", "dog", "cog"},
+                                     {"hit", "hot", "lot", "log", "cog"}};
 
-    EXPECT_EQ(expected, solutions.findLadders(beginWord, endWord, wordList));
+  EXPECT_EQ(expected, solutions.findLadders(beginWord, endWord, wordList));
 
-    // Edge Case:
-    beginWord = "hit"; endWord = "cog";
-    wordList = {"hot", "dot", "dog", "lot", "log"};
-    expected = {};   
+  // Edge Case:
+  beginWord = "hit";
+  endWord = "cog";
+  wordList = {"hot", "dot", "dog", "lot", "log"};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.findLadders(beginWord, endWord, wordList));  
+  EXPECT_EQ(expected, solutions.findLadders(beginWord, endWord, wordList));
 }
 
 TEST(X86_64Test, serializeCheck) {
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, -1, -1, 4, 5};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, -1, -1, 4, 5};
 
-    string expected = "1,2,null,null,3,4,null,null,5,null,null,";
+  string expected = "1,2,null,null,3,4,null,null,5,null,null,";
 
-    purgatory::Purgatory::Codec codec;
+  purgatory::Purgatory::Codec codec;
 
-    EXPECT_EQ(expected, codec.serialize(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, codec.serialize(purgatory::buildTree(nums)));
 
-    // Edge Case:
-    nums = {};
+  // Edge Case:
+  nums = {};
 
-    expected = "null,";
+  expected = "null,";
 
-    EXPECT_EQ(expected, codec.serialize(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, codec.serialize(purgatory::buildTree(nums)));
 }
 
 TEST(X86_64Test, isValidCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "()";
+  // Basic Case:
+  string s = "()";
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.isValid(s));
+  EXPECT_EQ(expected, solutions.isValid(s));
 
-    s = "(]";
+  s = "(]";
 
-    expected = false;
+  expected = false;
 
-    EXPECT_EQ(expected, solutions.isValid(s));
+  EXPECT_EQ(expected, solutions.isValid(s));
 
-    // Edge Case:
-    s = "";
+  // Edge Case:
+  s = "";
 
-    expected = true;
+  expected = true;
 
-    EXPECT_EQ(expected, solutions.isValid(s));
+  EXPECT_EQ(expected, solutions.isValid(s));
 }
 
 TEST(X86_64Test, simplifyPathCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string path = "/home/";
+  // Basic Case:
+  string path = "/home/";
 
-    string expected = "/home";
+  string expected = "/home";
 
-    EXPECT_EQ(expected, solutions.simplifyPath(path));
+  EXPECT_EQ(expected, solutions.simplifyPath(path));
 
-    // Edge Case:
-    path = "/../";
+  // Edge Case:
+  path = "/../";
 
-    expected = "/";
+  expected = "/";
 
-    EXPECT_EQ(expected, solutions.simplifyPath(path));
+  EXPECT_EQ(expected, solutions.simplifyPath(path));
 }
 
 TEST(X86_64Test, evalRPNCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<string> tokens = {"2", "1", "+", "3", "*"};
+  // Basic Case:
+  vector<string> tokens = {"2", "1", "+", "3", "*"};
 
-    int expected = 9;
+  int expected = 9;
 
-    EXPECT_EQ(expected, solutions.evalRPN(tokens));
+  EXPECT_EQ(expected, solutions.evalRPN(tokens));
 
-    // Edge Case:
-    tokens = {"4", "13", "5", "/", "+"};
+  // Edge Case:
+  tokens = {"4", "13", "5", "/", "+"};
 
-    expected = 6;
+  expected = 6;
 
-    EXPECT_EQ(expected, solutions.evalRPN(tokens));
+  EXPECT_EQ(expected, solutions.evalRPN(tokens));
 }
 
 TEST(X86_64Test, calculateCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "1 + (2 - 3)";
+  // Basic Case:
+  string s = "1 + (2 - 3)";
 
-    int expected = 0;
+  int expected = 0;
 
-    EXPECT_EQ(expected, solutions.calculate(s));
+  EXPECT_EQ(expected, solutions.calculate(s));
 
-    // Edge Case:
-    s = "0-5";
+  // Edge Case:
+  s = "0-5";
 
-    expected = -5;
+  expected = -5;
 
-    EXPECT_EQ(expected, solutions.calculate(s));
+  EXPECT_EQ(expected, solutions.calculate(s));
 }
 
 TEST(X86_64Test, nextGreaterElementCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums1 = {4, 1, 2}, nums2 = {1, 3, 4, 2};
+  // Basic Case:
+  vector<int> nums1 = {4, 1, 2}, nums2 = {1, 3, 4, 2};
 
-    vector<int> expected = {-1, 3, -1};
+  vector<int> expected = {-1, 3, -1};
 
-    EXPECT_EQ(expected, solutions.nextGreaterElement(nums1, nums2));
+  EXPECT_EQ(expected, solutions.nextGreaterElement(nums1, nums2));
 
-    // Edge Case:
-    nums1 = {2, 4}; nums2 = {4, 3, 2, 1};
+  // Edge Case:
+  nums1 = {2, 4};
+  nums2 = {4, 3, 2, 1};
 
-    expected = {-1, -1};
+  expected = {-1, -1};
 
-    EXPECT_EQ(expected, solutions.nextGreaterElement(nums1, nums2));
+  EXPECT_EQ(expected, solutions.nextGreaterElement(nums1, nums2));
 }
 
 TEST(X86_64Test, levelOrderBottomCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, 9, 20, -1, -1, 15, 7};
+  // Basic Case:
+  vector<int> nums = {3, 9, 20, -1, -1, 15, 7};
 
-    vector<vector<int>> expected = {{15, 7}, {9, 20}, {3}};
+  vector<vector<int>> expected = {{15, 7}, {9, 20}, {3}};
 
-    EXPECT_EQ(expected, solutions.levelOrderBottom(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, solutions.levelOrderBottom(purgatory::buildTree(nums)));
 
-    // Edge Case:
-    nums = {};
+  // Edge Case:
+  nums = {};
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.levelOrderBottom(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, solutions.levelOrderBottom(purgatory::buildTree(nums)));
 }
 
 TEST(X86_64Test, removeDuplicateLettersCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case: 
-    string s = "bcabc";
+  // Basic Case:
+  string s = "bcabc";
 
-    string expected = "abc";
+  string expected = "abc";
 
-    EXPECT_EQ(expected, solutions.removeDuplicateLetters(s));
+  EXPECT_EQ(expected, solutions.removeDuplicateLetters(s));
 
-    // Edge Case:
-    s = "a";
+  // Edge Case:
+  s = "a";
 
-    expected = "a";
+  expected = "a";
 
-    EXPECT_EQ(expected, solutions.removeDuplicateLetters(s));
+  EXPECT_EQ(expected, solutions.removeDuplicateLetters(s));
 }
 
 TEST(X86_64Test, calculateIICheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "3+2*2";
+  // Basic Case:
+  string s = "3+2*2";
 
-    int expected = 7;
+  int expected = 7;
 
-    EXPECT_EQ(expected, solutions.calculateII(s));
+  EXPECT_EQ(expected, solutions.calculateII(s));
 
-    // Edge Case:
-    s = "3/2";
-    
-    expected = 1;
+  // Edge Case:
+  s = "3/2";
 
-    EXPECT_EQ(expected, solutions.calculateII(s));
+  expected = 1;
+
+  EXPECT_EQ(expected, solutions.calculateII(s));
 }
 
 TEST(X86_64Test, longestValidParenthesesCheck) {
-    purgatory::Purgatory solutions;
-    
-    // Basic Case:
-    string s = "(()";
+  purgatory::Purgatory solutions;
 
-    int expected = 2;
+  // Basic Case:
+  string s = "(()";
 
-    EXPECT_EQ(expected, solutions.longestValidParentheses(s));
+  int expected = 2;
 
-    // Edge Case:
-    s = "";
+  EXPECT_EQ(expected, solutions.longestValidParentheses(s));
 
-    expected = 0;
+  // Edge Case:
+  s = "";
 
-    EXPECT_EQ(expected, solutions.longestValidParentheses(s));
+  expected = 0;
+
+  EXPECT_EQ(expected, solutions.longestValidParentheses(s));
 }
 
 TEST(X86_64Test, minDepthCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, 4, -1, -1, -1};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, 4, -1, -1, -1};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.minDepth(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, solutions.minDepth(purgatory::buildTree(nums)));
 
-    // Edge Case:
-    nums = {};
+  // Edge Case:
+  nums = {};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.minDepth(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, solutions.minDepth(purgatory::buildTree(nums)));
 }
 
 TEST(X86_64Test, connectCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, 4, 5, 6, 7};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, 4, 5, 6, 7};
 
-    vector<int> expected = {1, -1, 2, 3, -1, 4, 5, 6, 7, -1};
+  vector<int> expected = {1, -1, 2, 3, -1, 4, 5, 6, 7, -1};
 
-    EXPECT_EQ(expected, purgatory::serializeWithNext(solutions.connect(purgatory::buildNode(nums))));
+  EXPECT_EQ(expected, purgatory::serializeWithNext(
+                          solutions.connect(purgatory::buildNode(nums))));
 
-    // Edge Case:
-    nums = {};
+  // Edge Case:
+  nums = {};
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, purgatory::serializeWithNext((solutions.connect(purgatory::buildNode(nums)))));
+  EXPECT_EQ(expected, purgatory::serializeWithNext(
+                          (solutions.connect(purgatory::buildNode(nums)))));
 }
 
 TEST(X86_64Test, removeInvalidParenthesesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "()())()";
+  // Basic Case:
+  string s = "()())()";
 
-    vector<string> expected = {"(())()", "()()()"};
+  vector<string> expected = {"(())()", "()()()"};
 
-    EXPECT_EQ(expected, solutions.removeInvalidParentheses(s));
+  EXPECT_EQ(expected, solutions.removeInvalidParentheses(s));
 
-    // Edge Case:
-    s = ")(";
+  // Edge Case:
+  s = ")(";
 
-    expected = {""};
+  expected = {""};
 
-    EXPECT_EQ(expected, solutions.removeInvalidParentheses(s));
+  EXPECT_EQ(expected, solutions.removeInvalidParentheses(s));
 }
 
 TEST(X86_64Test, findCenterCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> edges = {{1, 2}, {2, 3}, {4, 2}};
+  // Basic Case:
+  vector<vector<int>> edges = {{1, 2}, {2, 3}, {4, 2}};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.findCenter(edges));
+  EXPECT_EQ(expected, solutions.findCenter(edges));
 
-    // Edge Case:
-    edges = {{1, 2}, {5, 1}, {1, 3}, {1, 4}};
+  // Edge Case:
+  edges = {{1, 2}, {5, 1}, {1, 3}, {1, 4}};
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.findCenter(edges));
+  EXPECT_EQ(expected, solutions.findCenter(edges));
 }
 
 TEST(X86_64Test, isBipartiteCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> graph = {{1, 3}, {0, 2}, {1, 3}, {0, 2}};
+  // Basic Case:
+  vector<vector<int>> graph = {{1, 3}, {0, 2}, {1, 3}, {0, 2}};
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.isBipartite(graph));
+  EXPECT_EQ(expected, solutions.isBipartite(graph));
 
-    // Edge Case:
-    graph = {{1, 2, 3}, {0, 2}, {0, 1, 3}, {0, 2}};
+  // Edge Case:
+  graph = {{1, 2, 3}, {0, 2}, {0, 1, 3}, {0, 2}};
 
-    expected = false;
+  expected = false;
 
-    EXPECT_EQ(expected, solutions.isBipartite(graph));
+  EXPECT_EQ(expected, solutions.isBipartite(graph));
 }
 
 TEST(X86_64Test, numberOfComponentsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> properties = {{1, 2}, {1, 1}, {3, 4}, {4, 5}, {5, 6}, {7, 7}};
+  // Basic Case:
+  vector<vector<int>> properties = {{1, 2}, {1, 1}, {3, 4},
+                                    {4, 5}, {5, 6}, {7, 7}};
 
-    int k = 1;
+  int k = 1;
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.numberOfComponents(properties, k));
+  EXPECT_EQ(expected, solutions.numberOfComponents(properties, k));
 
-    // Edge Case:
-    properties = {{1, 1}, {1, 1}};
-    k = 2;
+  // Edge Case:
+  properties = {{1, 1}, {1, 1}};
+  k = 2;
 
-    expected = 2;
+  expected = 2;
 
-    EXPECT_EQ(expected, solutions.numberOfComponents(properties, k));
+  EXPECT_EQ(expected, solutions.numberOfComponents(properties, k));
 }
 
 TEST(X86_64Test, findJudgeCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int n = 2;
+  // Basic Case:
+  int n = 2;
 
-    vector<vector<int>> trust = {{1, 2}};
+  vector<vector<int>> trust = {{1, 2}};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.findJudge(n, trust));
+  EXPECT_EQ(expected, solutions.findJudge(n, trust));
 
-    // Edge Case:
-    n = 3; trust = {{1, 3}, {2, 3}, {3, 1}};
+  // Edge Case:
+  n = 3;
+  trust = {{1, 3}, {2, 3}, {3, 1}};
 
-    expected = -1;
+  expected = -1;
 
-    EXPECT_EQ(expected, solutions.findJudge(n, trust));
+  EXPECT_EQ(expected, solutions.findJudge(n, trust));
 }
 
 TEST(X86_64Test, numIslandsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<char>> grid = {{'1', '1', '1', '1', '0'}, {'1', '1', '0', '1', '0'}, {'1', '1', '0', '0', '0'}, {'0', '0', '0', '0', '0'}};
+  // Basic Case:
+  vector<vector<char>> grid = {{'1', '1', '1', '1', '0'},
+                               {'1', '1', '0', '1', '0'},
+                               {'1', '1', '0', '0', '0'},
+                               {'0', '0', '0', '0', '0'}};
 
-    int expected = 1;
+  int expected = 1;
 
-    EXPECT_EQ(expected, solutions.numIslands(grid));
+  EXPECT_EQ(expected, solutions.numIslands(grid));
 
-    // Edge Case:
-    grid = {{'0', '0'}, {'0', '0'}};
+  // Edge Case:
+  grid = {{'0', '0'}, {'0', '0'}};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.numIslands(grid));
+  EXPECT_EQ(expected, solutions.numIslands(grid));
 }
 
 TEST(X86_64Test, solveCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<char>> board = {{'X', 'X', 'X', 'X'}, {'X', 'O', 'O', 'X'}, {'X', 'X', 'O', 'X'}, {'X', 'O', 'X', 'X'}};
-    vector<vector<char>> expected = {{'X', 'X', 'X', 'X'}, {'X', 'X', 'X', 'X'}, {'X', 'X', 'X', 'X'}, {'X', 'O', 'X', 'X'}};
+  // Basic Case:
+  vector<vector<char>> board = {{'X', 'X', 'X', 'X'},
+                                {'X', 'O', 'O', 'X'},
+                                {'X', 'X', 'O', 'X'},
+                                {'X', 'O', 'X', 'X'}};
+  vector<vector<char>> expected = {{'X', 'X', 'X', 'X'},
+                                   {'X', 'X', 'X', 'X'},
+                                   {'X', 'X', 'X', 'X'},
+                                   {'X', 'O', 'X', 'X'}};
 
-    solutions.solve(board);
+  solutions.solve(board);
 
-    EXPECT_EQ(expected, board);
+  EXPECT_EQ(expected, board);
 
-    // Edge Case:
-    board = {{'O', 'O'}, {'O', 'O'}};
+  // Edge Case:
+  board = {{'O', 'O'}, {'O', 'O'}};
 
-    expected = {{'O', 'O'}, {'O', 'O'}};
+  expected = {{'O', 'O'}, {'O', 'O'}};
 
-    solutions.solve(board);
+  solutions.solve(board);
 
-    EXPECT_EQ(expected, board);
+  EXPECT_EQ(expected, board);
 }
 
 TEST(X86_64Test, longestIncreasingPathCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> matrix = {{9, 9, 4}, {6, 6, 8}, {2, 1, 1}};
+  // Basic Case:
+  vector<vector<int>> matrix = {{9, 9, 4}, {6, 6, 8}, {2, 1, 1}};
 
-    int expected = 4;
+  int expected = 4;
 
-    EXPECT_EQ(expected, solutions.longestIncreasingPath(matrix));
+  EXPECT_EQ(expected, solutions.longestIncreasingPath(matrix));
 
-    // Edge Case:
-    matrix = {{1}};
+  // Edge Case:
+  matrix = {{1}};
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.longestIncreasingPath(matrix));
+  EXPECT_EQ(expected, solutions.longestIncreasingPath(matrix));
 }
 
 TEST(X86_64Test, lastStoneWeightCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> stones = {2, 7, 4, 1, 8, 1};
+  // Basic Case:
+  vector<int> stones = {2, 7, 4, 1, 8, 1};
 
-    int expected = 1;
+  int expected = 1;
 
-    EXPECT_EQ(expected, solutions.lastStoneWeight(stones));
+  EXPECT_EQ(expected, solutions.lastStoneWeight(stones));
 
-    // Edge Case:
-    stones = {};
+  // Edge Case:
+  stones = {};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.lastStoneWeight(stones));
+  EXPECT_EQ(expected, solutions.lastStoneWeight(stones));
 }
 
 TEST(X86_64Test, nthUglyNumberCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int n = 10;
+  // Basic Case:
+  int n = 10;
 
-    int expected = 12;
+  int expected = 12;
 
-    EXPECT_EQ(expected, solutions.nthUglyNumber(n));
+  EXPECT_EQ(expected, solutions.nthUglyNumber(n));
 
-    // Edge Case:
-    n = 1;
+  // Edge Case:
+  n = 1;
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.nthUglyNumber(n));
+  EXPECT_EQ(expected, solutions.nthUglyNumber(n));
 }
 
 TEST(X86_64Test, topKFrequentCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 1, 1, 2, 2, 3};
+  // Basic Case:
+  vector<int> nums = {1, 1, 1, 2, 2, 3};
 
-    int k = 2;
+  int k = 2;
 
-    vector<int> expected = {2, 1};
+  vector<int> expected = {2, 1};
 
-    EXPECT_EQ(expected, solutions.topKFrequent(nums, k));
+  EXPECT_EQ(expected, solutions.topKFrequent(nums, k));
 
-    // Edge Case:
-    nums = {1}; k = 1;
+  // Edge Case:
+  nums = {1};
+  k = 1;
 
-    expected = {1};
+  expected = {1};
 
-    EXPECT_EQ(expected, solutions.topKFrequent(nums, k));
+  EXPECT_EQ(expected, solutions.topKFrequent(nums, k));
 }
 
 TEST(X86_64Test, maxSlidingWindowCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 3, -1, -3, 5, 3, 6, 7};
+  // Basic Case:
+  vector<int> nums = {1, 3, -1, -3, 5, 3, 6, 7};
 
-    int k = 3;
+  int k = 3;
 
-    vector<int> expected = {3, 3, 5, 5, 6, 7};
+  vector<int> expected = {3, 3, 5, 5, 6, 7};
 
-    EXPECT_EQ(expected, solutions.maxSlidingWindow(nums, k));
+  EXPECT_EQ(expected, solutions.maxSlidingWindow(nums, k));
 
-    // Edge Case:
-    nums = {}; k = 0;
+  // Edge Case:
+  nums = {};
+  k = 0;
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.maxSlidingWindow(nums, k));
-
+  EXPECT_EQ(expected, solutions.maxSlidingWindow(nums, k));
 }
 
 TEST(X86_64Test, maxProductofTwoCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, 4, 5, 2};
+  // Basic Case:
+  vector<int> nums = {3, 4, 5, 2};
 
-    int expected = 12;
+  int expected = 12;
 
-    EXPECT_EQ(expected, solutions.maxProduct(nums));
+  EXPECT_EQ(expected, solutions.maxProduct(nums));
 
-    // Edge Case:
-    nums = {1, 1};
+  // Edge Case:
+  nums = {1, 1};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.maxProduct(nums));
+  EXPECT_EQ(expected, solutions.maxProduct(nums));
 }
 
 TEST(X86_64Test, frequencySortCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "tree";
+  // Basic Case:
+  string s = "tree";
 
-    string expected = "eert";
+  string expected = "eert";
 
-    EXPECT_EQ(expected, solutions.frequencySort(s));
+  EXPECT_EQ(expected, solutions.frequencySort(s));
 
-    // Edge Case:
-    s = "a";
-    expected = "a";
+  // Edge Case:
+  s = "a";
+  expected = "a";
 
-    EXPECT_EQ(expected, solutions.frequencySort(s));
+  EXPECT_EQ(expected, solutions.frequencySort(s));
 }
 
 TEST(X86_64Test, rearrangeBarcodesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> barcodes = {1, 1, 1, 2, 2, 2};
+  // Basic Case:
+  vector<int> barcodes = {1, 1, 1, 2, 2, 2};
 
-    vector<int> expected = {1, 2, 1, 2, 1, 2};
+  vector<int> expected = {1, 2, 1, 2, 1, 2};
 
-    EXPECT_EQ(expected, solutions.rearrangeBarcodes(barcodes));
+  EXPECT_EQ(expected, solutions.rearrangeBarcodes(barcodes));
 
-    // Edge Case:
-    barcodes = {1};
+  // Edge Case:
+  barcodes = {1};
 
-    expected = {1};
+  expected = {1};
 
-    EXPECT_EQ(expected, solutions.rearrangeBarcodes(barcodes));
+  EXPECT_EQ(expected, solutions.rearrangeBarcodes(barcodes));
 }
 
 TEST(X86_64Test, furthestBuildingCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> heights = {4, 2, 7, 6, 9, 14, 12};
+  // Basic Case:
+  vector<int> heights = {4, 2, 7, 6, 9, 14, 12};
 
-    int bricks = 5, ladders = 1;
+  int bricks = 5, ladders = 1;
 
-    int expected = 4;
+  int expected = 4;
 
-    EXPECT_EQ(expected, solutions.furthestBuilding(heights, bricks, ladders));
+  EXPECT_EQ(expected, solutions.furthestBuilding(heights, bricks, ladders));
 
-    // Edge Case:
-    heights = {1, 1, 1};
-    bricks = 0; ladders = 0;
+  // Edge Case:
+  heights = {1, 1, 1};
+  bricks = 0;
+  ladders = 0;
 
-    expected = 2;
-    EXPECT_EQ(expected, solutions.furthestBuilding(heights, bricks, ladders));
+  expected = 2;
+  EXPECT_EQ(expected, solutions.furthestBuilding(heights, bricks, ladders));
 }
 
 TEST(X86_64Test, assignTasksCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basci Case:
-    vector<int> servers = {3, 3, 2};
-    vector<int> tasks = {1, 2, 3, 2, 1, 2};
+  // Basci Case:
+  vector<int> servers = {3, 3, 2};
+  vector<int> tasks = {1, 2, 3, 2, 1, 2};
 
-    vector<int> expected = {2, 2, 0, 2, 1, 2};
+  vector<int> expected = {2, 2, 0, 2, 1, 2};
 
-    EXPECT_EQ(expected, solutions.assignTasks(servers, tasks));
+  EXPECT_EQ(expected, solutions.assignTasks(servers, tasks));
 
-    // Edge Case:
-    servers = {1};
-    tasks = {5, 4, 3};
+  // Edge Case:
+  servers = {1};
+  tasks = {5, 4, 3};
 
-    expected = {0, 0 , 0};
-    EXPECT_EQ(expected, solutions.assignTasks(servers, tasks));
+  expected = {0, 0, 0};
+  EXPECT_EQ(expected, solutions.assignTasks(servers, tasks));
 }
 
 TEST(X86_64Test, numberGameCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {5, 4, 2, 3};
+  // Basic Case:
+  vector<int> nums = {5, 4, 2, 3};
 
-    vector<int> expected = {3, 2, 5, 4};
+  vector<int> expected = {3, 2, 5, 4};
 
-    EXPECT_EQ(expected, solutions.numberGame(nums));
+  EXPECT_EQ(expected, solutions.numberGame(nums));
 
-    // Edge Case:
-    nums = {1, 1, 2, 2};
+  // Edge Case:
+  nums = {1, 1, 2, 2};
 
-    expected = {1, 1, 2, 2};
+  expected = {1, 1, 2, 2};
 
-    EXPECT_EQ(expected, solutions.numberGame(nums));
+  EXPECT_EQ(expected, solutions.numberGame(nums));
 }
 
 TEST(X86_64Test, networkDelayTimeCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> times = {{2, 1, 1}, {2, 3, 1}, {3, 4, 1}};
+  // Basic Case:
+  vector<vector<int>> times = {{2, 1, 1}, {2, 3, 1}, {3, 4, 1}};
 
-    int n = 4, k = 2;
-  
-    int expected = 2;
+  int n = 4, k = 2;
 
-    EXPECT_EQ(expected, solutions.networkDelayTime(times, n, k));
+  int expected = 2;
 
-    // Edge Case:
-    times = {{1, 2, 1}}; n = 2; k = 1;
+  EXPECT_EQ(expected, solutions.networkDelayTime(times, n, k));
 
-    expected = 1;
+  // Edge Case:
+  times = {{1, 2, 1}};
+  n = 2;
+  k = 1;
 
-    EXPECT_EQ(expected, solutions.networkDelayTime(times, n, k));
+  expected = 1;
 
+  EXPECT_EQ(expected, solutions.networkDelayTime(times, n, k));
 }
 
 TEST(X86_64Test, minSetSizeCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> arr = {3, 3, 3, 3, 5, 5, 5, 2, 2, 7};
+  // Basic Case:
+  vector<int> arr = {3, 3, 3, 3, 5, 5, 5, 2, 2, 7};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.minSetSize(arr));
+  EXPECT_EQ(expected, solutions.minSetSize(arr));
 
-    // Edge Case:
-    arr = {7, 7, 7, 7};
+  // Edge Case:
+  arr = {7, 7, 7, 7};
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.minSetSize(arr));
+  EXPECT_EQ(expected, solutions.minSetSize(arr));
 }
 
 TEST(X86_64Test, deleteGreatestValueCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> grid = {{1, 2, 4}, {3, 3, 1}};
+  // Basic Case:
+  vector<vector<int>> grid = {{1, 2, 4}, {3, 3, 1}};
 
-    int expected = 8;
+  int expected = 8;
 
-    EXPECT_EQ(expected, solutions.deleteGreatestValue(grid));
+  EXPECT_EQ(expected, solutions.deleteGreatestValue(grid));
 
-    // Edge Case:
-    grid = {{1, 1}, {1, 1}};
+  // Edge Case:
+  grid = {{1, 1}, {1, 1}};
 
-    expected = 2;
+  expected = 2;
 
-    EXPECT_EQ(expected, solutions.deleteGreatestValue(grid));
+  EXPECT_EQ(expected, solutions.deleteGreatestValue(grid));
 }
 
 TEST(X86_64Test, longestDiverseStringCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int a = 1, b = 1, c = 7;
+  // Basic Case:
+  int a = 1, b = 1, c = 7;
 
-    string expected = "ccbccacc";
+  string expected = "ccbccacc";
 
-    EXPECT_EQ(expected, solutions.longestDiverseString(a, b, c));
+  EXPECT_EQ(expected, solutions.longestDiverseString(a, b, c));
 
-    // Edge Case:
-    a = 0; b = 0; c = 1;
+  // Edge Case:
+  a = 0;
+  b = 0;
+  c = 1;
 
-    expected = "c";
+  expected = "c";
 
-    EXPECT_EQ(expected, solutions.longestDiverseString(a, b, c));   
+  EXPECT_EQ(expected, solutions.longestDiverseString(a, b, c));
 }
 
 TEST(X86_64Test, minimumEffortPathCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> heights = {{1, 2, 2}, {3, 8, 2}, {5, 3, 5}};
+  // Basic Case:
+  vector<vector<int>> heights = {{1, 2, 2}, {3, 8, 2}, {5, 3, 5}};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.minimumEffortPath(heights));
+  EXPECT_EQ(expected, solutions.minimumEffortPath(heights));
 
-    // Edge Case:
-    heights = {{5}};
+  // Edge Case:
+  heights = {{5}};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.minimumEffortPath(heights));
+  EXPECT_EQ(expected, solutions.minimumEffortPath(heights));
 }
 
 TEST(X86_64Test, pickGiftsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> gifts = {25, 64, 9, 4, 100};
+  // Basic Case:
+  vector<int> gifts = {25, 64, 9, 4, 100};
 
-    int k = 4;
+  int k = 4;
 
-    long long expected = 29;
+  long long expected = 29;
 
-    EXPECT_EQ(expected, solutions.pickGifts(gifts, k));
+  EXPECT_EQ(expected, solutions.pickGifts(gifts, k));
 
-    // Edge Case:
-    gifts = {1, 1, 1};
-    k = 100;
-    expected = 3;
+  // Edge Case:
+  gifts = {1, 1, 1};
+  k = 100;
+  expected = 3;
 
-    EXPECT_EQ(expected, solutions.pickGifts(gifts, k));
+  EXPECT_EQ(expected, solutions.pickGifts(gifts, k));
 }
 
 TEST(X86_64Test, getOrderCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> tasks = {{1, 2}, {2, 4}, {3, 2}, {4, 1}};
+  // Basic Case:
+  vector<vector<int>> tasks = {{1, 2}, {2, 4}, {3, 2}, {4, 1}};
 
-    vector<int> expected = {0, 2, 3, 1};
+  vector<int> expected = {0, 2, 3, 1};
 
-    EXPECT_EQ(expected, solutions.getOrder(tasks));
+  EXPECT_EQ(expected, solutions.getOrder(tasks));
 
-    // Edge Case:
-    tasks = {{0, 5}};
+  // Edge Case:
+  tasks = {{0, 5}};
 
-    expected = {0};
+  expected = {0};
 
-    EXPECT_EQ(expected, solutions.getOrder(tasks));
+  EXPECT_EQ(expected, solutions.getOrder(tasks));
 }
 
 TEST(X86_64Test, minLengthCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "ABFCACDB";
+  // Basic Case:
+  string s = "ABFCACDB";
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.minLength(s));
+  EXPECT_EQ(expected, solutions.minLength(s));
 
-    // Edge Case:
-    s = "ABCD";
+  // Edge Case:
+  s = "ABCD";
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.minLength(s));
+  EXPECT_EQ(expected, solutions.minLength(s));
 }
 
 TEST(X86_64Test, exclusiveTimeCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int n = 2;
-    vector<string> logs = {"0:start:0", "1:start:2", "1:end:5", "0:end:6"};
+  // Basic Case:
+  int n = 2;
+  vector<string> logs = {"0:start:0", "1:start:2", "1:end:5", "0:end:6"};
 
-    vector<int> expected = {3, 4};
+  vector<int> expected = {3, 4};
 
-    EXPECT_EQ(expected, solutions.exclusiveTime(n, logs));
+  EXPECT_EQ(expected, solutions.exclusiveTime(n, logs));
 
-    // Edge Case:
-    n = 1;
-    logs = {"0:start:0", "0:start:2", "0:end:5", "0:start:6", "0:end:6", "0:end:7"};
+  // Edge Case:
+  n = 1;
+  logs = {"0:start:0", "0:start:2", "0:end:5",
+          "0:start:6", "0:end:6",   "0:end:7"};
 
-    expected = {8};
+  expected = {8};
 
-    EXPECT_EQ(expected, solutions.exclusiveTime(n, logs));
+  EXPECT_EQ(expected, solutions.exclusiveTime(n, logs));
 }
 
 TEST(X86_64Test, buildArrayCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> target = {1, 3};
-    int n = 3;
+  // Basic Case:
+  vector<int> target = {1, 3};
+  int n = 3;
 
-    vector<string> expected = {"Push", "Push", "Pop", "Push"};
+  vector<string> expected = {"Push", "Push", "Pop", "Push"};
 
-    EXPECT_EQ(expected, solutions.buildArray(target, n));
+  EXPECT_EQ(expected, solutions.buildArray(target, n));
 
-    // Edge Case:
-    target = {1};
-    n = 1;
-    expected = {"Push"};
+  // Edge Case:
+  target = {1};
+  n = 1;
+  expected = {"Push"};
 
-    EXPECT_EQ(expected, solutions.buildArray(target, n));
+  EXPECT_EQ(expected, solutions.buildArray(target, n));
 }
 
 TEST(X86_64Test, subArrayRangesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3};
 
-    long long expected = 4;
+  long long expected = 4;
 
-    EXPECT_EQ(expected, solutions.subArrayRanges(nums));
+  EXPECT_EQ(expected, solutions.subArrayRanges(nums));
 
-    // Edge Case:
-    nums = {1};
+  // Edge Case:
+  nums = {1};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.subArrayRanges(nums));
+  EXPECT_EQ(expected, solutions.subArrayRanges(nums));
 }
 
 TEST(X86_64Test, makeGoodCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "leEeetcode";
+  // Basic Case:
+  string s = "leEeetcode";
 
-    string expected = "leetcode";
+  string expected = "leetcode";
 
-    EXPECT_EQ(expected, solutions.makeGood(s));
+  EXPECT_EQ(expected, solutions.makeGood(s));
 
-    // Edge Case:
-    s = "s";
+  // Edge Case:
+  s = "s";
 
-    expected = "s";
+  expected = "s";
 
-    EXPECT_EQ(expected, solutions.makeGood(s));
+  EXPECT_EQ(expected, solutions.makeGood(s));
 }
 
 TEST(X86_64Test, reversePrefixCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string word = "abcdefd";
-    char ch = 'd';
+  // Basic Case:
+  string word = "abcdefd";
+  char ch = 'd';
 
-    string expected = "dcbaefd";
+  string expected = "dcbaefd";
 
-    EXPECT_EQ(expected, solutions.reversePrefix(word, ch));
+  EXPECT_EQ(expected, solutions.reversePrefix(word, ch));
 
-    // Edge Case:
-    word = "abcd";
+  // Edge Case:
+  word = "abcd";
 
-    ch = 'z';
+  ch = 'z';
 
-    expected = "abcd";
+  expected = "abcd";
 
-    EXPECT_EQ(expected, solutions.reversePrefix(word, ch));
+  EXPECT_EQ(expected, solutions.reversePrefix(word, ch));
 }
 
 TEST(X86_64Test, checkValidStringCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "(*))";
+  // Basic Case:
+  string s = "(*))";
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.checkValidString(s));
+  EXPECT_EQ(expected, solutions.checkValidString(s));
 
-    // Edge Case:
-    s = "*";
+  // Edge Case:
+  s = "*";
 
-    expected = true;
+  expected = true;
 
-    EXPECT_EQ(expected, solutions.checkValidString(s));
+  EXPECT_EQ(expected, solutions.checkValidString(s));
 }
 
 TEST(X86_64Test, removeDuplicatesStringCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "abbaca";
+  // Basic Case:
+  string s = "abbaca";
 
-    string expected = "ca";
+  string expected = "ca";
 
-    EXPECT_EQ(expected, solutions.removeDuplicates(s));
+  EXPECT_EQ(expected, solutions.removeDuplicates(s));
 
-    // Edge Case:
-    s = "aaaa";
+  // Edge Case:
+  s = "aaaa";
 
-    expected = "";
+  expected = "";
 
-    EXPECT_EQ(expected, solutions.removeDuplicates(s));
+  EXPECT_EQ(expected, solutions.removeDuplicates(s));
 }
 
 TEST(X86_64Test, find132patternCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, 1, 4, 2};
+  // Basic Case:
+  vector<int> nums = {3, 1, 4, 2};
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.find132pattern(nums));
+  EXPECT_EQ(expected, solutions.find132pattern(nums));
 
-    // Edge Case:
-    nums = {1, 2, 3, 4};
+  // Edge Case:
+  nums = {1, 2, 3, 4};
 
-    expected = false;
+  expected = false;
 
-    EXPECT_EQ(expected, solutions.find132pattern(nums));
+  EXPECT_EQ(expected, solutions.find132pattern(nums));
 }
 
 TEST(X86_64Test, maxWidthRampCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {6, 0, 8, 2, 1, 5};
+  // Basic Case:
+  vector<int> nums = {6, 0, 8, 2, 1, 5};
 
-    int expected = 4;
+  int expected = 4;
 
-    EXPECT_EQ(expected, solutions.maxWidthRamp(nums));
+  EXPECT_EQ(expected, solutions.maxWidthRamp(nums));
 
-    // Edge Case:
-    nums = {1, 1, 1, 1};
+  // Edge Case:
+  nums = {1, 1, 1, 1};
 
-    expected = 3;
+  expected = 3;
 
-    EXPECT_EQ(expected, solutions.maxWidthRamp(nums));
+  EXPECT_EQ(expected, solutions.maxWidthRamp(nums));
 }
 
 TEST(X86_64Test, clearDigitsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "cb34";
+  // Basic Case:
+  string s = "cb34";
 
-    string expected = "";
+  string expected = "";
 
-    EXPECT_EQ(expected, solutions.clearDigits(s));
+  EXPECT_EQ(expected, solutions.clearDigits(s));
 
-    // Edge Case:
-    s = "abc";
+  // Edge Case:
+  s = "abc";
 
-    expected = "abc";
+  expected = "abc";
 
-    EXPECT_EQ(expected, solutions.clearDigits(s));
+  EXPECT_EQ(expected, solutions.clearDigits(s));
 }
 
 TEST(X86_64Test, validateStackSequencesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> pushed = {1, 2, 3, 4, 5};
-    vector<int> popped = {4, 5, 3, 2 ,1};
+  // Basic Case:
+  vector<int> pushed = {1, 2, 3, 4, 5};
+  vector<int> popped = {4, 5, 3, 2, 1};
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.validateStackSequences(pushed, popped));
+  EXPECT_EQ(expected, solutions.validateStackSequences(pushed, popped));
 
-    // Edge Case:
-    pushed = {1, 2, 3, 4, 5};
-    popped = {4, 3, 5, 1, 2};
+  // Edge Case:
+  pushed = {1, 2, 3, 4, 5};
+  popped = {4, 3, 5, 1, 2};
 
-    expected = false;
-    EXPECT_EQ(expected, solutions.validateStackSequences(pushed, popped));
+  expected = false;
+  EXPECT_EQ(expected, solutions.validateStackSequences(pushed, popped));
 }
 
 TEST(X86_64Test, minRemoveToMakeValidCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "lee(t(c)o)de)";
+  // Basic Case:
+  string s = "lee(t(c)o)de)";
 
-    string expected = "lee(t(c)o)de";
+  string expected = "lee(t(c)o)de";
 
-    EXPECT_EQ(expected, solutions.minRemoveToMakeValid(s));
+  EXPECT_EQ(expected, solutions.minRemoveToMakeValid(s));
 
-    // Edge Case:
-    s = "))((";
+  // Edge Case:
+  s = "))((";
 
-    expected = "";
+  expected = "";
 
-    EXPECT_EQ(expected, solutions.minRemoveToMakeValid(s));
+  EXPECT_EQ(expected, solutions.minRemoveToMakeValid(s));
 }
 
 TEST(X86_64Test, summaryRangesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {0, 1, 2, 4, 5, 7};
+  // Basic Case:
+  vector<int> nums = {0, 1, 2, 4, 5, 7};
 
-    vector<string> expected = {"0->2", "4->5", "7"};
+  vector<string> expected = {"0->2", "4->5", "7"};
 
-    EXPECT_EQ(expected, solutions.summaryRanges(nums));
+  EXPECT_EQ(expected, solutions.summaryRanges(nums));
 
-    // Edge Case:
-    nums = {};
+  // Edge Case:
+  nums = {};
 
-    expected = {};
-    
-    EXPECT_EQ(expected, solutions.summaryRanges(nums));
+  expected = {};
+
+  EXPECT_EQ(expected, solutions.summaryRanges(nums));
 }
 
 TEST(X86_64Test, mergeIntervalsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> intervals = {{1, 3}, {2, 6}, {8, 10}, {15, 18}};
+  // Basic Case:
+  vector<vector<int>> intervals = {{1, 3}, {2, 6}, {8, 10}, {15, 18}};
 
-    vector<vector<int>> expected = {{1,6}, {8, 10}, {15, 18}};
+  vector<vector<int>> expected = {{1, 6}, {8, 10}, {15, 18}};
 
-    EXPECT_EQ(expected, solutions.merge(intervals));
+  EXPECT_EQ(expected, solutions.merge(intervals));
 
-    // Edge Case:
-    intervals = {};
+  // Edge Case:
+  intervals = {};
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.merge(intervals));
+  EXPECT_EQ(expected, solutions.merge(intervals));
 }
 
 TEST(X86_64Test, insertCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> intervals = {{1, 3}, {6, 9}};
+  // Basic Case:
+  vector<vector<int>> intervals = {{1, 3}, {6, 9}};
 
-    vector<int> newInterval = {2, 5};
+  vector<int> newInterval = {2, 5};
 
-    vector<vector<int>> expected = {{1, 5}, {6, 9}};
+  vector<vector<int>> expected = {{1, 5}, {6, 9}};
 
-    EXPECT_EQ(expected, solutions.insert(intervals, newInterval));
+  EXPECT_EQ(expected, solutions.insert(intervals, newInterval));
 
-    // Edge  Case:
-    intervals = {}; newInterval = {5, 7};
+  // Edge  Case:
+  intervals = {};
+  newInterval = {5, 7};
 
-    expected = {{5, 7}};
+  expected = {{5, 7}};
 
-    EXPECT_EQ(expected, solutions.insert(intervals, newInterval));
+  EXPECT_EQ(expected, solutions.insert(intervals, newInterval));
 }
 
 TEST(X86_64Test, findMinArrowShotsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> points = {{10, 16}, {2, 8}, {1, 6}, {7, 12}};
+  // Basic Case:
+  vector<vector<int>> points = {{10, 16}, {2, 8}, {1, 6}, {7, 12}};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.findMinArrowShots(points));
+  EXPECT_EQ(expected, solutions.findMinArrowShots(points));
 
-    // Edge Case:
-    points = {{1, 2}, {3, 4}, {5, 6}};
+  // Edge Case:
+  points = {{1, 2}, {3, 4}, {5, 6}};
 
-    expected = 3;
+  expected = 3;
 
-    EXPECT_EQ(expected, solutions.findMinArrowShots(points));
+  EXPECT_EQ(expected, solutions.findMinArrowShots(points));
 }
 
 TEST(X86_64Test, climbStairsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int n = 2;
+  // Basic Case:
+  int n = 2;
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.climbStairs(n));
+  EXPECT_EQ(expected, solutions.climbStairs(n));
 
-    // Edge Case:
-    n = 1;
+  // Edge Case:
+  n = 1;
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.climbStairs(n));
+  EXPECT_EQ(expected, solutions.climbStairs(n));
 }
 
 TEST(X86_64Test, robCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, 1};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, 1};
 
-    int expected = 4;
+  int expected = 4;
 
-    EXPECT_EQ(expected, solutions.rob(nums));
+  EXPECT_EQ(expected, solutions.rob(nums));
 
-    // Edge Case:
-    nums = {};
+  // Edge Case:
+  nums = {};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.rob(nums));
+  EXPECT_EQ(expected, solutions.rob(nums));
 }
 
 TEST(X86_64Test, wordBreakCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "leetcode";
+  // Basic Case:
+  string s = "leetcode";
 
-    vector<string> wordDict = {"leet", "code"};
+  vector<string> wordDict = {"leet", "code"};
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.wordBreak(s, wordDict));
+  EXPECT_EQ(expected, solutions.wordBreak(s, wordDict));
 
-    // Edge Case:
-    s = "";
+  // Edge Case:
+  s = "";
 
-    wordDict = {};
+  wordDict = {};
 
-    expected = true;
+  expected = true;
 
-    EXPECT_EQ(expected, solutions.wordBreak(s, wordDict));
+  EXPECT_EQ(expected, solutions.wordBreak(s, wordDict));
 }
 
 TEST(X86_64Test, isMatchCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "aa", p = "a";
+  // Basic Case:
+  string s = "aa", p = "a";
 
-    bool expected = false;
+  bool expected = false;
 
-    EXPECT_EQ(expected, solutions.isMatch(s, p));
+  EXPECT_EQ(expected, solutions.isMatch(s, p));
 
-    // Edge Case:
-    s = "ab", p = ".*";
+  // Edge Case:
+  s = "ab", p = ".*";
 
-    expected = true;
+  expected = true;
 
-    EXPECT_EQ(expected, solutions.isMatch(s, p));
+  EXPECT_EQ(expected, solutions.isMatch(s, p));
 }
 
 TEST(X86_64Test, binaryTreePathsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, -1, 5};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, -1, 5};
 
-    vector<string> expected = {"1->2->5", "1->3"};
+  vector<string> expected = {"1->2->5", "1->3"};
 
-    EXPECT_EQ(expected, solutions.binaryTreePaths(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, solutions.binaryTreePaths(purgatory::buildTree(nums)));
 
-    // Edge Case:
-    nums = {-1};
+  // Edge Case:
+  nums = {-1};
 
-    expected = {"-1"};
+  expected = {"-1"};
 
-    EXPECT_EQ(expected, solutions.binaryTreePaths(purgatory::buildTree(nums)));
+  EXPECT_EQ(expected, solutions.binaryTreePaths(purgatory::buildTree(nums)));
 }
 
-
 TEST(X86_64Test, letterCombinationsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string digits = "23";
+  // Basic Case:
+  string digits = "23";
 
-    vector<string> expected = {"ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"};
+  vector<string> expected = {"ad", "ae", "af", "bd", "be",
+                             "bf", "cd", "ce", "cf"};
 
-    EXPECT_EQ(expected, solutions.letterCombinations(digits));
+  EXPECT_EQ(expected, solutions.letterCombinations(digits));
 
-    // Edge Case:
-    digits = "";
+  // Edge Case:
+  digits = "";
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.letterCombinations(digits));
+  EXPECT_EQ(expected, solutions.letterCombinations(digits));
 }
 
 TEST(X86_64Test, combineCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int n = 4, k = 2;
+  // Basic Case:
+  int n = 4, k = 2;
 
-    vector<vector<int>> expected = {{1, 2}, {1, 3}, {1, 4}, {2, 3}, {2, 4}, {3, 4}};
+  vector<vector<int>> expected = {{1, 2}, {1, 3}, {1, 4},
+                                  {2, 3}, {2, 4}, {3, 4}};
 
-    EXPECT_EQ(expected, solutions.combine(n, k));
+  EXPECT_EQ(expected, solutions.combine(n, k));
 
-    // Edge Case:
-    n = 0; k = 0;
+  // Edge Case:
+  n = 0;
+  k = 0;
 
-    expected = {{}};
+  expected = {{}};
 
-    EXPECT_EQ(expected, solutions.combine(n, k));
+  EXPECT_EQ(expected, solutions.combine(n, k));
 }
 
 TEST(X86_64Test, totalNQueensCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int n = 4;
+  // Basic Case:
+  int n = 4;
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.totalNQueens(n));
+  EXPECT_EQ(expected, solutions.totalNQueens(n));
 
-    // Edge Case:
-    n = 1;
+  // Edge Case:
+  n = 1;
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.totalNQueens(n));
+  EXPECT_EQ(expected, solutions.totalNQueens(n));
 }
 
 TEST(X86_64Test, readBinaryWatchCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int turnedOn = 1;
+  // Basic Case:
+  int turnedOn = 1;
 
-    vector<string> expected = {"0:01", "0:02", "0:04", "0:08", "0:16", "0:32", "1:00", "2:00", "4:00", "8:00"};
+  vector<string> expected = {"0:01", "0:02", "0:04", "0:08", "0:16",
+                             "0:32", "1:00", "2:00", "4:00", "8:00"};
 
-    EXPECT_EQ(expected, solutions.readBinaryWatch(turnedOn));
+  EXPECT_EQ(expected, solutions.readBinaryWatch(turnedOn));
 
-    // Edge Case:
-    turnedOn = 9;
+  // Edge Case:
+  turnedOn = 9;
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.readBinaryWatch(turnedOn));
+  EXPECT_EQ(expected, solutions.readBinaryWatch(turnedOn));
 }
 
 TEST(X86_64Test, subsetsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3};
 
-    vector<vector<int>> expected = {{}, {1}, {1, 2}, {1, 2, 3}, {1, 3}, {2}, {2, 3}, {3}};
-    
-    EXPECT_EQ(expected, solutions.subsets(nums));
+  vector<vector<int>> expected = {{},     {1}, {1, 2}, {1, 2, 3},
+                                  {1, 3}, {2}, {2, 3}, {3}};
 
-    // Edge Case:
-    nums = {0};
+  EXPECT_EQ(expected, solutions.subsets(nums));
 
-    expected = {{}, {0}};
+  // Edge Case:
+  nums = {0};
 
-    EXPECT_EQ(expected, solutions.subsets(nums));
+  expected = {{}, {0}};
+
+  EXPECT_EQ(expected, solutions.subsets(nums));
 }
 
 TEST(X86_64Test, grayCodeCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int n = 3;
+  // Basic Case:
+  int n = 3;
 
-    vector<int> expected = {0, 1, 3, 2, 6, 7, 5, 4};
+  vector<int> expected = {0, 1, 3, 2, 6, 7, 5, 4};
 
-    EXPECT_EQ(expected, solutions.grayCode(n));
+  EXPECT_EQ(expected, solutions.grayCode(n));
 
-    // Edge Case:
-    n = 0;
+  // Edge Case:
+  n = 0;
 
-    expected = {0};
+  expected = {0};
 
-    EXPECT_EQ(expected, solutions.grayCode(n));
+  EXPECT_EQ(expected, solutions.grayCode(n));
 }
 
 TEST(X86_64Test, judgePoint24Check) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> cards = {4, 1, 8, 7};
+  // Basic Case:
+  vector<int> cards = {4, 1, 8, 7};
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.judgePoint24(cards));
+  EXPECT_EQ(expected, solutions.judgePoint24(cards));
 
-    // Edge Case:
-    cards = {1, 2, 1, 2};
+  // Edge Case:
+  cards = {1, 2, 1, 2};
 
-    expected = false;
+  expected = false;
 
-    EXPECT_EQ(expected, solutions.judgePoint24(cards));
+  EXPECT_EQ(expected, solutions.judgePoint24(cards));
 }
 
 TEST(X86_64Test, searchInsertCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 3, 5, 6};
+  // Basic Case:
+  vector<int> nums = {1, 3, 5, 6};
 
-    int target = 5;
+  int target = 5;
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.searchInsert(nums, target));
+  EXPECT_EQ(expected, solutions.searchInsert(nums, target));
 
-    // Edge Case:
-    nums = {5}; target = 5;
+  // Edge Case:
+  nums = {5};
+  target = 5;
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.searchInsert(nums, target));
+  EXPECT_EQ(expected, solutions.searchInsert(nums, target));
 }
 
 TEST(X86_64Test, searchMatricCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> matrix = {{1, 3, 5, 7}, {10, 11, 16, 20}, {23, 30, 34, 60}};
+  // Basic Case:
+  vector<vector<int>> matrix = {
+      {1, 3, 5, 7}, {10, 11, 16, 20}, {23, 30, 34, 60}};
 
-    int target = 3;
+  int target = 3;
 
-    bool expected = true;
-    
-    EXPECT_EQ(expected, solutions.searchMatric(matrix, target));
+  bool expected = true;
 
-    // Edge Case:
-    matrix = {{1, 2, 3, 4}}; target = 4;
+  EXPECT_EQ(expected, solutions.searchMatric(matrix, target));
 
-    expected = true;
+  // Edge Case:
+  matrix = {{1, 2, 3, 4}};
+  target = 4;
 
-    EXPECT_EQ(expected, solutions.searchMatric(matrix, target));
+  expected = true;
+
+  EXPECT_EQ(expected, solutions.searchMatric(matrix, target));
 }
 
 TEST(X86_64Test, findPeakElementCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, 1};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, 1};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.findPeakElement(nums));
+  EXPECT_EQ(expected, solutions.findPeakElement(nums));
 
-    // Edge Case:
-    nums = {1};
+  // Edge Case:
+  nums = {1};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.findPeakElement(nums));
+  EXPECT_EQ(expected, solutions.findPeakElement(nums));
 }
 
 TEST(X86_64Test, findMedianSortedArraysCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums1 = {1, 3}, nums2 = {2};
+  // Basic Case:
+  vector<int> nums1 = {1, 3}, nums2 = {2};
 
-    double expected = 2;
+  double expected = 2;
 
-    EXPECT_EQ(expected, solutions.findMedianSortedArrays(nums1, nums2));
+  EXPECT_EQ(expected, solutions.findMedianSortedArrays(nums1, nums2));
 
-    // Edge Case:
-    nums1 = {}; nums2 = {1};
+  // Edge Case:
+  nums1 = {};
+  nums2 = {1};
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.findMedianSortedArrays(nums1, nums2));
+  EXPECT_EQ(expected, solutions.findMedianSortedArrays(nums1, nums2));
 }
 
 TEST(X86_64Test, missingNumberCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, 0, 1};
+  // Basic Case:
+  vector<int> nums = {3, 0, 1};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.missingNumber(nums));
+  EXPECT_EQ(expected, solutions.missingNumber(nums));
 
-    // Edge Case:
-    nums = {0, 1};
+  // Edge Case:
+  nums = {0, 1};
 
-    expected = 2;
+  expected = 2;
 
-    EXPECT_EQ(expected, solutions.missingNumber(nums));
+  EXPECT_EQ(expected, solutions.missingNumber(nums));
 }
 
 TEST(X86_64Test, findDuplicateCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 3, 4, 2, 2};
+  // Basic Case:
+  vector<int> nums = {1, 3, 4, 2, 2};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.findDuplicate(nums));
+  EXPECT_EQ(expected, solutions.findDuplicate(nums));
 
-    // Edge Case:
-    nums = {1, 1};
+  // Edge Case:
+  nums = {1, 1};
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.findDuplicate(nums));
+  EXPECT_EQ(expected, solutions.findDuplicate(nums));
 }
 
 TEST(X86_64Test, searchCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {2, 5, 6, 0, 0, 1, 2};
-    int target = 0;
+  // Basic Case:
+  vector<int> nums = {2, 5, 6, 0, 0, 1, 2};
+  int target = 0;
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.search(nums, target));
+  EXPECT_EQ(expected, solutions.search(nums, target));
 
-    // Edge Case:
-    nums = {1, 3, 1, 1, 1};
-    target = 3;
+  // Edge Case:
+  nums = {1, 3, 1, 1, 1};
+  target = 3;
 
-    expected = true;
+  expected = true;
 
-    EXPECT_EQ(expected, solutions.search(nums, target));
+  EXPECT_EQ(expected, solutions.search(nums, target));
 }
 
 TEST(X86_64Test, findMinCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, 4, 5, 1, 2};
+  // Basic Case:
+  vector<int> nums = {3, 4, 5, 1, 2};
 
-    int expected = 1;
+  int expected = 1;
 
-    EXPECT_EQ(expected, solutions.findMin(nums));
+  EXPECT_EQ(expected, solutions.findMin(nums));
 
-    // Edge Case:
-    nums = {1, 1, 1, 1, 1, 1};
+  // Edge Case:
+  nums = {1, 1, 1, 1, 1, 1};
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.findMin(nums));
+  EXPECT_EQ(expected, solutions.findMin(nums));
 }
 
 TEST(X86_64Test, generateCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int numRows = 3;
+  // Basic Case:
+  int numRows = 3;
 
-    vector<vector<int>> expected = {{1}, {1, 1}, {1, 2, 1}};
+  vector<vector<int>> expected = {{1}, {1, 1}, {1, 2, 1}};
 
-    EXPECT_EQ(expected, solutions.generate(numRows));
+  EXPECT_EQ(expected, solutions.generate(numRows));
 
-    // Edge Case:
-    numRows = 0;
+  // Edge Case:
+  numRows = 0;
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.generate(numRows));   
+  EXPECT_EQ(expected, solutions.generate(numRows));
 }
 
 TEST(X86_64Test, nextPermutationCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3};
-    solutions.nextPermutation(nums);
+  // Basic Case:
+  vector<int> nums = {1, 2, 3};
+  solutions.nextPermutation(nums);
 
-    vector<int> expected = {1, 3, 2};
+  vector<int> expected = {1, 3, 2};
 
-    EXPECT_EQ(expected, nums);
+  EXPECT_EQ(expected, nums);
 
-    // Edge Case:
-    nums = {1};
+  // Edge Case:
+  nums = {1};
 
-    solutions.nextPermutation(nums);
+  solutions.nextPermutation(nums);
 
-    expected = {1};
+  expected = {1};
 
-    EXPECT_EQ(expected, nums);
+  EXPECT_EQ(expected, nums);
 }
 
 TEST(X86_64Test, combinationSum2Check) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> candidates = {10, 1, 2, 7, 6, 1, 5};
+  // Basic Case:
+  vector<int> candidates = {10, 1, 2, 7, 6, 1, 5};
 
-    int target = 8;
+  int target = 8;
 
-    vector<vector<int>> expected = {{1, 1, 6}, {1, 2, 5}, {1, 7}, {2, 6}};
+  vector<vector<int>> expected = {{1, 1, 6}, {1, 2, 5}, {1, 7}, {2, 6}};
 
-    EXPECT_EQ(expected, solutions.combinationSum2(candidates, target));
+  EXPECT_EQ(expected, solutions.combinationSum2(candidates, target));
 
-    // Edge Case:
-    candidates = {};
+  // Edge Case:
+  candidates = {};
 
-    target = 0;
+  target = 0;
 
-    expected = {{}};
+  expected = {{}};
 
-    EXPECT_EQ(expected, solutions.combinationSum2(candidates, target));
+  EXPECT_EQ(expected, solutions.combinationSum2(candidates, target));
 }
 
 TEST(X86_64Test, solveSudokuCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<char>> board = {{'5', '3', '.', '.', '7', '.', '.', '.', '.'}, 
-	    {'6', '.', '.', '1', '9', '5', '.', '.', '.'},
-            {'.', '9', '8', '.', '.', '.', '.', '6', '.'},
-            {'8', '.', '.', '.', '6', '.', '.', '.', '3'},
-	    {'4', '.', '.', '8', '.', '3', '.', '.', '1'},
-            {'7', '.', '.', '.', '2', '.', '.', '.', '6'},
-	    {'.', '6', '.', '.', '.', '.', '2', '8', '.'},
-	    {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
-	    {'.', '.', '.', '.', '8', '.', '.', '7', '9'}};
+  // Basic Case:
+  vector<vector<char>> board = {{'5', '3', '.', '.', '7', '.', '.', '.', '.'},
+                                {'6', '.', '.', '1', '9', '5', '.', '.', '.'},
+                                {'.', '9', '8', '.', '.', '.', '.', '6', '.'},
+                                {'8', '.', '.', '.', '6', '.', '.', '.', '3'},
+                                {'4', '.', '.', '8', '.', '3', '.', '.', '1'},
+                                {'7', '.', '.', '.', '2', '.', '.', '.', '6'},
+                                {'.', '6', '.', '.', '.', '.', '2', '8', '.'},
+                                {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
+                                {'.', '.', '.', '.', '8', '.', '.', '7', '9'}};
 
-    vector<vector<char>> expected = {{'5', '3', '4', '6', '7', '8', '9', '1', '2'}, 
-	    {'6', '7', '2', '1', '9', '5', '3', '4', '8'},
-            {'1', '9', '8', '3', '4', '2', '5', '6', '7'},
-            {'8', '5', '9', '7', '6', '1', '4', '2', '3'},
-	    {'4', '2', '6', '8', '5', '3', '7', '9', '1'},
-            {'7', '1', '3', '9', '2', '4', '8', '5', '6'},
-	    {'9', '6', '1', '5', '3', '7', '2', '8', '4'},
-	    {'2', '8', '7', '4', '1', '9', '6', '3', '5'},
-	    {'3', '4', '5', '2', '8', '6', '1', '7', '9'}};
+  vector<vector<char>> expected = {
+      {'5', '3', '4', '6', '7', '8', '9', '1', '2'},
+      {'6', '7', '2', '1', '9', '5', '3', '4', '8'},
+      {'1', '9', '8', '3', '4', '2', '5', '6', '7'},
+      {'8', '5', '9', '7', '6', '1', '4', '2', '3'},
+      {'4', '2', '6', '8', '5', '3', '7', '9', '1'},
+      {'7', '1', '3', '9', '2', '4', '8', '5', '6'},
+      {'9', '6', '1', '5', '3', '7', '2', '8', '4'},
+      {'2', '8', '7', '4', '1', '9', '6', '3', '5'},
+      {'3', '4', '5', '2', '8', '6', '1', '7', '9'}};
 
-    solutions.solveSudoku(board);
+  solutions.solveSudoku(board);
 
-    EXPECT_EQ(expected, board);
-
+  EXPECT_EQ(expected, board);
 }
 
 TEST(X86_64Test, getEncryptedStringCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "dart";
-    int k = 3;
+  // Basic Case:
+  string s = "dart";
+  int k = 3;
 
-    string expected = "tdar";
+  string expected = "tdar";
 
-    EXPECT_EQ(expected, solutions.getEncryptedString(s, k));
+  EXPECT_EQ(expected, solutions.getEncryptedString(s, k));
 
-    // Edge Case:
-    s = "aaa";
-    k = 1;
+  // Edge Case:
+  s = "aaa";
+  k = 1;
 
-    expected = "aaa";
+  expected = "aaa";
 
-    EXPECT_EQ(expected, solutions.getEncryptedString(s, k));
+  EXPECT_EQ(expected, solutions.getEncryptedString(s, k));
 }
 
 TEST(X86_64Test, hasCycleCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {3, 2, 0, -4};
-    int pos = 1;
+  // Basic Case:
+  vector<int> head = {3, 2, 0, -4};
+  int pos = 1;
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.hasCycle(purgatory::buildLinkedList(head, pos)));
+  EXPECT_EQ(expected,
+            solutions.hasCycle(purgatory::buildLinkedList(head, pos)));
 
-    // Edge Case:
-    head = {1};
-    pos = -1;
+  // Edge Case:
+  head = {1};
+  pos = -1;
 
-    expected = false;
+  expected = false;
 
-    EXPECT_EQ(expected, solutions.hasCycle(purgatory::buildLinkedList(head, pos)));
+  EXPECT_EQ(expected,
+            solutions.hasCycle(purgatory::buildLinkedList(head, pos)));
 }
 
 TEST(X86_64Test, addTwoNumberCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> l1 = {2, 4, 3}, l2 = {5, 6, 4};
+  // Basic Case:
+  vector<int> l1 = {2, 4, 3}, l2 = {5, 6, 4};
 
-    vector<int> result = purgatory::toVector(solutions.addTwoNumber(purgatory::buildLinkedList(l1), purgatory::buildLinkedList(l2)));
+  vector<int> result = purgatory::toVector(solutions.addTwoNumber(
+      purgatory::buildLinkedList(l1), purgatory::buildLinkedList(l2)));
 
-    vector<int> expected = {7, 0, 8};
+  vector<int> expected = {7, 0, 8};
 
-    EXPECT_EQ(expected, result);
+  EXPECT_EQ(expected, result);
 
-    // Edge Case:
-    l1 = {0}, l2 = {0};
+  // Edge Case:
+  l1 = {0}, l2 = {0};
 
-    result = purgatory::toVector(solutions.addTwoNumber(purgatory::buildLinkedList(l1), purgatory::buildLinkedList(l2)));
+  result = purgatory::toVector(solutions.addTwoNumber(
+      purgatory::buildLinkedList(l1), purgatory::buildLinkedList(l2)));
 
-    expected = {0};
+  expected = {0};
 
-    EXPECT_EQ(expected, result);
+  EXPECT_EQ(expected, result);
 }
 
 TEST(X86_64Test, removeNthFromEndCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {1, 2, 3, 4, 5};
-    int n = 2;
+  // Basic Case:
+  vector<int> head = {1, 2, 3, 4, 5};
+  int n = 2;
 
-    vector<int> result = purgatory::toVector(solutions.removeNthFromEnd(purgatory::buildLinkedList(head), n));
+  vector<int> result = purgatory::toVector(
+      solutions.removeNthFromEnd(purgatory::buildLinkedList(head), n));
 
-    vector<int> expected = {1, 2, 3, 5};
+  vector<int> expected = {1, 2, 3, 5};
 
-    EXPECT_EQ(expected, result);
+  EXPECT_EQ(expected, result);
 
-    // Edge Case:
-    head = {1, 2}; n = 1;
+  // Edge Case:
+  head = {1, 2};
+  n = 1;
 
-    result = purgatory::toVector(solutions.removeNthFromEnd(purgatory::buildLinkedList(head), n));
+  result = purgatory::toVector(
+      solutions.removeNthFromEnd(purgatory::buildLinkedList(head), n));
 
-    expected = {1};
-   
-    EXPECT_EQ(expected, result);
+  expected = {1};
+
+  EXPECT_EQ(expected, result);
 }
 
 TEST(X86_64Test, reverseKGroupCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {1, 2, 3, 4, 5};
-    int k = 2;
+  // Basic Case:
+  vector<int> head = {1, 2, 3, 4, 5};
+  int k = 2;
 
-    vector<int> result = purgatory::toVector(solutions.reverseKGroup(purgatory::buildLinkedList(head), k)); 
+  vector<int> result = purgatory::toVector(
+      solutions.reverseKGroup(purgatory::buildLinkedList(head), k));
 
-    vector<int> expected = {2, 1, 4, 3, 5};
+  vector<int> expected = {2, 1, 4, 3, 5};
 
-    EXPECT_EQ(expected, result);
+  EXPECT_EQ(expected, result);
 
-    // Edge Case:
-    head = {1}; k = 1;
+  // Edge Case:
+  head = {1};
+  k = 1;
 
-    result = purgatory::toVector(solutions.reverseKGroup(purgatory::buildLinkedList(head), k)); 
+  result = purgatory::toVector(
+      solutions.reverseKGroup(purgatory::buildLinkedList(head), k));
 
-    expected = {1};
+  expected = {1};
 
-    EXPECT_EQ(expected, result);
+  EXPECT_EQ(expected, result);
 }
 
 TEST(X86_64Test, isPalindromeLinkedListCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {1, 2, 2, 1};
+  // Basic Case:
+  vector<int> head = {1, 2, 2, 1};
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.isPalindromeLinkedList(purgatory::buildLinkedList(head)));
+  EXPECT_EQ(expected,
+            solutions.isPalindromeLinkedList(purgatory::buildLinkedList(head)));
 
-    // Edge Case:
-    head = {1};
+  // Edge Case:
+  head = {1};
 
-    expected = true;
+  expected = true;
 
-    EXPECT_EQ(expected, solutions.isPalindromeLinkedList(purgatory::buildLinkedList(head)));
+  EXPECT_EQ(expected,
+            solutions.isPalindromeLinkedList(purgatory::buildLinkedList(head)));
 }
 
 TEST(X86_64Test, swapPairsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {1, 2, 3, 4};
+  // Basic Case:
+  vector<int> head = {1, 2, 3, 4};
 
-    vector<int> expected = {2, 1, 4, 3};
+  vector<int> expected = {2, 1, 4, 3};
 
-    vector<int> result = purgatory::toVector(solutions.swapPairs(purgatory::buildLinkedList(head)));
+  vector<int> result = purgatory::toVector(
+      solutions.swapPairs(purgatory::buildLinkedList(head)));
 
-    EXPECT_EQ(expected, result);
+  EXPECT_EQ(expected, result);
 
-    // Edge Case:
-    head = {};
+  // Edge Case:
+  head = {};
 
-    expected = {};
+  expected = {};
 
-    result = purgatory::toVector(solutions.swapPairs(purgatory::buildLinkedList(head)));
+  result = purgatory::toVector(
+      solutions.swapPairs(purgatory::buildLinkedList(head)));
 
-    EXPECT_EQ(expected, result);
+  EXPECT_EQ(expected, result);
 }
 
 TEST(X86_64Test, reorderListCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {1, 2, 3, 4};
+  // Basic Case:
+  vector<int> head = {1, 2, 3, 4};
 
-    vector<int> expected = {1, 4, 2, 3};
+  vector<int> expected = {1, 4, 2, 3};
 
-    vector<int> result = purgatory::toVector(solutions.reorderList(purgatory::buildLinkedList(head)));
+  vector<int> result = purgatory::toVector(
+      solutions.reorderList(purgatory::buildLinkedList(head)));
 
-    EXPECT_EQ(expected, result);
+  EXPECT_EQ(expected, result);
 
-    // Edge Case:
-    head = {1};
+  // Edge Case:
+  head = {1};
 
-    expected = {1};
+  expected = {1};
 
-    result = purgatory::toVector(solutions.reorderList(purgatory::buildLinkedList(head)));
+  result = purgatory::toVector(
+      solutions.reorderList(purgatory::buildLinkedList(head)));
 
-    EXPECT_EQ(expected, result);
+  EXPECT_EQ(expected, result);
 }
 
 TEST(X86_64Test, numComponentsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {0, 1, 2, 3};
-    vector<int> nums = {0, 1, 3};
+  // Basic Case:
+  vector<int> head = {0, 1, 2, 3};
+  vector<int> nums = {0, 1, 3};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.numComponents(purgatory::buildLinkedList(head), nums));
+  EXPECT_EQ(expected,
+            solutions.numComponents(purgatory::buildLinkedList(head), nums));
 
-    // Edge Case:
-    head = {1}; nums = {1};
-    expected = 1;
+  // Edge Case:
+  head = {1};
+  nums = {1};
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.numComponents(purgatory::buildLinkedList(head), nums));
+  EXPECT_EQ(expected,
+            solutions.numComponents(purgatory::buildLinkedList(head), nums));
 
-    head = {0, 1}; nums = {0, 1};
-    expected = 1;
+  head = {0, 1};
+  nums = {0, 1};
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.numComponents(purgatory::buildLinkedList(head), nums));
+  EXPECT_EQ(expected,
+            solutions.numComponents(purgatory::buildLinkedList(head), nums));
 }
 
 TEST(X86_64Test, longestPalindromeCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "abccccdd";
+  // Basic Case:
+  string s = "abccccdd";
 
-    int expected = 7;
+  int expected = 7;
 
-    EXPECT_EQ(expected, solutions.longestPalindrome(s));
+  EXPECT_EQ(expected, solutions.longestPalindrome(s));
 
-    // Edge Case:
-    s = "";
+  // Edge Case:
+  s = "";
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.longestPalindrome(s));
+  EXPECT_EQ(expected, solutions.longestPalindrome(s));
 }
 
 TEST(X86_64Test, findSubsequencesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {4, 6, 7, 7};
+  // Basic Case:
+  vector<int> nums = {4, 6, 7, 7};
 
-    vector<vector<int>> expected = {{4, 6}, {4, 6, 7}, {4, 6, 7, 7}, {4, 7}, {4, 7, 7}, {6, 7}, {6, 7, 7}, {7, 7}};
+  vector<vector<int>> expected = {{4, 6},    {4, 6, 7}, {4, 6, 7, 7}, {4, 7},
+                                  {4, 7, 7}, {6, 7},    {6, 7, 7},    {7, 7}};
 
-    EXPECT_EQ(expected, solutions.findSubsequences(nums));
+  EXPECT_EQ(expected, solutions.findSubsequences(nums));
 
-    // Edge Case:
-    nums = {1, 1, 1};
+  // Edge Case:
+  nums = {1, 1, 1};
 
-    expected = {{1, 1}, {1, 1, 1}};
+  expected = {{1, 1}, {1, 1, 1}};
 
-    EXPECT_EQ(expected, solutions.findSubsequences(nums));
+  EXPECT_EQ(expected, solutions.findSubsequences(nums));
 }
 
 TEST(X86_64Test, findMaxLengthCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {0, 1};
+  // Basic Case:
+  vector<int> nums = {0, 1};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.findMaxLength(nums));
+  EXPECT_EQ(expected, solutions.findMaxLength(nums));
 
-    // Edge Case:
-    nums = {0, 0 , 0};
+  // Edge Case:
+  nums = {0, 0, 0};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.findMaxLength(nums));
+  EXPECT_EQ(expected, solutions.findMaxLength(nums));
 }
 
 TEST(X86_64Test, fairCandySwapCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> aliceSizes = {1, 1}, bobSizes = {2, 2};
+  // Basic Case:
+  vector<int> aliceSizes = {1, 1}, bobSizes = {2, 2};
 
-    vector<int> expected = {1, 2};
+  vector<int> expected = {1, 2};
 
-    EXPECT_EQ(expected, solutions.fairCandySwap(aliceSizes, bobSizes));
+  EXPECT_EQ(expected, solutions.fairCandySwap(aliceSizes, bobSizes));
 
-    // Edge Case:
-    aliceSizes = {2};
-    bobSizes = {1, 3};
+  // Edge Case:
+  aliceSizes = {2};
+  bobSizes = {1, 3};
 
-    expected = {2, 3};
+  expected = {2, 3};
 
-    EXPECT_EQ(expected, solutions.fairCandySwap(aliceSizes, bobSizes));
+  EXPECT_EQ(expected, solutions.fairCandySwap(aliceSizes, bobSizes));
 }
 
 TEST(X86_64Test, checkSubarraySumCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {23, 2, 4, 6, 7};
-    int k = 6;
+  // Basic Case:
+  vector<int> nums = {23, 2, 4, 6, 7};
+  int k = 6;
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.checkSubarraySum(nums, k));
+  EXPECT_EQ(expected, solutions.checkSubarraySum(nums, k));
 
-    // Edge Case:
-    nums = {0, 0}; k = 1;
+  // Edge Case:
+  nums = {0, 0};
+  k = 1;
 
-    expected = true;
-    EXPECT_EQ(expected, solutions.checkSubarraySum(nums, k));
+  expected = true;
+  EXPECT_EQ(expected, solutions.checkSubarraySum(nums, k));
 }
 
 TEST(X86_64Test, findDuplicateContentCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<string> paths = {"root/a 1.txt(abcd) 2.txt(efgh)", "root/c 3.txt(abcd)", "root/c/d 4.txt(efgh)"};
+  // Basic Case:
+  vector<string> paths = {"root/a 1.txt(abcd) 2.txt(efgh)",
+                          "root/c 3.txt(abcd)", "root/c/d 4.txt(efgh)"};
 
-    vector<vector<string>> expected = {{"root/a/2.txt", "root/c/d/4.txt"}, {"root/a/1.txt", "root/c/3.txt"}};
+  vector<vector<string>> expected = {{"root/a/2.txt", "root/c/d/4.txt"},
+                                     {"root/a/1.txt", "root/c/3.txt"}};
 
-    EXPECT_EQ(expected, solutions.findDuplicate(paths));
+  EXPECT_EQ(expected, solutions.findDuplicate(paths));
 
-    // Edge Case:
-    paths = {"root/a 1.txt(a)"};
+  // Edge Case:
+  paths = {"root/a 1.txt(a)"};
 
-    expected = {};
-    EXPECT_EQ(expected, solutions.findDuplicate(paths));
+  expected = {};
+  EXPECT_EQ(expected, solutions.findDuplicate(paths));
 }
 
 TEST(X86_64Test, matrixReshapeCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> mat = {{1, 2}, {3, 4}};
-    int r = 1, c = 4;
+  // Basic Case:
+  vector<vector<int>> mat = {{1, 2}, {3, 4}};
+  int r = 1, c = 4;
 
-    vector<vector<int>> expected = {{1, 2, 3, 4}};
+  vector<vector<int>> expected = {{1, 2, 3, 4}};
 
-    EXPECT_EQ(expected, solutions.matrixReshape(mat, r, c));
+  EXPECT_EQ(expected, solutions.matrixReshape(mat, r, c));
 
-    // Edge Case:
-    mat = {{1}};
-    r = 1; c = 1;
+  // Edge Case:
+  mat = {{1}};
+  r = 1;
+  c = 1;
 
-    expected = {{1}};
-    EXPECT_EQ(expected, solutions.matrixReshape(mat, r, c));
+  expected = {{1}};
+  EXPECT_EQ(expected, solutions.matrixReshape(mat, r, c));
 }
 
 TEST(X86_64Test, arrayNestingCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {5, 4, 0, 3, 1, 6, 2};
+  // Basic Case:
+  vector<int> nums = {5, 4, 0, 3, 1, 6, 2};
 
-    int expected = 4;
+  int expected = 4;
 
-    EXPECT_EQ(expected, solutions.arrayNesting(nums));
+  EXPECT_EQ(expected, solutions.arrayNesting(nums));
 
-    // Edge Case:
-    nums = {0, 1, 2};
+  // Edge Case:
+  nums = {0, 1, 2};
 
-    expected = 1;
-    EXPECT_EQ(expected, solutions.arrayNesting(nums));
+  expected = 1;
+  EXPECT_EQ(expected, solutions.arrayNesting(nums));
 }
 
 TEST(X86_64Test, maximumProductCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3};
 
-    int expected = 6;
+  int expected = 6;
 
-    EXPECT_EQ(expected, solutions.maximumProduct(nums));
+  EXPECT_EQ(expected, solutions.maximumProduct(nums));
 
-    // Edge Case:
-    nums = {-10, -10, 1, 2};
+  // Edge Case:
+  nums = {-10, -10, 1, 2};
 
-    expected = 200;
+  expected = 200;
 
-    EXPECT_EQ(expected, solutions.maximumProduct(nums));
+  EXPECT_EQ(expected, solutions.maximumProduct(nums));
 }
 
 TEST(X86_64Test, minOperationsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<string> logs = {"d1/", "d2/", "../", "d21/", "./"};
+  // Basic Case:
+  vector<string> logs = {"d1/", "d2/", "../", "d21/", "./"};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.minOperations(logs));
+  EXPECT_EQ(expected, solutions.minOperations(logs));
 
-    // Edge Case:
-    logs = {"../", "../"};
+  // Edge Case:
+  logs = {"../", "../"};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.minOperations(logs));
+  EXPECT_EQ(expected, solutions.minOperations(logs));
 }
 
 TEST(X86_64Test, scoreOfParenthesesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "()()";
+  // Basic Case:
+  string s = "()()";
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.scoreOfParentheses(s));
+  EXPECT_EQ(expected, solutions.scoreOfParentheses(s));
 
-    // Edge Case:
-    s = "()";
+  // Edge Case:
+  s = "()";
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.scoreOfParentheses(s));
-}	
+  EXPECT_EQ(expected, solutions.scoreOfParentheses(s));
+}
 
 TEST(X86_64Test, maximumPossibleSizeCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {4, 2, 5, 3, 5};
+  // Basic Case:
+  vector<int> nums = {4, 2, 5, 3, 5};
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.maximumPossibleSize(nums));
+  EXPECT_EQ(expected, solutions.maximumPossibleSize(nums));
 
-    // Edge Case:
-    nums = {1, 2, 3};
+  // Edge Case:
+  nums = {1, 2, 3};
 
-    expected = 3;
-    EXPECT_EQ(expected, solutions.maximumPossibleSize(nums));
+  expected = 3;
+  EXPECT_EQ(expected, solutions.maximumPossibleSize(nums));
 }
 
 TEST(X86_64Test, isPossbileCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, 3, 4, 5};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, 3, 4, 5};
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.isPossbile(nums));
+  EXPECT_EQ(expected, solutions.isPossbile(nums));
 
-    // Edge Case:
-    nums = {1, 2};
+  // Edge Case:
+  nums = {1, 2};
 
-    expected = false;
+  expected = false;
 
-    EXPECT_EQ(expected, solutions.isPossbile(nums));
+  EXPECT_EQ(expected, solutions.isPossbile(nums));
 }
 
 TEST(X86_64Test, canPartitionKSubsetsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {4, 3, 2, 3, 5, 2, 1};
+  // Basic Case:
+  vector<int> nums = {4, 3, 2, 3, 5, 2, 1};
 
-    int k = 4;
+  int k = 4;
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.canPartitionKSubsets(nums, k));
+  EXPECT_EQ(expected, solutions.canPartitionKSubsets(nums, k));
 
-    // Edge Case:
-    nums = {1, 1, 1, 1};
+  // Edge Case:
+  nums = {1, 1, 1, 1};
 
-    k = 2;
+  k = 2;
 
-    expected = true;
+  expected = true;
 
-    EXPECT_EQ(expected, solutions.canPartitionKSubsets(nums, k));
+  EXPECT_EQ(expected, solutions.canPartitionKSubsets(nums, k));
 }
 
-
 TEST(X86_64Test, nodesBetweenCriticalPointsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {3, 1};
+  // Basic Case:
+  vector<int> head = {3, 1};
 
-    vector<int> expected = {-1, -1};
+  vector<int> expected = {-1, -1};
 
-    EXPECT_EQ(expected, solutions.nodesBetweenCriticalPoints(purgatory::buildLinkedList(head)));
+  EXPECT_EQ(expected, solutions.nodesBetweenCriticalPoints(
+                          purgatory::buildLinkedList(head)));
 
-    // Edge Case:
-    head = {1, 2, 3, 2, 1};
+  // Edge Case:
+  head = {1, 2, 3, 2, 1};
 
-    expected = {-1, -1};
+  expected = {-1, -1};
 
-    EXPECT_EQ(expected, solutions.nodesBetweenCriticalPoints(purgatory::buildLinkedList(head)));
+  EXPECT_EQ(expected, solutions.nodesBetweenCriticalPoints(
+                          purgatory::buildLinkedList(head)));
 }
 
 TEST(X86_64Test, removeNodesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {5, 2, 13, 3, 8};
+  // Basic Case:
+  vector<int> head = {5, 2, 13, 3, 8};
 
-    vector<int> expected = {13, 8};
+  vector<int> expected = {13, 8};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.removeNodes(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.removeNodes(
+                          purgatory::buildLinkedList(head))));
 
-    // Edge Case:
-    head = {1};
+  // Edge Case:
+  head = {1};
 
-    expected = {1};
+  expected = {1};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.removeNodes(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.removeNodes(
+                          purgatory::buildLinkedList(head))));
 }
 
 TEST(X86_64Test, doubleItCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {1, 8, 9};
+  // Basic Case:
+  vector<int> head = {1, 8, 9};
 
-    vector<int> expected = {3, 7, 8};
+  vector<int> expected = {3, 7, 8};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.doubleIt(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.doubleIt(
+                          purgatory::buildLinkedList(head))));
 
-    // Edge Case:
-    head = {0};
+  // Edge Case:
+  head = {0};
 
-    expected = {0};
+  expected = {0};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.doubleIt(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.doubleIt(
+                          purgatory::buildLinkedList(head))));
 }
 
 TEST(X86_64Test, middleNodeCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {1, 2, 3, 4, 5};
+  // Basic Case:
+  vector<int> head = {1, 2, 3, 4, 5};
 
-    vector<int> expected = {3, 4, 5};
+  vector<int> expected = {3, 4, 5};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.middleNode(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.middleNode(
+                          purgatory::buildLinkedList(head))));
 
-    // Edge Case:
-    head = {1};
+  // Edge Case:
+  head = {1};
 
-    expected = {1};
+  expected = {1};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.middleNode(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.middleNode(
+                          purgatory::buildLinkedList(head))));
 }
 
 TEST(X86_64Test, mergeNodesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {0, 3, 1, 0, 4, 5, 2, 0};
+  // Basic Case:
+  vector<int> head = {0, 3, 1, 0, 4, 5, 2, 0};
 
-    vector<int> expected = {4, 11};
+  vector<int> expected = {4, 11};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.mergeNodes(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.mergeNodes(
+                          purgatory::buildLinkedList(head))));
 
-    // Edge Case:
-    head = {0, 1, 0};
+  // Edge Case:
+  head = {0, 1, 0};
 
-    expected = {1};
+  expected = {1};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.mergeNodes(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.mergeNodes(
+                          purgatory::buildLinkedList(head))));
 }
 
 TEST(X86_64Test, insertGreatestCommonDivisorsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Bacis Case:
-    vector<int> head = {18, 6, 10, 3};
+  // Bacis Case:
+  vector<int> head = {18, 6, 10, 3};
 
-    vector<int> expected = {18, 6, 6, 2, 10, 1, 3};
+  vector<int> expected = {18, 6, 6, 2, 10, 1, 3};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.insertGreatestCommonDivisors(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected,
+            purgatory::toVector(solutions.insertGreatestCommonDivisors(
+                purgatory::buildLinkedList(head))));
 
-    // Edge Case:
-    head = {7};
+  // Edge Case:
+  head = {7};
 
-    expected = {7};
+  expected = {7};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.insertGreatestCommonDivisors(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected,
+            purgatory::toVector(solutions.insertGreatestCommonDivisors(
+                purgatory::buildLinkedList(head))));
 }
 
 TEST(X86_64Test, deleteDuplicatesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {1, 1, 2, 3, 3};
+  // Basic Case:
+  vector<int> head = {1, 1, 2, 3, 3};
 
-    vector<int> expected = {1, 2, 3};
+  vector<int> expected = {1, 2, 3};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.deleteDuplicates(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.deleteDuplicates(
+                          purgatory::buildLinkedList(head))));
 
-    // Edge Case:
-    head = {};
+  // Edge Case:
+  head = {};
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.deleteDuplicates(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.deleteDuplicates(
+                          purgatory::buildLinkedList(head))));
 }
 
 TEST(X86_64Test, mergeInBetweenCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> list1 = {10 , 1, 13, 6, 9, 5};
+  // Basic Case:
+  vector<int> list1 = {10, 1, 13, 6, 9, 5};
 
-    int a = 3, b = 4;
+  int a = 3, b = 4;
 
-    vector<int> list2 = {1000000, 1000001, 1000002};
+  vector<int> list2 = {1000000, 1000001, 1000002};
 
-    vector<int> expected = {10, 1, 13, 1000000, 1000001, 1000002, 5};
+  vector<int> expected = {10, 1, 13, 1000000, 1000001, 1000002, 5};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.mergeInBetween(purgatory::buildLinkedList(list1), a, b, purgatory::buildLinkedList(list2))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.mergeInBetween(
+                          purgatory::buildLinkedList(list1), a, b,
+                          purgatory::buildLinkedList(list2))));
 
-    // Edge Case:
-    list1 = {0, 1, 2, 3};
-    a = 1; b = 1;
-    list2 = {2, 3, 4};
-    expected = {0, 2, 3, 4, 2, 3};
+  // Edge Case:
+  list1 = {0, 1, 2, 3};
+  a = 1;
+  b = 1;
+  list2 = {2, 3, 4};
+  expected = {0, 2, 3, 4, 2, 3};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.mergeInBetween(purgatory::buildLinkedList(list1), a, b, purgatory::buildLinkedList(list2))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.mergeInBetween(
+                          purgatory::buildLinkedList(list1), a, b,
+                          purgatory::buildLinkedList(list2))));
 }
 
 TEST(X86_64Test, modifiedListCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3};
 
-    vector<int> head = {1, 2, 3, 4, 5};
+  vector<int> head = {1, 2, 3, 4, 5};
 
-    vector<int> expected = {4, 5};
+  vector<int> expected = {4, 5};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.modifiedList(nums, purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.modifiedList(
+                          nums, purgatory::buildLinkedList(head))));
 
-    // Edge Case:
-    nums = {5};
+  // Edge Case:
+  nums = {5};
 
-    head = {1, 2, 3, 4};
+  head = {1, 2, 3, 4};
 
-    expected = {1, 2, 3, 4};
+  expected = {1, 2, 3, 4};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.modifiedList(nums, purgatory::buildLinkedList(head))));
-
+  EXPECT_EQ(expected, purgatory::toVector(solutions.modifiedList(
+                          nums, purgatory::buildLinkedList(head))));
 }
 
 TEST(X86_64Test, minimumPairRemovalCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {5, 2, 3, 1};
+  // Basic Case:
+  vector<int> nums = {5, 2, 3, 1};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.minimumPairRemoval(nums));
+  EXPECT_EQ(expected, solutions.minimumPairRemoval(nums));
 
-    // Edge Case:
-    nums = {1, 2, 2};
+  // Edge Case:
+  nums = {1, 2, 2};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.minimumPairRemoval(nums));
+  EXPECT_EQ(expected, solutions.minimumPairRemoval(nums));
 }
 
 TEST(X86_64Test, insertionSortListCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {4, 2, 1, 3};
+  // Basic Case:
+  vector<int> head = {4, 2, 1, 3};
 
-    vector<int> expected = {1, 2, 3, 4};
+  vector<int> expected = {1, 2, 3, 4};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.insertionSortList(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.insertionSortList(
+                          purgatory::buildLinkedList(head))));
 
-    // Edge Case:
-    head = {1, 2, 3};
+  // Edge Case:
+  head = {1, 2, 3};
 
-    expected = {1, 2, 3};
+  expected = {1, 2, 3};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.insertionSortList(purgatory::buildLinkedList(head))));
-
+  EXPECT_EQ(expected, purgatory::toVector(solutions.insertionSortList(
+                          purgatory::buildLinkedList(head))));
 }
 
-
 TEST(X86_64Test, reverseEvenLengthGroupsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {1, 1, 0, 6, 5};
+  // Basic Case:
+  vector<int> head = {1, 1, 0, 6, 5};
 
-    vector<int> expected = {1, 0, 1, 5, 6};
+  vector<int> expected = {1, 0, 1, 5, 6};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.reverseEvenLengthGroups(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.reverseEvenLengthGroups(
+                          purgatory::buildLinkedList(head))));
 
-    // Edge Case:
-    head = {1};
+  // Edge Case:
+  head = {1};
 
-    expected = {1};
+  expected = {1};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.reverseEvenLengthGroups(purgatory::buildLinkedList(head))));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.reverseEvenLengthGroups(
+                          purgatory::buildLinkedList(head))));
 }
 
 TEST(X86_64Test, getDecimalValueCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {1, 0, 1};
+  // Basic Case:
+  vector<int> head = {1, 0, 1};
 
-    int expected = 5;
+  int expected = 5;
 
-    EXPECT_EQ(expected, solutions.getDecimalValue(purgatory::buildLinkedList(head)));
+  EXPECT_EQ(expected,
+            solutions.getDecimalValue(purgatory::buildLinkedList(head)));
 
-    // Edge Case:
-    head = {0};
+  // Edge Case:
+  head = {0};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.getDecimalValue(purgatory::buildLinkedList(head)));
+  EXPECT_EQ(expected,
+            solutions.getDecimalValue(purgatory::buildLinkedList(head)));
 }
 
 TEST(X86_64Test, nextLargerNodesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {2, 1, 5};
+  // Basic Case:
+  vector<int> head = {2, 1, 5};
 
-    vector<int> expected = {5, 5, 0};
+  vector<int> expected = {5, 5, 0};
 
-    EXPECT_EQ(expected, solutions.nextLargerNodes(purgatory::buildLinkedList(head)));
+  EXPECT_EQ(expected,
+            solutions.nextLargerNodes(purgatory::buildLinkedList(head)));
 
-    // Edge Case:
-    head = {5};
+  // Edge Case:
+  head = {5};
 
-    expected = {0};
+  expected = {0};
 
-    EXPECT_EQ(expected, solutions.nextLargerNodes(purgatory::buildLinkedList(head)));
+  EXPECT_EQ(expected,
+            solutions.nextLargerNodes(purgatory::buildLinkedList(head)));
 }
 
 TEST(X86_64Test, removeElemetsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> head = {1, 2, 6, 3, 4, 5, 6};
+  // Basic Case:
+  vector<int> head = {1, 2, 6, 3, 4, 5, 6};
 
-    int val = 6;
+  int val = 6;
 
-    vector<int> expected = {1, 2, 3, 4, 5};
+  vector<int> expected = {1, 2, 3, 4, 5};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.removeElements(purgatory::buildLinkedList(head), val)));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.removeElements(
+                          purgatory::buildLinkedList(head), val)));
 
-    // Edge Case:
-    head = {7, 7, 7};
+  // Edge Case:
+  head = {7, 7, 7};
 
-    val = 7;
+  val = 7;
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, purgatory::toVector(solutions.removeElements(purgatory::buildLinkedList(head), val)));
+  EXPECT_EQ(expected, purgatory::toVector(solutions.removeElements(
+                          purgatory::buildLinkedList(head), val)));
 }
 
 TEST(X86_64Test, findDisappearedNumberCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {4, 3, 2, 7, 8, 2, 3, 1};
+  // Basic Case:
+  vector<int> nums = {4, 3, 2, 7, 8, 2, 3, 1};
 
-    vector<int> expected = {5, 6};
+  vector<int> expected = {5, 6};
 
-    EXPECT_EQ(expected, solutions.findDisappearedNumber(nums));
+  EXPECT_EQ(expected, solutions.findDisappearedNumber(nums));
 
-    // Edge Case:
-    nums = {1, 1};
+  // Edge Case:
+  nums = {1, 1};
 
-    expected = {2};
+  expected = {2};
 
-    EXPECT_EQ(expected, solutions.findDisappearedNumber(nums));
+  EXPECT_EQ(expected, solutions.findDisappearedNumber(nums));
 }
 
 TEST(X86_64Test, minMovesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3};
+  // Basic Case:
+  vector<int> nums = {1, 2, 3};
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.minMoves(nums));
+  EXPECT_EQ(expected, solutions.minMoves(nums));
 
-    // Edge Case:
-    nums = {1, 1, 1};
+  // Edge Case:
+  nums = {1, 1, 1};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.minMoves(nums));
-
+  EXPECT_EQ(expected, solutions.minMoves(nums));
 }
 
 TEST(X86_64Test, makesquareCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> matchsticks = {1, 1, 2, 2, 2};
+  // Basic Case:
+  vector<int> matchsticks = {1, 1, 2, 2, 2};
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.makesquare(matchsticks));
+  EXPECT_EQ(expected, solutions.makesquare(matchsticks));
 
-    // Edge Case:
-    matchsticks = {1, 1, 1, 1};
+  // Edge Case:
+  matchsticks = {1, 1, 1, 1};
 
-    expected = true;
+  expected = true;
 
-    EXPECT_EQ(expected, solutions.makesquare(matchsticks));
-
+  EXPECT_EQ(expected, solutions.makesquare(matchsticks));
 }
 
 TEST(X86_64Test, findTargetSumWaysCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 1, 1, 1, 1};
-    int target = 3;
+  // Basic Case:
+  vector<int> nums = {1, 1, 1, 1, 1};
+  int target = 3;
 
-    int expected = 5;
+  int expected = 5;
 
-    EXPECT_EQ(expected, solutions.findTargetSumWays(nums, target));
+  EXPECT_EQ(expected, solutions.findTargetSumWays(nums, target));
 
-    // Edge Case:
-    nums = {1};
-    target = 1;
+  // Edge Case:
+  nums = {1};
+  target = 1;
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.findTargetSumWays(nums, target));
+  EXPECT_EQ(expected, solutions.findTargetSumWays(nums, target));
 }
 
 TEST(X86_64Test, findRestaurantCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<string> list1 = {"Shogun", "Tapioca Express", "Burger King", "KFC"};
+  // Basic Case:
+  vector<string> list1 = {"Shogun", "Tapioca Express", "Burger King", "KFC"};
 
-    vector<string> list2 = {"Piatti", "The Grill at Torrey Pines", "Hungry Hunter Steakhouse", "Shogun"};
+  vector<string> list2 = {"Piatti", "The Grill at Torrey Pines",
+                          "Hungry Hunter Steakhouse", "Shogun"};
 
-    vector<string> expected = {"Shogun"};
+  vector<string> expected = {"Shogun"};
 
-    EXPECT_EQ(expected, solutions.findRestaurant(list1, list2));
+  EXPECT_EQ(expected, solutions.findRestaurant(list1, list2));
 
-    // Edge Case:
-    list1 = {"A"};
-    list2 = {"A"};
+  // Edge Case:
+  list1 = {"A"};
+  list2 = {"A"};
 
-    expected = {"A"};
+  expected = {"A"};
 
-    EXPECT_EQ(expected, solutions.findRestaurant(list1, list2));
+  EXPECT_EQ(expected, solutions.findRestaurant(list1, list2));
 }
 
 TEST(X86_64Test, countPrimesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int n = 10;
+  // Basic Case:
+  int n = 10;
 
-    int expected = 4;
+  int expected = 4;
 
-    EXPECT_EQ(expected, solutions.countPrimes(n));
+  EXPECT_EQ(expected, solutions.countPrimes(n));
 
-    // Edge Case:
-    n = 2;
+  // Edge Case:
+  n = 2;
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.countPrimes(n));
+  EXPECT_EQ(expected, solutions.countPrimes(n));
 }
 
 TEST(X86_64Test, wiggleMaxLengthCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 7, 4, 9, 2, 5};
+  // Basic Case:
+  vector<int> nums = {1, 7, 4, 9, 2, 5};
 
-    int expected = 6;
+  int expected = 6;
 
-    EXPECT_EQ(expected, solutions.wiggleMaxLength(nums));
+  EXPECT_EQ(expected, solutions.wiggleMaxLength(nums));
 
-    // Edge Case:
-    nums = {1};
+  // Edge Case:
+  nums = {1};
 
-    expected = 1;
-    EXPECT_EQ(expected, solutions.wiggleMaxLength(nums));
+  expected = 1;
+  EXPECT_EQ(expected, solutions.wiggleMaxLength(nums));
 }
 
 TEST(X86_64Test, findDuplicatesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {4, 3, 2, 7, 8, 2, 3, 1};
+  // Basic Case:
+  vector<int> nums = {4, 3, 2, 7, 8, 2, 3, 1};
 
-    vector<int> expected = {2, 3};
+  vector<int> expected = {2, 3};
 
-    EXPECT_EQ(expected, solutions.findDuplicates(nums));
+  EXPECT_EQ(expected, solutions.findDuplicates(nums));
 
-    // Edge Case:
-    nums = {1, 1};
+  // Edge Case:
+  nums = {1, 1};
 
-    expected = {1};
-    EXPECT_EQ(expected, solutions.findDuplicates(nums));
+  expected = {1};
+  EXPECT_EQ(expected, solutions.findDuplicates(nums));
 }
 
-
 TEST(X86_64Test, minimumSumSubarrayCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, -2, 1, 4};
-    int l = 2, r = 3;
+  // Basic Case:
+  vector<int> nums = {3, -2, 1, 4};
+  int l = 2, r = 3;
 
-    int expected = 1;
+  int expected = 1;
 
-    EXPECT_EQ(expected, solutions.minimumSumSubarray(nums, l, r));
+  EXPECT_EQ(expected, solutions.minimumSumSubarray(nums, l, r));
 
-    // Edge Case:
-    nums = {1, 1};
-    l = 2; r = 2;
+  // Edge Case:
+  nums = {1, 1};
+  l = 2;
+  r = 2;
 
-    expected = 2;
+  expected = 2;
 
-    EXPECT_EQ(expected, solutions.minimumSumSubarray(nums, l, r));
+  EXPECT_EQ(expected, solutions.minimumSumSubarray(nums, l, r));
 }
 
 TEST(X86_64Test, numSubarraysWithSumCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 0, 1, 0, 1};
-    
-    int goal = 2;
+  // Basic Case:
+  vector<int> nums = {1, 0, 1, 0, 1};
 
-    int expected = 4;
+  int goal = 2;
 
-    EXPECT_EQ(expected, solutions.numSubarraysWithSum(nums, goal));
+  int expected = 4;
 
-    // Edge Case:
-    nums = {0, 0, 0};
+  EXPECT_EQ(expected, solutions.numSubarraysWithSum(nums, goal));
 
-    goal = 0;
+  // Edge Case:
+  nums = {0, 0, 0};
 
-    expected = 6;
+  goal = 0;
 
-    EXPECT_EQ(expected, solutions.numSubarraysWithSum(nums, goal));
+  expected = 6;
+
+  EXPECT_EQ(expected, solutions.numSubarraysWithSum(nums, goal));
 }
 
 TEST(X86_64Test, findErrorNumsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 2, 4};
+  // Basic Case:
+  vector<int> nums = {1, 2, 2, 4};
 
-    vector<int> expected = {2, 3};
+  vector<int> expected = {2, 3};
 
-    EXPECT_EQ(expected, solutions.findErrorNums(nums));
+  EXPECT_EQ(expected, solutions.findErrorNums(nums));
 
-    // Edge Case:
-    nums = {1, 1};
+  // Edge Case:
+  nums = {1, 1};
 
-    expected = {1, 2};
+  expected = {1, 2};
 
-    EXPECT_EQ(expected, solutions.findErrorNums(nums));
+  EXPECT_EQ(expected, solutions.findErrorNums(nums));
 }
 
 TEST(X86_64Test, maxLengthCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {2, 3, 4, 5, 6};
+  // Basic Case:
+  vector<int> nums = {2, 3, 4, 5, 6};
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.maxLength(nums));
+  EXPECT_EQ(expected, solutions.maxLength(nums));
 
-    // Edge Case:
-    nums = {1, 1};
+  // Edge Case:
+  nums = {1, 1};
 
-    expected = 2;
+  expected = 2;
 
-    EXPECT_EQ(expected, solutions.maxLength(nums));
-
+  EXPECT_EQ(expected, solutions.maxLength(nums));
 }
 
 TEST(X86_64Test, characterReplacementCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "ABAB";
-    int k = 2;
+  // Basic Case:
+  string s = "ABAB";
+  int k = 2;
 
-    int expected = 4;
+  int expected = 4;
 
-    EXPECT_EQ(expected, solutions.characterReplacement(s, k));
+  EXPECT_EQ(expected, solutions.characterReplacement(s, k));
 
-    // Edge Case:
-    s = "AAAA";
-    k = 0;
+  // Edge Case:
+  s = "AAAA";
+  k = 0;
 
-    expected = 4;
-    EXPECT_EQ(expected, solutions.characterReplacement(s, k));
+  expected = 4;
+  EXPECT_EQ(expected, solutions.characterReplacement(s, k));
 }
 
 TEST(X86_64Test, numSubarrayProductLessThanKCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {10, 5, 2, 6};
+  // Basic Case:
+  vector<int> nums = {10, 5, 2, 6};
 
-    int k = 100;
+  int k = 100;
 
-    int expected = 8;
+  int expected = 8;
 
-    EXPECT_EQ(expected, solutions.numSubarrayProductLessThanK(nums, k));
+  EXPECT_EQ(expected, solutions.numSubarrayProductLessThanK(nums, k));
 
-    // Edge Case:
-    nums = {1, 1, 1};
+  // Edge Case:
+  nums = {1, 1, 1};
 
-    k = 2;
+  k = 2;
 
-    expected = 6;
+  expected = 6;
 
-    EXPECT_EQ(expected, solutions.numSubarrayProductLessThanK(nums, k));
+  EXPECT_EQ(expected, solutions.numSubarrayProductLessThanK(nums, k));
 }
 
 TEST(X86_64Test, totalFruitCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> fruits = {1, 2, 1};
+  // Basic Case:
+  vector<int> fruits = {1, 2, 1};
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.totalFruit(fruits));
+  EXPECT_EQ(expected, solutions.totalFruit(fruits));
 
-    // Edge Case:
-    fruits = {1, 1, 1};
+  // Edge Case:
+  fruits = {1, 1, 1};
 
-    expected = 3;
+  expected = 3;
 
-    EXPECT_EQ(expected, solutions.totalFruit(fruits));
+  EXPECT_EQ(expected, solutions.totalFruit(fruits));
 }
 
-
 TEST(X86_64Test, totalStepsCheck) {
-     purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-     // Basic Case:
-     vector<int> nums = {5, 3, 4, 4, 7,  3, 6, 11, 8, 5, 11};
+  // Basic Case:
+  vector<int> nums = {5, 3, 4, 4, 7, 3, 6, 11, 8, 5, 11};
 
-     int expected = 3;
+  int expected = 3;
 
-     EXPECT_EQ(expected, solutions.totalSteps(nums));
+  EXPECT_EQ(expected, solutions.totalSteps(nums));
 
-     // Edge Case:
-     nums = {1, 2, 3};
+  // Edge Case:
+  nums = {1, 2, 3};
 
-     expected = 0;
+  expected = 0;
 
-     EXPECT_EQ(expected, solutions.totalSteps(nums));
+  EXPECT_EQ(expected, solutions.totalSteps(nums));
 }
 
 TEST(X86_64Test, islandPerimeterCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> grid = {{0, 1, 0, 0}, 
-	                        {1, 1, 1, 0},
-                                {0, 1, 0, 0},
-                                {1, 1, 0, 0}};
+  // Basic Case:
+  vector<vector<int>> grid = {
+      {0, 1, 0, 0}, {1, 1, 1, 0}, {0, 1, 0, 0}, {1, 1, 0, 0}};
 
-    int expected = 16;
+  int expected = 16;
 
-    EXPECT_EQ(expected, solutions.islandPerimeter(grid));
+  EXPECT_EQ(expected, solutions.islandPerimeter(grid));
 
-    // Edge Case:
-    grid = {{1,0}};
+  // Edge Case:
+  grid = {{1, 0}};
 
-    expected = 4;
+  expected = 4;
 
-    EXPECT_EQ(expected, solutions.islandPerimeter(grid));
+  EXPECT_EQ(expected, solutions.islandPerimeter(grid));
 }
 
 TEST(X86_64Test, kthSmallestCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> matrix = {{1, 5, 9},
-                                  {10, 11, 13},
-                                  {12, 13, 15}};
-    int k = 8;
+  // Basic Case:
+  vector<vector<int>> matrix = {{1, 5, 9}, {10, 11, 13}, {12, 13, 15}};
+  int k = 8;
 
-    int expected = 13;
+  int expected = 13;
 
-    EXPECT_EQ(expected, solutions.kthSmallest(matrix, k));
+  EXPECT_EQ(expected, solutions.kthSmallest(matrix, k));
 
-    // Edge Cas:
-    matrix = {{-5}};
-    k = 1;
+  // Edge Cas:
+  matrix = {{-5}};
+  k = 1;
 
-    expected = -5;
+  expected = -5;
 
-    EXPECT_EQ(expected, solutions.kthSmallest(matrix, k));
+  EXPECT_EQ(expected, solutions.kthSmallest(matrix, k));
 }
 
 TEST(X86_64Test, countBattleshipsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<char>> board = {{'X', '.', '.', 'X'},
-                                  {'.', '.', '.', 'X'},
-                                  {'.', '.', '.', 'X'}};
+  // Basic Case:
+  vector<vector<char>> board = {
+      {'X', '.', '.', 'X'}, {'.', '.', '.', 'X'}, {'.', '.', '.', 'X'}};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.countBattleships(board));
+  EXPECT_EQ(expected, solutions.countBattleships(board));
 
-    // Edge Case:
-    board = {{'X', 'X', 'X'}};
+  // Edge Case:
+  board = {{'X', 'X', 'X'}};
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.countBattleships(board));
+  EXPECT_EQ(expected, solutions.countBattleships(board));
 }
 
 TEST(X86_64Test, maximalRectangleCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<char>> matrix = {{'1', '0', '1', '0', '0'},
-                                   {'1', '0', '1', '1', '1'},
-                                   {'1', '1', '1', '1', '1'},
-                                   {'1', '0', '0', '1', '0'}};
+  // Basic Case:
+  vector<vector<char>> matrix = {{'1', '0', '1', '0', '0'},
+                                 {'1', '0', '1', '1', '1'},
+                                 {'1', '1', '1', '1', '1'},
+                                 {'1', '0', '0', '1', '0'}};
 
-    int expected = 6;
+  int expected = 6;
 
-    EXPECT_EQ(expected, solutions.maximalRectangle(matrix));
+  EXPECT_EQ(expected, solutions.maximalRectangle(matrix));
 
-    // Edge Case:
-    matrix = {{'0'}};
+  // Edge Case:
+  matrix = {{'0'}};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.maximalRectangle(matrix));
+  EXPECT_EQ(expected, solutions.maximalRectangle(matrix));
 }
 
 TEST(X86_64Test, intersectionCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums1 = {1, 2, 2, 1}, nums2 = {2, 2};
-    vector<int> expected = {2};
+  // Basic Case:
+  vector<int> nums1 = {1, 2, 2, 1}, nums2 = {2, 2};
+  vector<int> expected = {2};
 
-    EXPECT_EQ(expected, solutions.intersection(nums1, nums2));
+  EXPECT_EQ(expected, solutions.intersection(nums1, nums2));
 
-    // Edge Case:
-    nums1 = {}; nums2 = {1, 2};
+  // Edge Case:
+  nums1 = {};
+  nums2 = {1, 2};
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.intersection(nums1, nums2));
+  EXPECT_EQ(expected, solutions.intersection(nums1, nums2));
 }
 
 TEST(X86_64Test, majorityElementCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, 2, 3};
+  // Basic Case:
+  vector<int> nums = {3, 2, 3};
 
-    vector<int> expected = {3};
+  vector<int> expected = {3};
 
-    EXPECT_EQ(expected, solutions.majorityElement(nums));
+  EXPECT_EQ(expected, solutions.majorityElement(nums));
 
-    // Edge Case:
-    nums = {1};
+  // Edge Case:
+  nums = {1};
 
-    expected = {1};
+  expected = {1};
 
-    EXPECT_EQ(expected, solutions.majorityElement(nums));
+  EXPECT_EQ(expected, solutions.majorityElement(nums));
 }
 
 TEST(X86_64Test, getHintCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string secret = "1807", guess = "7810";
+  // Basic Case:
+  string secret = "1807", guess = "7810";
 
-    string expected = "1A3B";
+  string expected = "1A3B";
 
-    EXPECT_EQ(expected, solutions.getHint(secret, guess));
+  EXPECT_EQ(expected, solutions.getHint(secret, guess));
 
-    // Edge Case:
-    secret = "1111"; guess = "1111";
+  // Edge Case:
+  secret = "1111";
+  guess = "1111";
 
-    expected = "4A0B";
+  expected = "4A0B";
 
-    EXPECT_EQ(expected, solutions.getHint(secret, guess));
+  EXPECT_EQ(expected, solutions.getHint(secret, guess));
 }
 
 TEST(X86_64Test, numberOfBoomerangesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> points = {{0, 0}, {1, 0}, {2, 0}};
+  // Basic Case:
+  vector<vector<int>> points = {{0, 0}, {1, 0}, {2, 0}};
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.numberOfBoomeranges(points));
+  EXPECT_EQ(expected, solutions.numberOfBoomeranges(points));
 
-    // Edge Case:
-    points = {{1, 1}};
+  // Edge Case:
+  points = {{1, 1}};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.numberOfBoomeranges(points));
+  EXPECT_EQ(expected, solutions.numberOfBoomeranges(points));
 }
 
 TEST(X86_64Test, inorderTraversalCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> root = {1, -1, 2, 3};
+  // Basic Case:
+  vector<int> root = {1, -1, 2, 3};
 
-    vector<int> expected = {1, 3, 2};
+  vector<int> expected = {1, 3, 2};
 
-    EXPECT_EQ(expected, solutions.inorderTraversal(purgatory::buildTree(root)));
+  EXPECT_EQ(expected, solutions.inorderTraversal(purgatory::buildTree(root)));
 
-    // Edge Case:
-    root = {};
+  // Edge Case:
+  root = {};
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.inorderTraversal(purgatory::buildTree(root)));
-} 
+  EXPECT_EQ(expected, solutions.inorderTraversal(purgatory::buildTree(root)));
+}
 
 TEST(X86_64Test, numTreesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int n = 3;
+  // Basic Case:
+  int n = 3;
 
-    int expected = 5;
+  int expected = 5;
 
-    EXPECT_EQ(expected, solutions.numTrees(n));
+  EXPECT_EQ(expected, solutions.numTrees(n));
 
-    // Edge Case:
-    n = 1;
+  // Edge Case:
+  n = 1;
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.numTrees(n));
+  EXPECT_EQ(expected, solutions.numTrees(n));
 }
 
 TEST(X86_64Test, findFrequentTreeSumCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> root = {5, 2, -3};
+  // Basic Case:
+  vector<int> root = {5, 2, -3};
 
-    vector<int> expected = {4, -3, 2};
+  vector<int> expected = {4, -3, 2};
 
-    EXPECT_EQ(expected, solutions.findFrequentTreeSum(purgatory::buildTree(root)));
+  EXPECT_EQ(expected,
+            solutions.findFrequentTreeSum(purgatory::buildTree(root)));
 
-    // Edge Case:
-    root = {5, 2, -5};
+  // Edge Case:
+  root = {5, 2, -5};
 
-    expected = {2};
+  expected = {2};
 
-    EXPECT_EQ(expected, solutions.findFrequentTreeSum(purgatory::buildTree(root)));
+  EXPECT_EQ(expected,
+            solutions.findFrequentTreeSum(purgatory::buildTree(root)));
 }
 
 TEST(X86_64Test, maxAncestorDiffCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> root = {1, -1, 2, -1, 0, 3};
+  // Basic Case:
+  vector<int> root = {1, -1, 2, -1, 0, 3};
 
-    int expected = 3;
+  int expected = 3;
 
-    // EXPECT_EQ(expected, solutions.maxAncestorDiff(purgatory::buildTree(root)));
+  // EXPECT_EQ(expected, solutions.maxAncestorDiff(purgatory::buildTree(root)));
 
-    // Edge Case:
-    root = {5, 5, 5};
+  // Edge Case:
+  root = {5, 5, 5};
 
-    expected = 0;
+  expected = 0;
 
-    // EXPECT_EQ(expected, solutions.maxAncestorDiff(purgatory::buildTree(root)));
+  // EXPECT_EQ(expected, solutions.maxAncestorDiff(purgatory::buildTree(root)));
 }
 
 TEST(X86_64Test, findContentChildrenCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> g = {1, 2, 3}, s = {1, 1};
+  // Basic Case:
+  vector<int> g = {1, 2, 3}, s = {1, 1};
 
-    int expected = 1;
+  int expected = 1;
 
-    EXPECT_EQ(expected, solutions.findContentChildren(g, s));
+  EXPECT_EQ(expected, solutions.findContentChildren(g, s));
 
-    // Edge Case:
-    g = {1}; s = {};
+  // Edge Case:
+  g = {1};
+  s = {};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.findContentChildren(g, s));
+  EXPECT_EQ(expected, solutions.findContentChildren(g, s));
 }
 
 TEST(X86_64Test, magicalStringCheclCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int n = 6;
+  // Basic Case:
+  int n = 6;
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.magicalString(n));
+  EXPECT_EQ(expected, solutions.magicalString(n));
 
-    // Edge Case:
-    n = 1;
+  // Edge Case:
+  n = 1;
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.magicalString(n));
-
+  EXPECT_EQ(expected, solutions.magicalString(n));
 }
 
 TEST(X86_64Test, checkInclusionCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s1 = "ab", s2 = "eidbaooo";
+  // Basic Case:
+  string s1 = "ab", s2 = "eidbaooo";
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.checkInclusion(s1, s2));
+  EXPECT_EQ(expected, solutions.checkInclusion(s1, s2));
 
-    // Edge Case:
-    s1 = "a"; s2 = "a";
+  // Edge Case:
+  s1 = "a";
+  s2 = "a";
 
-    expected = true;
+  expected = true;
 
-    EXPECT_EQ(expected, solutions.checkInclusion(s1, s2));
+  EXPECT_EQ(expected, solutions.checkInclusion(s1, s2));
 }
 
 TEST(X86_64Test, judgeSquareSumCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int c = 5;
+  // Basic Case:
+  int c = 5;
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.judgeSquareSum(c));
+  EXPECT_EQ(expected, solutions.judgeSquareSum(c));
 
-    // Edge Case:
-    c = 0;
+  // Edge Case:
+  c = 0;
 
-    expected = true;
+  expected = true;
 
-    EXPECT_EQ(expected, solutions.judgeSquareSum(c));
+  EXPECT_EQ(expected, solutions.judgeSquareSum(c));
 }
 
 TEST(X86_64Test, arrayPairSumCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 4, 3, 2};
+  // Basic Case:
+  vector<int> nums = {1, 4, 3, 2};
 
-    int expected = 4;
+  int expected = 4;
 
-    EXPECT_EQ(expected, solutions.arrayPairSum(nums));
+  EXPECT_EQ(expected, solutions.arrayPairSum(nums));
 
-    // Edge Case:
-    nums = {1, 1};
+  // Edge Case:
+  nums = {1, 1};
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.arrayPairSum(nums));
-
+  EXPECT_EQ(expected, solutions.arrayPairSum(nums));
 }
 
 TEST(X86_64Test, maxProductCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<string> words = {"abcw", "bax", "foo", "bar", "xtfn", "abcdef"};
+  // Basic Case:
+  vector<string> words = {"abcw", "bax", "foo", "bar", "xtfn", "abcdef"};
 
-    int expected = 16;
+  int expected = 16;
 
-    EXPECT_EQ(expected, solutions.maxProduct(words));
+  EXPECT_EQ(expected, solutions.maxProduct(words));
 
-    // Edge Case:
-    words = {"a", "aa"};
+  // Edge Case:
+  words = {"a", "aa"};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.maxProduct(words));
+  EXPECT_EQ(expected, solutions.maxProduct(words));
 }
 
 TEST(X86_64Test, largestDivisibleSubsetCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 4, 8};
+  // Basic Case:
+  vector<int> nums = {1, 2, 4, 8};
 
-    vector<int> expected = {1, 2, 4, 8};
+  vector<int> expected = {1, 2, 4, 8};
 
-    EXPECT_EQ(expected, solutions.largestDivisibleSubset(nums));
+  EXPECT_EQ(expected, solutions.largestDivisibleSubset(nums));
 
-    // Edge Case:
-    nums = {1};
-    expected = {1};
+  // Edge Case:
+  nums = {1};
+  expected = {1};
 
-    EXPECT_EQ(expected, solutions.largestDivisibleSubset(nums));
+  EXPECT_EQ(expected, solutions.largestDivisibleSubset(nums));
 }
 
 TEST(X86_64Test, distributeCandiesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> candyType = {1, 1, 2, 2, 3, 3};
+  // Basic Case:
+  vector<int> candyType = {1, 1, 2, 2, 3, 3};
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.distributeCandies(candyType));
+  EXPECT_EQ(expected, solutions.distributeCandies(candyType));
 
+  // Edge Case:
+  candyType = {6, 6, 6, 6, 6};
 
-    // Edge Case:
-    candyType = {6, 6, 6, 6, 6};
+  expected = 1;
 
-    expected = 1;
-
-    EXPECT_EQ(expected, solutions.distributeCandies(candyType));
+  EXPECT_EQ(expected, solutions.distributeCandies(candyType));
 }
 
 TEST(X86_64Test, maxRotateFunctionCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {4, 3, 2, 6};
+  // Basic Case:
+  vector<int> nums = {4, 3, 2, 6};
 
-    int expected = 26;
+  int expected = 26;
 
-    EXPECT_EQ(expected, solutions.maxRotateFunction(nums));
+  EXPECT_EQ(expected, solutions.maxRotateFunction(nums));
 
-    // Edge Case:
-    nums = {100};
+  // Edge Case:
+  nums = {100};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.maxRotateFunction(nums));
+  EXPECT_EQ(expected, solutions.maxRotateFunction(nums));
 }
 
 TEST(X86_64Test, findRightIntervalCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<vector<int>> intervals = {{3, 4}, {2, 3}, {1, 2}};
+  // Basic Case:
+  vector<vector<int>> intervals = {{3, 4}, {2, 3}, {1, 2}};
 
-    vector<int> expected = {-1, 0, 1};
+  vector<int> expected = {-1, 0, 1};
 
-    EXPECT_EQ(expected, solutions.findRightInterval(intervals));
+  EXPECT_EQ(expected, solutions.findRightInterval(intervals));
 
-    // Edge Case:
-    intervals = {{1, 2}};
+  // Edge Case:
+  intervals = {{1, 2}};
 
-    expected = {-1};
+  expected = {-1};
 
-    EXPECT_EQ(expected, solutions.findRightInterval(intervals));
+  EXPECT_EQ(expected, solutions.findRightInterval(intervals));
 }
 
 TEST(X86_64Test, largestNumberCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, 30, 34, 5, 9};
+  // Basic Case:
+  vector<int> nums = {3, 30, 34, 5, 9};
 
-    string expected = "9534330";
+  string expected = "9534330";
 
-    EXPECT_EQ(expected, solutions.largestNumber(nums));
+  EXPECT_EQ(expected, solutions.largestNumber(nums));
 
-    // Edge Case:
-    nums = {0, 0, 0};
+  // Edge Case:
+  nums = {0, 0, 0};
 
-    expected = "0";
+  expected = "0";
 
-    EXPECT_EQ(expected, solutions.largestNumber(nums));
-} 
+  EXPECT_EQ(expected, solutions.largestNumber(nums));
+}
 
 TEST(X86_64Test, removePalindromeSubCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "ababa";
+  // Basic Case:
+  string s = "ababa";
 
-    int expected = 1;
+  int expected = 1;
 
-    EXPECT_EQ(expected, solutions.removePalindromeSub(s));
+  EXPECT_EQ(expected, solutions.removePalindromeSub(s));
 
-    // Edge Case:
-    s = "aaaa";
+  // Edge Case:
+  s = "aaaa";
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.removePalindromeSub(s));
+  EXPECT_EQ(expected, solutions.removePalindromeSub(s));
 }
 
 TEST(X86_64Test, findRadiusCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> houses = {1, 2, 3};
-    vector<int> heaters = {2};
+  // Basic Case:
+  vector<int> houses = {1, 2, 3};
+  vector<int> heaters = {2};
 
-    int expected = 1;
+  int expected = 1;
 
-    EXPECT_EQ(expected, solutions.findRadius(houses, heaters));
+  EXPECT_EQ(expected, solutions.findRadius(houses, heaters));
 
-    // Edge Case:
-    houses = {1}; heaters = {100};
+  // Edge Case:
+  houses = {1};
+  heaters = {100};
 
-    expected = 99;
+  expected = 99;
 
-    EXPECT_EQ(expected, solutions.findRadius(houses, heaters));
+  EXPECT_EQ(expected, solutions.findRadius(houses, heaters));
 }
 
 TEST(X86_64Test, circularArrayLoopCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {2, -1, 1, 2, 2};
+  // Basic Case:
+  vector<int> nums = {2, -1, 1, 2, 2};
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.circularArrayLoop(nums));
+  EXPECT_EQ(expected, solutions.circularArrayLoop(nums));
 
-    // Edge Case:
-    nums = {1, 1, 1};
+  // Edge Case:
+  nums = {1, 1, 1};
 
-    expected = true;
+  expected = true;
 
-    EXPECT_EQ(expected, solutions.circularArrayLoop(nums));
+  EXPECT_EQ(expected, solutions.circularArrayLoop(nums));
 }
 
 TEST(X86_64Test, maxProfitAssignmentCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> difficulty = {2, 4, 6, 8, 10};
-    vector<int> profit = {10, 20, 30, 40, 50};
-    vector<int> worker = {4, 5, 6, 7};
+  // Basic Case:
+  vector<int> difficulty = {2, 4, 6, 8, 10};
+  vector<int> profit = {10, 20, 30, 40, 50};
+  vector<int> worker = {4, 5, 6, 7};
 
-    int expected = 100;
+  int expected = 100;
 
-    EXPECT_EQ(expected, solutions.maxProfitAssignment(difficulty, profit, worker));
+  EXPECT_EQ(expected,
+            solutions.maxProfitAssignment(difficulty, profit, worker));
 
-    // Edge Case:
-    difficulty = {2};
-    profit = {100};
-    worker = {2, 2};
+  // Edge Case:
+  difficulty = {2};
+  profit = {100};
+  worker = {2, 2};
 
-    expected = 200;
+  expected = 200;
 
-    EXPECT_EQ(expected, solutions.maxProfitAssignment(difficulty, profit, worker));
-
+  EXPECT_EQ(expected,
+            solutions.maxProfitAssignment(difficulty, profit, worker));
 }
 
 TEST(X86_64Test, countBinarySubstringsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "00110011";
+  // Basic Case:
+  string s = "00110011";
 
-    int expected = 6;
+  int expected = 6;
 
-    EXPECT_EQ(expected, solutions.countBinarySubstrings(s));
+  EXPECT_EQ(expected, solutions.countBinarySubstrings(s));
 
-    // Edge Case:
-    s = "1";
+  // Edge Case:
+  s = "1";
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.countBinarySubstrings(s));
-
+  EXPECT_EQ(expected, solutions.countBinarySubstrings(s));
 }
 
 TEST(X86_64Test, countSubstringsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "abc";
+  // Basic Case:
+  string s = "abc";
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.countSubstrings(s));
+  EXPECT_EQ(expected, solutions.countSubstrings(s));
 
-    // Edge Case:
-    s = "a";
+  // Edge Case:
+  s = "a";
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.countSubstrings(s));
+  EXPECT_EQ(expected, solutions.countSubstrings(s));
 }
 
 TEST(X86_64Test, longestMountainCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> arr = {2, 1, 4, 7, 3, 2, 5};
+  // Basic Case:
+  vector<int> arr = {2, 1, 4, 7, 3, 2, 5};
 
-    int expected = 5;
+  int expected = 5;
 
-    EXPECT_EQ(expected, solutions.longestMountain(arr));
+  EXPECT_EQ(expected, solutions.longestMountain(arr));
 
-    // Edge Case:
-    arr = {2, 2, 2};
+  // Edge Case:
+  arr = {2, 2, 2};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.longestMountain(arr));
-
+  EXPECT_EQ(expected, solutions.longestMountain(arr));
 }
 
 TEST(X86_64Test, reverseStrCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "abcdefg";
-    int k = 2;
+  // Basic Case:
+  string s = "abcdefg";
+  int k = 2;
 
-    string expected = "bacdfeg";
+  string expected = "bacdfeg";
 
-    EXPECT_EQ(expected, solutions.reverseStr(s, k));
+  EXPECT_EQ(expected, solutions.reverseStr(s, k));
 
-    // Edge Case:
-    s = "a"; k = 5;
+  // Edge Case:
+  s = "a";
+  k = 5;
 
-    expected = "a";
+  expected = "a";
 
-    EXPECT_EQ(expected, solutions.reverseStr(s, k));
-
+  EXPECT_EQ(expected, solutions.reverseStr(s, k));
 }
 
 TEST(X86_64Test, shortestToCharCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "loveleetcode";
-    char c = 'e';
+  // Basic Case:
+  string s = "loveleetcode";
+  char c = 'e';
 
-    vector<int> expected = {3, 2, 1, 0, 1, 0, 0, 1, 2, 2, 1, 0};
+  vector<int> expected = {3, 2, 1, 0, 1, 0, 0, 1, 2, 2, 1, 0};
 
-    EXPECT_EQ(expected, solutions.shortestToChar(s, c));
+  EXPECT_EQ(expected, solutions.shortestToChar(s, c));
 
-    // Edge Case:
-    s = "aaaa"; c = 'a';
+  // Edge Case:
+  s = "aaaa";
+  c = 'a';
 
-    expected = {0, 0 ,0, 0};
+  expected = {0, 0, 0, 0};
 
-    EXPECT_EQ(expected, solutions.shortestToChar(s, c));
+  EXPECT_EQ(expected, solutions.shortestToChar(s, c));
 }
 
 TEST(X86_64Test, rangeSumCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 2, 3, 4};
-    int n = 4, left = 1, right = 5;
+  // Basic Case:
+  vector<int> nums = {1, 2, 3, 4};
+  int n = 4, left = 1, right = 5;
 
-    int expected = 13;
+  int expected = 13;
 
-    EXPECT_EQ(expected, solutions.rangeSum(nums, n, left, right));
+  EXPECT_EQ(expected, solutions.rangeSum(nums, n, left, right));
 
-    // Edge Case:
-    nums = {5};
-    n = 1; left = 1; right = 1;
+  // Edge Case:
+  nums = {5};
+  n = 1;
+  left = 1;
+  right = 1;
 
-    expected = 5;
+  expected = 5;
 
-    EXPECT_EQ(expected, solutions.rangeSum(nums, n, left, right));
+  EXPECT_EQ(expected, solutions.rangeSum(nums, n, left, right));
 }
 
 TEST(X86_64Test, addSpacesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "LeetcodeHelpsMeLearn";
-    vector<int> spaces = {8, 13, 15};
+  // Basic Case:
+  string s = "LeetcodeHelpsMeLearn";
+  vector<int> spaces = {8, 13, 15};
 
-    string expected = "Leetcode Helps Me Learn";
+  string expected = "Leetcode Helps Me Learn";
 
-    EXPECT_EQ(expected, solutions.addSpaces(s, spaces));
+  EXPECT_EQ(expected, solutions.addSpaces(s, spaces));
 
-    // Edge Case:
-    s = "abc";
-    spaces = {0};
+  // Edge Case:
+  s = "abc";
+  spaces = {0};
 
-    expected = " abc";
+  expected = " abc";
 
-    EXPECT_EQ(expected, solutions.addSpaces(s, spaces));
+  EXPECT_EQ(expected, solutions.addSpaces(s, spaces));
 }
 
 TEST(X86_64Test, minimumStepsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "101";
-    long long expected = 1;
+  // Basic Case:
+  string s = "101";
+  long long expected = 1;
 
-    EXPECT_EQ(expected, solutions.minimumSteps(s));
+  EXPECT_EQ(expected, solutions.minimumSteps(s));
 
-    // Edge Case:
-    s = "0000";
-    expected = 0;
-    EXPECT_EQ(expected, solutions.minimumSteps(s));
+  // Edge Case:
+  s = "0000";
+  expected = 0;
+  EXPECT_EQ(expected, solutions.minimumSteps(s));
 }
 
-
 TEST(X86_64Test, backspaceCompareCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "ab#c", t = "ad#c";
+  // Basic Case:
+  string s = "ab#c", t = "ad#c";
 
-    bool expected = true;
+  bool expected = true;
 
-    EXPECT_EQ(expected, solutions.backspaceCompare(s, t));
+  EXPECT_EQ(expected, solutions.backspaceCompare(s, t));
 
-    // Edge Case:
-    s = "####"; t = "";
+  // Edge Case:
+  s = "####";
+  t = "";
 
-    expected = true;
+  expected = true;
 
-    EXPECT_EQ(expected, solutions.backspaceCompare(s, t));
+  EXPECT_EQ(expected, solutions.backspaceCompare(s, t));
 }
 
 TEST(X86_64Test, findUnsortedSubarrayCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {2, 6, 4, 8, 10, 9, 15};
+  // Basic Case:
+  vector<int> nums = {2, 6, 4, 8, 10, 9, 15};
 
-    int expected = 5;
+  int expected = 5;
 
-    EXPECT_EQ(expected, solutions.findUnsortedSubarray(nums));
+  EXPECT_EQ(expected, solutions.findUnsortedSubarray(nums));
 
-    // Edge Case:
-    nums = {1, 2, 3, 4};
+  // Edge Case:
+  nums = {1, 2, 3, 4};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.findUnsortedSubarray(nums));
+  EXPECT_EQ(expected, solutions.findUnsortedSubarray(nums));
 }
 
 TEST(X86_64Test, removeOccurrencesCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "daabcbaabcbc", part = "abc";
+  // Basic Case:
+  string s = "daabcbaabcbc", part = "abc";
 
-    string expected = "dab";
+  string expected = "dab";
 
-    EXPECT_EQ(expected, solutions.removeOccurrences(s, part));
+  EXPECT_EQ(expected, solutions.removeOccurrences(s, part));
 
-    // Edge Case:
-    s = "aaaa"; part = "aa";
+  // Edge Case:
+  s = "aaaa";
+  part = "aa";
 
-    expected = "";
+  expected = "";
 
-    EXPECT_EQ(expected, solutions.removeOccurrences(s, part));
+  EXPECT_EQ(expected, solutions.removeOccurrences(s, part));
 }
 
 TEST(X86_64Test, maximumGainCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "cdbcbbaaabab";
-    int x = 4, y = 5;
+  // Basic Case:
+  string s = "cdbcbbaaabab";
+  int x = 4, y = 5;
 
-    int expected = 19;
+  int expected = 19;
 
-    EXPECT_EQ(expected, solutions.maximumGain(s, x, y));
+  EXPECT_EQ(expected, solutions.maximumGain(s, x, y));
 
-    // Edge Case:
-    s = "abab";
-    x = 10; y = 1;
+  // Edge Case:
+  s = "abab";
+  x = 10;
+  y = 1;
 
-    expected = 20;
-    EXPECT_EQ(expected, solutions.maximumGain(s, x, y));
+  expected = 20;
+  EXPECT_EQ(expected, solutions.maximumGain(s, x, y));
 }
 
 TEST(X86_64Test, addMinimumCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string word = "b";
+  // Basic Case:
+  string word = "b";
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.addMinimum(word));
+  EXPECT_EQ(expected, solutions.addMinimum(word));
 
-    // Edge Case:
-    word = "abc";
+  // Edge Case:
+  word = "abc";
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.addMinimum(word));
+  EXPECT_EQ(expected, solutions.addMinimum(word));
 }
 
 TEST(X86_64Test, calculateScoreCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "aczzx";
+  // Basic Case:
+  string s = "aczzx";
 
-    long long expected = 5;
+  long long expected = 5;
 
-    EXPECT_EQ(expected, solutions.calculateScore(s));
+  EXPECT_EQ(expected, solutions.calculateScore(s));
 
-    // Edge Case:
-    s = "azaz";
+  // Edge Case:
+  s = "azaz";
 
-    expected = 2;
+  expected = 2;
 
-    EXPECT_EQ(expected, solutions.calculateScore(s));
+  EXPECT_EQ(expected, solutions.calculateScore(s));
 }
 
 TEST(X86_64Test, minLengthAfterRemovalsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "aabbab";
+  // Basic Case:
+  string s = "aabbab";
 
-    int expected = 0;
+  int expected = 0;
 
-    EXPECT_EQ(expected, solutions.minLengthAfterRemovals(s));
+  EXPECT_EQ(expected, solutions.minLengthAfterRemovals(s));
 
-    // Edge Case:
-    s = "aaaa";
+  // Edge Case:
+  s = "aaaa";
 
-    expected = 4;
+  expected = 4;
 
-    EXPECT_EQ(expected, solutions.minLengthAfterRemovals(s));
-
+  EXPECT_EQ(expected, solutions.minLengthAfterRemovals(s));
 }
 
 TEST(X86_64Test, carFleetCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    int target = 12;
-    vector<int> position = {10, 8, 0, 5, 3};
-    vector<int> speed = {2, 4, 1, 1, 3};
+  // Basic Case:
+  int target = 12;
+  vector<int> position = {10, 8, 0, 5, 3};
+  vector<int> speed = {2, 4, 1, 1, 3};
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.carFleet(target, position, speed));
+  EXPECT_EQ(expected, solutions.carFleet(target, position, speed));
 
-    // Edge Case:
-    target = 10; position = {3}; speed = {3};
+  // Edge Case:
+  target = 10;
+  position = {3};
+  speed = {3};
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.carFleet(target, position, speed));
-
+  EXPECT_EQ(expected, solutions.carFleet(target, position, speed));
 }
 
 TEST(X86_64Test, sumSubarrayMinsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> arr =  {3, 1, 2, 4};
+  // Basic Case:
+  vector<int> arr = {3, 1, 2, 4};
 
-    int expected = 17;
+  int expected = 17;
 
-    EXPECT_EQ(expected, solutions.sumSubarrayMins(arr));
+  EXPECT_EQ(expected, solutions.sumSubarrayMins(arr));
 
-    // Edge Case:
-    arr = {1, 1, 1};
+  // Edge Case:
+  arr = {1, 1, 1};
 
-    expected = 6;
+  expected = 6;
 
-    EXPECT_EQ(expected, solutions.sumSubarrayMins(arr));
+  EXPECT_EQ(expected, solutions.sumSubarrayMins(arr));
 }
 
 TEST(X86_64Test, findTheDifferenceCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "abcd", t = "abcde";
+  // Basic Case:
+  string s = "abcd", t = "abcde";
 
-    char expected = 'e';
+  char expected = 'e';
 
-    EXPECT_EQ(expected, solutions.findTheDifference(s, t));
+  EXPECT_EQ(expected, solutions.findTheDifference(s, t));
 
-    // Edge Case:
-    s = ""; t = "y";
+  // Edge Case:
+  s = "";
+  t = "y";
 
-    expected = 'y';
+  expected = 'y';
 
-    EXPECT_EQ(expected, solutions.findTheDifference(s, t));
+  EXPECT_EQ(expected, solutions.findTheDifference(s, t));
 }
 
 TEST(X86_64Test, findAnagramsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "abab", p = "ab";
+  // Basic Case:
+  string s = "abab", p = "ab";
 
-    vector<int> expected = {0, 1, 2};
+  vector<int> expected = {0, 1, 2};
 
-    EXPECT_EQ(expected, solutions.findAnagrams(s, p));
+  EXPECT_EQ(expected, solutions.findAnagrams(s, p));
 
-    // Edge Case:
-    s = "a"; p = "ab";
+  // Edge Case:
+  s = "a";
+  p = "ab";
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.findAnagrams(s, p));
+  EXPECT_EQ(expected, solutions.findAnagrams(s, p));
 }
 
 TEST(X86_64Test, subarraySumCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 1, 1};
-    int k = 2;
+  // Basic Case:
+  vector<int> nums = {1, 1, 1};
+  int k = 2;
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.subarraySum(nums, k));
+  EXPECT_EQ(expected, solutions.subarraySum(nums, k));
 
-    // Edge Case:
-    nums = {0, 0, 0};
-    k = 0;
+  // Edge Case:
+  nums = {0, 0, 0};
+  k = 0;
 
-    expected = 6;
+  expected = 6;
 
-    EXPECT_EQ(expected, solutions.subarraySum(nums, k));
+  EXPECT_EQ(expected, solutions.subarraySum(nums, k));
 }
 
 TEST(X86_64Test, longestWordCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<string> words = {"w", "wo", "wor", "worl", "world"};
+  // Basic Case:
+  vector<string> words = {"w", "wo", "wor", "worl", "world"};
 
-    string expected = "world";
+  string expected = "world";
 
-    EXPECT_EQ(expected, solutions.longestWord(words));
+  EXPECT_EQ(expected, solutions.longestWord(words));
 
-    // Edge Case:
-    words = {"abc", "ab"};
+  // Edge Case:
+  words = {"abc", "ab"};
 
-    expected = "";
+  expected = "";
 
-    EXPECT_EQ(expected, solutions.longestWord(words));
+  EXPECT_EQ(expected, solutions.longestWord(words));
 }
 
 TEST(X86_64Test, deleteAndEarnCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {3, 4, 2};
-    int expected = 6;
+  // Basic Case:
+  vector<int> nums = {3, 4, 2};
+  int expected = 6;
 
-    EXPECT_EQ(expected, solutions.deleteAndEarn(nums));
+  EXPECT_EQ(expected, solutions.deleteAndEarn(nums));
 
-    // Edge Case:
-    nums = {1};
+  // Edge Case:
+  nums = {1};
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.deleteAndEarn(nums));
+  EXPECT_EQ(expected, solutions.deleteAndEarn(nums));
 }
 
 TEST(X86_64Test, minimumLengthEncodingCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<string> words = {"time", "me", "bell"};
+  // Basic Case:
+  vector<string> words = {"time", "me", "bell"};
 
-    int expected = 10;
+  int expected = 10;
 
-    EXPECT_EQ(expected, solutions.minimumLengthEncoding(words));
+  EXPECT_EQ(expected, solutions.minimumLengthEncoding(words));
 
-    // Edge Case:
-    words = {"a"};
+  // Edge Case:
+  words = {"a"};
 
-    expected = 2;
+  expected = 2;
 
-    EXPECT_EQ(expected, solutions.minimumLengthEncoding(words));
-
+  EXPECT_EQ(expected, solutions.minimumLengthEncoding(words));
 }
 
 TEST(X86_64Test, wordSubsetsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<string> words1 = {"amazon", "apple", "facebook", "google", "leetcode"};
-    vector<string> words2 = {"e", "o"};
+  // Basic Case:
+  vector<string> words1 = {"amazon", "apple", "facebook", "google", "leetcode"};
+  vector<string> words2 = {"e", "o"};
 
-    vector<string> expected = {"facebook", "google", "leetcode"};
+  vector<string> expected = {"facebook", "google", "leetcode"};
 
-    EXPECT_EQ(expected, solutions.wordSubsets(words1, words2));
+  EXPECT_EQ(expected, solutions.wordSubsets(words1, words2));
 
-    // Edge Case:
-    words1 = {""};
-    words2 = {"a", "b"};
+  // Edge Case:
+  words1 = {""};
+  words2 = {"a", "b"};
 
-    expected = {};
+  expected = {};
 
-    EXPECT_EQ(expected, solutions.wordSubsets(words1, words2));
+  EXPECT_EQ(expected, solutions.wordSubsets(words1, words2));
 }
 
 TEST(X86_64Test, numberOfAlternatingGroupsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> colors = {0, 1, 0, 0, 1};
+  // Basic Case:
+  vector<int> colors = {0, 1, 0, 0, 1};
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.numberOfAlternatingGroups(colors));
+  EXPECT_EQ(expected, solutions.numberOfAlternatingGroups(colors));
 
-    // Edge Case:
-    colors = {1, 1, 1};
+  // Edge Case:
+  colors = {1, 1, 1};
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.numberOfAlternatingGroups(colors));
+  EXPECT_EQ(expected, solutions.numberOfAlternatingGroups(colors));
 }
 
 TEST(X86_64Test, findLengthCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums1 = {1, 2, 3, 2, 1};
+  // Basic Case:
+  vector<int> nums1 = {1, 2, 3, 2, 1};
 
-    vector<int> nums2 = {3, 2, 1, 4, 7};
+  vector<int> nums2 = {3, 2, 1, 4, 7};
 
-    int expected = 3;
+  int expected = 3;
 
-    EXPECT_EQ(expected, solutions.findLength(nums1, nums2));
+  EXPECT_EQ(expected, solutions.findLength(nums1, nums2));
 
-    // Edge Case:
-    nums1 = {0, 0, 0, 0, 0};
-    nums2 = {0, 0, 0, 0, 0};
+  // Edge Case:
+  nums1 = {0, 0, 0, 0, 0};
+  nums2 = {0, 0, 0, 0, 0};
 
-    expected = 5;
+  expected = 5;
 
-    EXPECT_EQ(expected, solutions.findLength(nums1, nums2));
-
+  EXPECT_EQ(expected, solutions.findLength(nums1, nums2));
 }
 
 TEST(X86_64Test, maxSatisfiedCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> customers = {1, 0, 1, 2, 1, 1, 7, 5};
+  // Basic Case:
+  vector<int> customers = {1, 0, 1, 2, 1, 1, 7, 5};
 
-    vector<int> grumpy = {0, 1, 0, 1, 0, 1, 0, 1};
+  vector<int> grumpy = {0, 1, 0, 1, 0, 1, 0, 1};
 
-    int minutes = 3;
+  int minutes = 3;
 
-    int expected = 16;
+  int expected = 16;
 
-    EXPECT_EQ(expected, solutions.maxSatisfied(customers, grumpy, minutes));
+  EXPECT_EQ(expected, solutions.maxSatisfied(customers, grumpy, minutes));
 
-    // Edge Case:
-    customers = {3, 4, 5};
+  // Edge Case:
+  customers = {3, 4, 5};
 
-    grumpy = {1, 1, 1};
+  grumpy = {1, 1, 1};
 
-    minutes = 3;
+  minutes = 3;
 
-    expected = 12;
+  expected = 12;
 
-    EXPECT_EQ(expected, solutions.maxSatisfied(customers, grumpy, minutes));
+  EXPECT_EQ(expected, solutions.maxSatisfied(customers, grumpy, minutes));
 }
 
 TEST(X86_64Test, countKConstraintSubstringsCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    string s = "10101";
-    int k = 1;
+  // Basic Case:
+  string s = "10101";
+  int k = 1;
 
-    int expected = 12;
+  int expected = 12;
 
-    EXPECT_EQ(expected, solutions.countKConstraintSubstrings(s, k));
+  EXPECT_EQ(expected, solutions.countKConstraintSubstrings(s, k));
 
-    // Edge Case:
-    s = "01";
-    k = 0;
+  // Edge Case:
+  s = "01";
+  k = 0;
 
-    expected = 2;
+  expected = 2;
 
-    EXPECT_EQ(expected, solutions.countKConstraintSubstrings(s, k));
-
-
+  EXPECT_EQ(expected, solutions.countKConstraintSubstrings(s, k));
 }
 
 TEST(X86_64Test, maxTurbulenceSizeCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> arr = {9, 4, 2, 10, 7, 8, 8, 1, 9};
+  // Basic Case:
+  vector<int> arr = {9, 4, 2, 10, 7, 8, 8, 1, 9};
 
-    int expected = 5;
+  int expected = 5;
 
-    EXPECT_EQ(expected, solutions.maxTurbulenceSize(arr));
+  EXPECT_EQ(expected, solutions.maxTurbulenceSize(arr));
 
-    // Edge Case:
-    arr = {5};
+  // Edge Case:
+  arr = {5};
 
-    expected = 1;
+  expected = 1;
 
-    EXPECT_EQ(expected, solutions.maxTurbulenceSize(arr));
-
+  EXPECT_EQ(expected, solutions.maxTurbulenceSize(arr));
 }
 
 TEST(X86_64Test, numberOfSubarraysCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {1, 1, 2, 1, 1};
+  // Basic Case:
+  vector<int> nums = {1, 1, 2, 1, 1};
 
-    int k = 3;
+  int k = 3;
 
-    int expected = 2;
+  int expected = 2;
 
-    EXPECT_EQ(expected, solutions.numberOfSubarrays(nums, k));
+  EXPECT_EQ(expected, solutions.numberOfSubarrays(nums, k));
 
-    // Edge Case:
-    nums = {2, 4, 6};
+  // Edge Case:
+  nums = {2, 4, 6};
 
-    k = 1;
+  k = 1;
 
-    expected = 0;
+  expected = 0;
 
-    EXPECT_EQ(expected, solutions.numberOfSubarrays(nums, k));
-
+  EXPECT_EQ(expected, solutions.numberOfSubarrays(nums, k));
 }
 
 TEST(X86_64Test, maximumUniqueSubarrayCheck) {
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    // Basic Case:
-    vector<int> nums = {4, 2, 4, 5, 6};
+  // Basic Case:
+  vector<int> nums = {4, 2, 4, 5, 6};
 
-    int expected = 17;
+  int expected = 17;
 
-    EXPECT_EQ(expected, solutions.maximumUniqueSubarray(nums));
+  EXPECT_EQ(expected, solutions.maximumUniqueSubarray(nums));
 
-    // Edge Case:
-    nums = {1, 2, 3};
+  // Edge Case:
+  nums = {1, 2, 3};
 
-    expected = 6;
+  expected = 6;
 
-    EXPECT_EQ(expected, solutions.maximumUniqueSubarray(nums));
+  EXPECT_EQ(expected, solutions.maximumUniqueSubarray(nums));
 }
-
 
 #elif PURGATORY_ARM64LE
 
-TEST(ARM64LETest, BasicCheck) {
-	EXPECT_EQ(1 + 1, 2);
-}
+TEST(ARM64LETest, BasicCheck) { EXPECT_EQ(1 + 1, 2); }
 
 TEST(ARM64LETest, TextQueryCheck) {
-    using namespace query;
+  using namespace query;
 
-    ifstream fin("test.txt");
-    TextQuery text(fin);
+  ifstream fin("test.txt");
+  TextQuery text(fin);
 
-    Query q = Query("hair") & Query("Alice");
+  Query q = Query("hair") & Query("Alice");
 
-    QueryResult result = q.eval(text);
+  QueryResult result = q.eval(text);
 
-    string expected = "(hair & Alice) occurs 1 time\n\t(line 1) Alice Emma has long flowing red hair.\n";
+  string expected = "(hair & Alice) occurs 1 time\n\t(line 1) Alice Emma has "
+                    "long flowing red hair.\n";
 
-    EXPECT_EQ(expected, printToString(result));
+  EXPECT_EQ(expected, printToString(result));
 }
 
 #elif PURGATORY_I386
 
-TEST(I386Test, BasicCheck) {
-	EXPECT_EQ(1 + 1, 2);
-}
+TEST(I386Test, BasicCheck) { EXPECT_EQ(1 + 1, 2); }
 #endif

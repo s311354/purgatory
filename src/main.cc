@@ -5,41 +5,40 @@ namespace purgatory {
 
 using namespace query;
 
-template <typename E>
-int purgatory_main(int argc, char **argv) {
+template <typename E> int purgatory_main(int argc, char **argv) {
 
-    purgatory::Purgatory solutions;
+  purgatory::Purgatory solutions;
 
-    vector<int> nums = {1, 2, 3, 4, 5};
+  vector<int> nums = {1, 2, 3, 4, 5};
 
-    cout << solutions.increasingTriplet(nums) << endl;
+  cout << solutions.increasingTriplet(nums) << endl;
 
-    cout << "ch 15.9 Text Queries" << endl;
+  cout << "ch 15.9 Text Queries" << endl;
 
-    ifstream fin(argv[1]);
-    TextQuery text(fin);
+  ifstream fin(argv[1]);
+  TextQuery text(fin);
 
-    Query q = ~Query("Alice");
+  Query q = ~Query("Alice");
 
-    cout << "Executing Query for: " << q.rep() << endl;
+  cout << "Executing Query for: " << q.rep() << endl;
 
-    QueryResult result = q.eval(text);
+  QueryResult result = q.eval(text);
 
-    print(cout, result);
+  print(cout, result);
 
-    cout << endl;
+  cout << endl;
 
-    q = Query("fiery") & Query("bird") | Query("wind");
+  q = Query("fiery") & Query("bird") | Query("wind");
 
-    cout << "Executing Query for: " << q.rep() << endl;
+  cout << "Executing Query for: " << q.rep() << endl;
 
-    result = q.eval(text);
+  result = q.eval(text);
 
-    print(cout, result);
+  print(cout, result);
 
-    cout << endl;
+  cout << endl;
 
-    return 0;
+  return 0;
 }
 
 using E = PURGATORY_TARGET;

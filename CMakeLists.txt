@@ -26,7 +26,7 @@ cmake_minimum_required(VERSION 3.14)
 project(purgatory VERSION 0.0.0)
 
 add_executable(purgatory)
-target_compile_features(purgatory PRIVATE cxx_std_11)
+target_compile_features(purgatory PRIVATE cxx_std_17)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pg")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
@@ -133,6 +133,7 @@ endif()
 if(BUILD_TESTING)
 	if(${UNIX})
 		add_library(solutions SHARED ${SOLUTIONS_FILES})
+		target_compile_features(solutions PUBLIC cxx_std_17)
 
 		enable_testing()
 		add_subdirectory(third-party/googletest)

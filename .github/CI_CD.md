@@ -1,334 +1,244 @@
-# CI/CD Documentation
+# CI/CD Guide
 
-This document describes the continuous integration and deployment pipeline for the purgatory project.
+This project uses three GitHub Actions workflows:
 
-## Overview
+| Workflow | Purpose | Main output |
+| --- | --- | --- |
+| `CI` | Build, unit tests, sample run, code quality, and documentation checks | Linux executable artifact |
+| `Code Coverage` | Exercise the sample program with GCC coverage instrumentation | HTML coverage report |
+| `Release` | Build and publish a tagged Linux release | Binary archive and SHA-256 checksum |
 
-The CI/CD pipeline consists of 4 main workflows:
+The workflow definitions in `.github/workflows/` are the source of truth. This guide documents their current behavior and the corresponding local commands.
 
-1. **CI (Continuous Integration)** - Main build and test pipeline
-2. **Release** - Automated release builds and publishing
-3. **Code Coverage** - Test coverage analysis and reporting
-4. **Pull Request Checks** - Automated PR validation
+## CI
 
-## Workflows
+File: [workflows/ci.yml](workflows/ci.yml)
 
-### 1. CI Workflow (`.github/workflows/ci.yml`)
+Triggers:
 
-**Triggers:**
-- Push to `main` or `develop` branches
-- Pull requests to `main` or `develop`
-- Manual dispatch
+- Pushes to `main` or `develop`
+- Pull requests targeting `main` or `develop`
+- Manual `workflow_dispatch`
 
-**Jobs:**
+### Build and Test
 
-#### build-and-test
-Tests on multiple configurations:
-- **Operating Systems:** Ubuntu 22.04, Ubuntu 20.04
-- **Compilers:** g++-10, g++-11, clang++-12, clang++-14
-- **Build Types:** Release, Debug
+The `build-and-test` job runs on Ubuntu 22.04 with GCC 11 and Ninja:
 
-**Steps:**
-1. Checkout code with submodules
-2. Install dependencies (CMake, Ninja, compiler)
-3. Configure CMake with specified compiler and build type
-4. Build with Ninja
-5. Run CTest suite
-6. Test executable with sample input
-7. Upload artifacts (Release builds only)
+1. Checks out the repository and the pinned GoogleTest submodule.
+2. Configures a C++17 Release build with `BUILD_TESTING=ON`.
+3. Builds the executable and unit-test target.
+4. Runs every test discovered by CTest.
+5. Runs `purgatory` with `src/test.txt`.
+6. Uploads `build/purgatory` as `purgatory-binary` for seven days.
 
-#### sanitizers
-Runs AddressSanitizer (ASan) and ThreadSanitizer (TSan) checks:
-- Detects memory leaks, buffer overflows, use-after-free
-- Identifies data races and threading issues
+A failing configure, build, unit test, or sample run fails the job.
 
-#### code-quality
-Performs static analysis:
-- **cppcheck** - Static code analysis
-- **clang-format** - Code style verification
-- Build with `-Wall -Wextra -Wpedantic`
+### Code Quality
 
-#### documentation
-Validates documentation:
-- Checks all documentation files exist
-- Validates markdown links with lychee (fast Rust-based checker)
-- Ensures tmux configuration is present
+The `code-quality` job installs clang-format 14 and cppcheck.
 
-#### performance
-Performance benchmarks:
-- Measures test execution time
-- Runs Valgrind for memory leak detection
-- Performance regression detection
+- cppcheck scans `src/*.cc` and `src/*.h`. Its findings are currently informational because the command uses `--error-exitcode=0`.
+- clang-format checks all tracked files with common C and C++ extensions. Formatting differences fail the job.
+- The committed `.clang-format` file defines the LLVM-based repository style.
 
-#### cross-platform
-Tests on macOS:
-- macOS 13 (Intel)
-- macOS 14 (Apple Silicon)
+The formatting check uses tracked files rather than scanning dependency or build directories, so the GoogleTest submodule and generated sources are excluded.
 
-### 2. Release Workflow (`.github/workflows/release.yml`)
+### Documentation
 
-**Triggers:**
-- Push tags matching `v*.*.*` (e.g., v1.0.0)
-- Manual dispatch with tag input
+The `documentation` job:
 
-**Jobs:**
+- Verifies that `README.md`, `LICENSE`, `docs/ALGORITHMS.md`, and `tmux-session.sh` exist.
+- Runs Lychee against root and `docs/` Markdown files.
 
-#### build-release
-Builds release artifacts for multiple platforms in parallel:
-- Linux x86_64
-- Linux ARM64  
-- macOS x86_64 (Intel)
-- macOS ARM64 (Apple Silicon)
+Broken-link reporting is currently non-blocking because the action has `continue-on-error: true`.
 
-**Steps for each platform:**
-1. Checkout code with submodules
-2. Install dependencies (CMake, Ninja, compiler)
-3. Configure and build in Release mode
-4. Run full test suite
-5. Package artifacts with documentation
-6. Generate checksums (SHA256)
-7. Upload as GitHub artifacts
+## Code Coverage
 
-#### create-release
-Creates the GitHub release after all builds complete:
-1. Downloads all platform artifacts
-2. Generates changelog from git commits
-3. Creates GitHub release using modern gh-release action
-4. Attaches all platform binaries and checksums
+File: [workflows/coverage.yml](workflows/coverage.yml)
 
-**Artifacts include:**
-- Binary executable
-- Documentation (README, docs/)
-- LICENSE file
-- SHA256 checksums
+Triggers:
 
-### 3. Code Coverage Workflow (`.github/workflows/coverage.yml`)
+- Pushes to `main` or `develop`
+- Pull requests targeting `main`
+- Manual `workflow_dispatch`
 
-**Triggers:**
-- Push to `main` or `develop`
-- Pull requests to `main`
+The coverage job runs on Ubuntu 22.04 with GCC 11, Ninja, and gcovr. It:
 
-**Steps:**
-1. Build with coverage flags (`--coverage`)
-2. Run all tests
-3. Generate coverage report with gcovr
-4. Upload to Codecov
-5. Create HTML coverage report
-6. Comment coverage summary on PRs
+1. Configures a Debug build with GCC coverage flags and `BUILD_TESTING=OFF`.
+2. Builds and runs `purgatory` with `src/test.txt`.
+3. Generates `coverage.html` and detailed HTML pages.
+4. Excludes `src/main.cc` and `src/entry.cc` from the report.
+5. Uploads `coverage*.html` as `coverage-report` for 30 days.
+6. Prints a text summary in the workflow log.
 
-**Coverage excludes:**
-- `src/main.cc` (sandbox file)
-- `src/entry.cc` (entry point)
-- Test code itself
+This is sample-program coverage, not unit-test coverage. Report generation and upload are intentionally non-blocking, and there is currently no minimum coverage threshold.
 
-### 4. Pull Request Checks (`.github/workflows/pr-checks.yml`)
+## Release
 
-**Triggers:**
-- PR opened, synchronized, or reopened
+File: [workflows/release.yml](workflows/release.yml)
 
-**Jobs:**
+Triggers:
 
-#### pr-info
-Provides PR statistics:
-- Number of changed files
-- Lines added/removed
-- File change status
-- Breaking change detection
+- Tags matching `v*.*.*`
+- Manual `workflow_dispatch` with a required tag value
 
-#### size-check
-Compares binary size:
-- Builds both PR and base branch
-- Reports size difference
-- Warns if binary grows >1MB
+The release job runs on Ubuntu 22.04 and:
 
-#### test-algorithms
-Analyzes test coverage:
-- Counts total/passed/failed tests
-- Reports failed test details
-- Uploads test output as artifact
+1. Checks out full Git history for changelog generation.
+2. Builds a Release binary with GCC 11, Ninja, and `BUILD_TESTING=OFF`.
+3. Runs the binary with `src/test.txt`.
+4. Packages the binary, `README.md`, `LICENSE`, and `docs/`.
+5. Produces `purgatory-linux-x86_64.tar.gz` and its SHA-256 checksum.
+6. Generates a changelog from commits since the previous tag.
+7. Publishes a non-draft GitHub release with both files attached.
 
-## Status Badges
+The workflow uses the automatically provided `GITHUB_TOKEN` with `contents: write`. No additional repository secret is required.
 
-Add these to your README.md:
+## Reproduce CI Locally
 
-```markdown
-![CI](https://github.com/s311354/purgatory/workflows/CI/badge.svg)
-![Release](https://github.com/s311354/purgatory/workflows/Release/badge.svg)
-![Code Coverage](https://github.com/s311354/purgatory/workflows/Code%20Coverage/badge.svg)
-```
+### Prerequisites
 
-## Local Testing
+- CMake 3.14 or later
+- GCC 11 or another C++17 compiler
+- Ninja
+- Git
+- clang-format 14
+- cppcheck
 
-Before pushing, you can test locally:
+Clone with the pinned test dependency:
 
 ```bash
-# Run the same build as CI
-cmake -G Ninja \
+git clone --recurse-submodules https://github.com/s311354/purgatory.git
+cd purgatory
+```
+
+For an existing clone:
+
+```bash
+git submodule sync --recursive
+git submodule update --init --recursive
+```
+
+### Build and Unit Tests
+
+```bash
+cmake -S . -B build \
+  -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_CXX_COMPILER=g++-11 \
-  -DBUILD_TESTING=ON \
-  -B build
+  -DBUILD_TESTING=ON
 
-cmake --build build -j$(nproc)
-cd build && ctest --output-on-failure
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
+./build/purgatory src/test.txt
 ```
 
-### Comprehensive Testing (formerly nightly build)
+If `g++-11` is unavailable, use another C++17 compiler such as `c++` or `clang++`.
 
-For thorough testing across multiple configurations:
+### Static Analysis
+
+Run the same informational cppcheck scan as CI:
 
 ```bash
-# Test multiple build types
-for build_type in Debug Release RelWithDebInfo; do
-  echo "Testing $build_type..."
-  cmake -G Ninja \
-    -DCMAKE_BUILD_TYPE=$build_type \
-    -DCMAKE_CXX_COMPILER=g++-11 \
-    -DBUILD_TESTING=ON \
-    -B build-$build_type
-  
-  cmake --build build-$build_type -j$(nproc)
-  cd build-$build_type && ctest --output-on-failure
-  cd ..
-done
+cppcheck \
+  --enable=all \
+  --error-exitcode=0 \
+  --inline-suppr \
+  --suppress=missingIncludeSystem \
+  src/*.cc src/*.h
 ```
 
-### Stress Testing
+### Formatting
+
+Check formatting:
 
 ```bash
-# Run tests multiple times for stability
-for i in {1..10}; do
-  echo "=== Iteration $i ==="
-  cd build && ctest --output-on-failure || exit 1
-  cd .. && ./build/purgatory src/test.txt || exit 1
-done
+git ls-files -z -- \
+  '*.c' '*.cc' '*.cpp' '*.cxx' \
+  '*.h' '*.hh' '*.hpp' '*.hxx' | \
+  xargs -0 clang-format-14 --style=file --dry-run --Werror
 ```
 
-### C++ Standard Compatibility Testing
+Apply formatting:
 
 ```bash
-# Test different C++ standards
-for std in 11 14 17 20; do
-  echo "Testing C++$std..."
-  cmake -G Ninja \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_CXX_COMPILER=g++-11 \
-    -DCMAKE_CXX_STANDARD=$std \
-    -DBUILD_TESTING=ON \
-    -B build-cpp$std
-  
-  cmake --build build-cpp$std -j$(nproc)
-  cd build-cpp$std && ctest --output-on-failure
-  cd ..
-done
+git ls-files -z -- \
+  '*.c' '*.cc' '*.cpp' '*.cxx' \
+  '*.h' '*.hh' '*.hpp' '*.hxx' | \
+  xargs -0 clang-format-14 --style=file -i
 ```
 
-### Test with sanitizers:
+### Coverage
 
 ```bash
-# AddressSanitizer
-cmake -DPURGATORY_USE_ASAN=ON -DBUILD_TESTING=ON -B build-asan
-cmake --build build-asan -j$(nproc)
-cd build-asan && ctest --output-on-failure
+cmake -S . -B build-coverage \
+  -G Ninja \
+  -DCMAKE_BUILD_TYPE=Debug \
+  -DCMAKE_CXX_COMPILER=g++-11 \
+  -DCMAKE_CXX_FLAGS=--coverage \
+  -DCMAKE_EXE_LINKER_FLAGS=--coverage \
+  -DBUILD_TESTING=OFF
 
-# ThreadSanitizer
-cmake -DPURGATORY_USE_TSAN=ON -DBUILD_TESTING=ON -B build-tsan
-cmake --build build-tsan -j$(nproc)
-cd build-tsan && ctest --output-on-failure
-```
+cmake --build build-coverage --parallel
+./build-coverage/purgatory src/test.txt
 
-### Check code quality:
-
-```bash
-# Static analysis
-cppcheck --enable=all src/*.cc
-
-# Format check
-clang-format -style=file --dry-run src/*.cc test/*.cc
+gcovr --root . \
+  --filter src/ \
+  --exclude 'src/main.cc' \
+  --exclude 'src/entry.cc' \
+  --html-details coverage.html \
+  --print-summary
 ```
 
 ## Creating a Release
 
-1. **Tag the release:**
-   ```bash
-   git tag -a v1.0.0 -m "Release version 1.0.0"
-   git push origin v1.0.0
-   ```
+For the normal tag-driven path:
 
-2. **Workflow automatically:**
-   - Creates GitHub release
-   - Generates changelog
-   - Builds for all platforms
-   - Uploads artifacts with checksums
+```bash
+git tag -a v1.0.0 -m "Release v1.0.0"
+git push origin v1.0.0
+```
 
-3. **Manual release (if needed):**
-   - Go to Actions → Release → Run workflow
-   - Enter tag name (e.g., v1.0.0)
+Alternatively, open **Actions → Release → Run workflow** and supply a tag such as `v1.0.0`.
 
-## Secrets Configuration
-
-No secrets required for basic CI/CD. The workflows use `GITHUB_TOKEN` which is automatically provided.
-
-Optional secrets for enhanced features:
-- `CODECOV_TOKEN` - For Codecov integration (optional)
+The current workflow publishes only a Linux x86-64 archive. It does not build macOS, ARM64, or Windows artifacts.
 
 ## Troubleshooting
 
-### Build fails on specific compiler
-Check the build matrix in `ci.yml` and ensure the compiler is properly installed.
+### GoogleTest directory is empty
 
-### Tests fail only in CI
-- Check for race conditions (run with TSan)
-- Verify file paths are relative
-- Ensure no hardcoded system dependencies
+The dependency is a Git submodule. Restore it with:
 
-### Coverage report not uploading
-Codecov integration is optional and continues on error. Check Codecov token if needed.
+```bash
+git submodule sync --recursive
+git submodule update --init --recursive
+test -f third-party/googletest/CMakeLists.txt
+```
 
-### Need comprehensive testing
-Since nightly builds are no longer automated, use manual workflow dispatch:
-- Go to Actions → CI → Run workflow
-- Or run comprehensive tests locally (see Local Testing section)
+When cloning a fresh checkout, use `git clone --recurse-submodules`.
 
-### Running coverage on-demand
-Coverage runs automatically on pushes and PRs. For manual coverage:
-- Go to Actions → Code Coverage → Run workflow
+### CMake cannot find Ninja
 
-### Release workflow fails
-- Verify tag format matches `v*.*.*`
-- Check that all required files exist (LICENSE, docs/, etc.)
-- Ensure permissions are set for `contents: write`
+Install Ninja or omit `-G Ninja` to use CMake's default generator.
 
-## Performance Considerations
+### Compiler rejects `std::string_view`
 
-**Build time optimization:**
-- Uses Ninja generator (faster than Make)
-- Parallel builds with `-j$(nproc)`
-- Caches between workflow runs (implicit by GitHub)
+Use a compiler with C++17 support and do not override the project with an older `CMAKE_CXX_STANDARD`.
 
-**Test optimization:**
-- Parallel test execution with CTest
-- Selective test matrix (excludes some combinations)
+### Formatting fails in CI
 
-## Contributing
+Run the formatting apply command above with clang-format 14, then rerun the dry-run check. A different clang-format major version can produce a different result.
 
-When adding new features:
+### Tests pass locally but fail in CI
 
-1. **Update tests** - Ensure new code has test coverage
-2. **Run sanitizers** - Test with ASan and TSan locally
-3. **Check documentation** - Update docs if adding new algorithms
-4. **Verify CI passes** - All checks must pass before merge
+- Reconfigure from a clean build directory.
+- Use a Release build with GCC 11 when reproducing CI exactly.
+- Confirm the GoogleTest submodule is at the recorded commit with `git submodule status`.
+- Run `ctest --test-dir build --output-on-failure` to show the failing assertion.
 
-## Continuous Improvement
+### Release creation fails
 
-Planned enhancements:
-- [ ] Docker container builds
-- [ ] Static binary releases
-- [ ] Benchmark regression tracking
-- [ ] Automated dependency updates
-- [ ] Security scanning (CodeQL)
-- [ ] Performance profiling reports
-
-## Contact
-
-For CI/CD issues, please open an issue with the `ci/cd` label.
+- Confirm the tag matches `v*.*.*`.
+- Confirm `README.md`, `LICENSE`, and `docs/` exist.
+- Confirm the workflow has `contents: write`.
+- For manual runs, ensure the supplied tag is the intended release tag.

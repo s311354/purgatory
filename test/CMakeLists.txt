@@ -41,7 +41,7 @@ function(test_instantiate_templates SOURCE TARGET)
 	message(STATUS "Found PATH is ${PATH}")
 	if(NOT EXISTS ${PATH})
 		file(WRITE ${PATH} "#define PURGATORY_${TARGET} 1
-#define PURGATORY_TARGET ${TARGETS}
+#define PURGATORY_TARGET ${TARGET}
 #include \"${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE}\"
 ")
 	endif()

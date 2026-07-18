@@ -4,12 +4,22 @@
 ![Release](https://github.com/s311354/purgatory/workflows/Release/badge.svg)
 ![Code Coverage](https://github.com/s311354/purgatory/workflows/Code%20Coverage/badge.svg)
 
-purgatory is a lightweight, modular C++11-based environment for prototyping, embedded experimentation, and test-driven workflows.
+purgatory is a lightweight, modular C++17-based environment for prototyping, embedded experimentation, and test-driven workflows.
+
+## Requirements
+
+- CMake 3.14 or later
+- A C++17 compiler
+- Git with submodule support
+- Ninja (recommended and used by CI)
+- clang-format 14 for the repository formatting check
 
 ## Project Layout
 
 ```shell
 .
+├── .clang-format          # LLVM-based C++ formatting rules
+├── .github/               # CI, coverage, and release workflows
 ├── CMakeLists.txt         # Root CMake configuration
 ├── install-build-deps.sh  # Script to install compiler/tools
 ├── tmux-session.sh        # Launch development tmux sessions
@@ -42,57 +52,75 @@ purgatory is a lightweight, modular C++11-based environment for prototyping, emb
 │   ├── QUICK_REFERENCE.md # Pattern recognition & templates
 │   └── algorithms/        # Detailed algorithm documentation by category
 └── third-party/
-    └── googletest/        # Embedded gtest framework
+    └── googletest/        # Pinned GoogleTest submodule
 ```
 
-## How to Build
+## Build and Test
 
-purgatory is written in C++11, so if you build purgatory yourself, you will need a recent version of a C++ compiler and a C++ standard library. We recommend GCC 10.2 or Clang 12.0.0 (or later).
-
-### Compile purgatory
+Clone the repository with its pinned GoogleTest submodule:
 
 ```shell
-git clone https://github.com/s311354/purgatory.git
+git clone --recurse-submodules https://github.com/s311354/purgatory.git
 cd purgatory
-./install-build-deps.sh
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ -B build
-cmake --build build -j$(nproc)
 ```
 
-## How to use
-
-<details><summary>🚀 Efficient tmux development environment (Recommended)</summary>
-
-Launch an optimized development session (max 4 windows):
+For an existing clone, restore the dependency with:
 
 ```shell
-# Dev mode (3-window: editor, build/test, git)
-./tmux-session.sh dev
+git submodule update --init --recursive
+```
 
-# Quick mode (2-pane: editor, terminal)
+Configure, build, and run the same test path used by CI:
+
+```shell
+cmake -S . -B build \
+  -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_CXX_COMPILER=c++ \
+  -DBUILD_TESTING=ON
+
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
+./build/purgatory src/test.txt
+```
+
+To build only the executable, use `-DBUILD_TESTING=OFF`; GoogleTest is not required for that configuration.
+
+## Code Formatting
+
+The committed `.clang-format` file defines the repository style. CI uses clang-format 14 and fails when tracked C or C++ files differ from that output.
+
+Check formatting:
+
+```shell
+git ls-files -z -- \
+  '*.c' '*.cc' '*.cpp' '*.cxx' \
+  '*.h' '*.hh' '*.hpp' '*.hxx' | \
+  xargs -0 clang-format-14 --style=file --dry-run --Werror
+```
+
+Apply formatting:
+
+```shell
+git ls-files -z -- \
+  '*.c' '*.cc' '*.cpp' '*.cxx' \
+  '*.h' '*.hh' '*.hpp' '*.hxx' | \
+  xargs -0 clang-format-14 --style=file -i
+```
+
+## Development Workflow
+
+Add unit tests in `test/test.cc`, then run the build, CTest, sample executable, and formatting check before opening a pull request.
+
+For an optional tmux workspace:
+
+```shell
+./tmux-session.sh dev
+# or
 ./tmux-session.sh quick
 ```
-</details>
 
-<details><summary>A classic way to use purgatory</summary>
-
-If you can specify new algorithms for testing by editing src/main.cc, use print statements or assertions to validate logic quickly before formalizing tests.
-
-</details>
-
-<details><summary>If you are running unit testing with GoogleTest</summary>
-
-purgatory uses GoogleTest for reliable, isolated testing.
-
-```shell
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ -DBUILD_TESTING=ON -B build
-cmake --build build -j$(nproc)
-cd build
-ctest --output-on-failure -j$(nproc)
-```
-To add new test cases, edit test/test.cc. All tests should assert correctness, edge cases, and maintainability. 
-
-</details>
+See [.github/CI_CD.md](.github/CI_CD.md) for workflow triggers, release behavior, coverage details, and troubleshooting.
 
 ## Algorithm Catalog
 
@@ -119,4 +147,10 @@ purgatory includes **300+ algorithm implementations** organized by pattern:
 
 ## Contributing
 
-If you're inspired to contribute, whether through new test cases, algorithm enhancements, or tooling improvements, your efforts are truly appreciated.
+Before submitting a change:
+
+1. Initialize the GoogleTest submodule.
+2. Add or update tests for behavior changes.
+3. Run the test-enabled Release build and sample executable.
+4. Apply clang-format 14 and confirm the dry-run check passes.
+5. Update the algorithm documentation when adding or changing an algorithm.

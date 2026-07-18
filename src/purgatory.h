@@ -1,625 +1,624 @@
 #ifndef PURGATORY_H
 #define PURGATORY_H
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <cstring>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 using namespace std;
 
 // STL Containers
-#include <vector>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
+#include <map>
 #include <queue>
 #include <set>
 #include <stack>
-#include <map>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
-#include <string_view>
-#include <climits>
 #include <algorithm>
+#include <bitset>
+#include <climits>
+#include <cmath>
 #include <memory>
 #include <numeric>
-#include <bitset>
-#include <cmath>
+#include <string_view>
 
 namespace purgatory {
 
 struct X86_64 {
-    static constexpr std::string_view name = "x86_64";
+  static constexpr std::string_view name = "x86_64";
 };
 
 struct I386 {
-    static constexpr std::string_view name = "i386";
+  static constexpr std::string_view name = "i386";
 };
 
 struct ARM64LE {
-    static constexpr std::string_view name = "arm64";
+  static constexpr std::string_view name = "arm64";
 };
 
 struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x): val(x), left(nullptr), right(nullptr) {}
+  int val;
+  TreeNode *left;
+  TreeNode *right;
+  TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
 };
 
 struct Node {
-    int val;
-    Node *left;
-    Node *right;
-    Node *next;
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
 
-    Node() : val(0), left(nullptr), right(nullptr), next(nullptr) {}
+  Node() : val(0), left(nullptr), right(nullptr), next(nullptr) {}
 
-    Node(int _val): val(_val), left(nullptr), right(nullptr), next(nullptr) {}
+  Node(int _val) : val(_val), left(nullptr), right(nullptr), next(nullptr) {}
 
-    Node(int _val, Node* _left, Node* _right, Node* _next) : val(_val), left(_left), right(_right), next(_next) {}
+  Node(int _val, Node *_left, Node *_right, Node *_next)
+      : val(_val), left(_left), right(_right), next(_next) {}
 };
 
 struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode(int x): val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
+  int val;
+  ListNode *next;
+  ListNode(int x) : val(x), next(nullptr) {}
+  ListNode(int x, ListNode *next) : val(x), next(next) {}
 };
 
 // Build tree from level-order vector with INT_MIN as null
-TreeNode* buildTree(const vector<int>& arr);
+TreeNode *buildTree(const vector<int> &arr);
 
 // Build node from level-order vector
-Node* buildNode(const vector<int>& arr); 
+Node *buildNode(const vector<int> &arr);
 
 // Build linked list from level-order
-ListNode* buildLinkedList(const vector<int>& values, int pos);
-ListNode* buildLinkedList(const vector<int>& values);
+ListNode *buildLinkedList(const vector<int> &values, int pos);
+ListNode *buildLinkedList(const vector<int> &values);
 
 // Convert connected node into vector
-vector<int> serializeWithNext(Node* root);
+vector<int> serializeWithNext(Node *root);
 
 class Purgatory {
 
 public:
+  Purgatory();
+  Purgatory(istream &s);
 
-    Purgatory();
-    Purgatory(istream& s);
+  virtual ~Purgatory();
 
-    virtual ~Purgatory();
+  // array/string
+  bool increasingTriplet(vector<int> &nums);
 
-    // array/string
-    bool increasingTriplet(vector<int>& nums);
+  void merge(vector<int> &nums1, int m, vector<int> &nums2, int n);
 
-    void merge(vector<int>& nums1, int m, vector<int>& nums2, int n);
+  int removeDuplicates(vector<int> &nums);
 
-    int removeDuplicates(vector<int>& nums);
+  void rotate(vector<int> &nums, int k);
 
-    void rotate(vector<int>& nums, int k);
+  int candy(vector<int> &ratings);
 
-    int candy(vector<int>& ratings);
+  int removeElemet(vector<int> &nums, int val);
 
-    int removeElemet(vector<int>& nums, int val);
+  bool canJump(vector<int> &nums);
 
-    bool canJump(vector<int>& nums);
+  vector<int> productExceptSelf(vector<int> &nums);
 
-    vector<int> productExceptSelf(vector<int>& nums);
+  vector<string> fullJustify(vector<string> &words, int maxWidth);
 
-    vector<string> fullJustify(vector<string>& words, int maxWidth);
+  vector<vector<int>> generate(int numRows);
 
-    vector<vector<int>> generate(int numRows);
+  void nextPermutation(vector<int> &nums);
 
-    void nextPermutation(vector<int> &nums);
+  vector<vector<int>> combinationSum2(vector<int> &candidates, int target);
 
-    vector<vector<int>> combinationSum2(vector<int>& candidates, int target);
+  void solveSudoku(vector<vector<char>> &board);
 
-    void solveSudoku(vector<vector<char>>& board);
+  string getEncryptedString(string s, int k);
 
-    string getEncryptedString(string s, int k);
+  int arrayPairSum(vector<int> &nums);
 
-    int arrayPairSum(vector<int> &nums);
+  int maxProduct(vector<string> &words);
 
-    int maxProduct(vector<string> &words);
+  vector<int> largestDivisibleSubset(vector<int> &nums);
 
-    vector<int> largestDivisibleSubset(vector<int> &nums);
+  int distributeCandies(vector<int> &candyType);
 
-    int distributeCandies(vector<int> &candyType);
+  int maxRotateFunction(vector<int> &nums);
 
-    int maxRotateFunction(vector<int> &nums);
+  vector<int> findRightInterval(vector<vector<int>> &intervals);
 
-    vector<int> findRightInterval(vector<vector<int>> &intervals);
+  string largestNumber(vector<int> &nums);
 
-    string largestNumber(vector<int> &nums);
+  int minimumPairRemoval(vector<int> &nums);
 
-    int minimumPairRemoval(vector<int> &nums);
+  vector<vector<int>> matrixReshape(vector<vector<int>> &mat, int r, int c);
 
-    vector<vector<int>> matrixReshape(vector<vector<int>> &mat, int r, int c);
+  int arrayNesting(vector<int> &nums);
 
-    int arrayNesting(vector<int> &nums);
+  int maximumProduct(vector<int> &nums);
 
-    int maximumProduct(vector<int>& nums);
+  bool isPossbile(vector<int> &nums);
 
-    bool isPossbile(vector<int> &nums);
+  bool canPartitionKSubsets(vector<int> &nums, int k);
 
-    bool canPartitionKSubsets(vector<int> &nums, int k);
+  // hashmap
+  bool canConstruct(string ransomNot, string magazine);
 
-    // hashmap
-    bool canConstruct(string ransomNot, string magazine);
+  vector<vector<string>> groupAnagrams(vector<string> &strs);
 
-    vector<vector<string>> groupAnagrams (vector<string>& strs);
+  int longestConsecutive(vector<int> &nums);
 
-    int longestConsecutive(vector<int> &nums);
+  vector<int> findSubstring(string s, vector<string> &words);
 
-    vector<int> findSubstring(string s, vector<string>& words);
+  bool containsDuplicate(vector<int> &nums);
 
-    bool containsDuplicate(vector<int>& nums);
+  string fractionToDecimal(int numerator, int denominator);
 
-    string fractionToDecimal(int numerator, int denominator);
+  int firstMissingPositive(vector<int> &nums);
 
-    int firstMissingPositive(vector<int>& nums);
+  vector<int> intersection(vector<int> &nums1, vector<int> &nums2);
 
-    vector<int> intersection(vector<int>& nums1, vector<int> &nums2);
+  vector<int> majorityElement(vector<int> &nums);
 
-    vector<int> majorityElement(vector<int> &nums);
+  string getHint(string &secret, string &guess);
 
-    string getHint(string &secret, string &guess);
+  int numberOfBoomeranges(vector<vector<int>> &points);
 
-    int numberOfBoomeranges(vector<vector<int>> &points);
+  char findTheDifference(string s, string t);
 
-    char findTheDifference(string s, string t);
+  vector<int> findAnagrams(string s, string p);
 
-    vector<int> findAnagrams(string s, string p);
+  int subarraySum(vector<int> &nums, int k);
 
-    int subarraySum(vector<int>& nums, int k);
+  string longestWord(vector<string> &words);
 
-    string longestWord(vector<string> &words);
+  int deleteAndEarn(vector<int> &nums);
 
-    int deleteAndEarn(vector<int> &nums);
+  int minimumLengthEncoding(vector<string> &words);
 
-    int minimumLengthEncoding(vector<string> &words);
+  vector<string> wordSubsets(vector<string> &words1, vector<string> &word2);
 
-    vector<string> wordSubsets(vector<string> &words1, vector<string> &word2);
+  vector<int> findErrorNums(vector<int> &nums);
 
-    vector<int> findErrorNums(vector<int> &nums);
+  int longestPalindrome(string s);
 
-    int longestPalindrome(string s);
+  int findMaxLength(vector<int> &nums);
 
-    int findMaxLength(vector<int> &nums);
+  vector<int> fairCandySwap(vector<int> &aliceSizes, vector<int> &bobSizes);
 
-    vector<int> fairCandySwap(vector<int> &aliceSizes, vector<int> &bobSizes);
+  bool checkSubarraySum(vector<int> &nums, int k);
 
-    bool checkSubarraySum(vector<int> &nums, int k);
+  vector<vector<string>> findDuplicate(vector<string> &paths);
 
-    vector<vector<string>> findDuplicate(vector<string> &paths);
+  vector<int> findDisappearedNumber(vector<int> &nums);
 
-    vector<int> findDisappearedNumber(vector<int> &nums);
+  int minMoves(vector<int> &nums);
 
-    int minMoves(vector<int> &nums);
+  bool makesquare(vector<int> &matchsticks);
 
-    bool makesquare(vector<int> &matchsticks);
+  int findTargetSumWays(vector<int> &nums, int target);
 
-    int findTargetSumWays(vector<int> &nums, int target);
+  vector<string> findRestaurant(vector<string> &list1, vector<string> &list2);
 
-    vector<string> findRestaurant(vector<string> &list1, vector<string> &list2);
+  int countPrimes(int n);
 
-    int countPrimes(int n);
+  int wiggleMaxLength(vector<int> &nums);
 
-    int wiggleMaxLength(vector<int> &nums);
+  vector<int> findDuplicates(vector<int> &nums);
 
-    vector<int> findDuplicates(vector<int> &nums);
+  // two pointers
+  bool isPalindrome(string s);
 
-    // two pointers
-    bool isPalindrome(string s); 
-    
-    vector<int> twoSum(vector<int> & numbers, int target);
+  vector<int> twoSum(vector<int> &numbers, int target);
 
-    int maxArea(vector<int> & height);
+  int maxArea(vector<int> &height);
 
-    int trap(vector<int> & height);
+  int trap(vector<int> &height);
 
-    void reverseString(vector<char>& s);
+  void reverseString(vector<char> &s);
 
-    void sortColors(vector<int>& nums);
+  void sortColors(vector<int> &nums);
 
-    int compareVersion(string version1, string version2);
+  int compareVersion(string version1, string version2);
 
-    vector<int> maxNumber(vector<int>& nums1, vector<int>& nums2, int k);
+  vector<int> maxNumber(vector<int> &nums1, vector<int> &nums2, int k);
 
-    int findContentChildren(vector<int> &g, vector<int> &s);
+  int findContentChildren(vector<int> &g, vector<int> &s);
 
-    int magicalString(int n);
+  int magicalString(int n);
 
-    bool checkInclusion(string s1, string s2);
+  bool checkInclusion(string s1, string s2);
 
-    bool judgeSquareSum(int c);
+  bool judgeSquareSum(int c);
 
-    int removePalindromeSub(string s);
+  int removePalindromeSub(string s);
 
-    int findRadius(vector<int> &house, vector<int> &heaters);
+  int findRadius(vector<int> &house, vector<int> &heaters);
 
-    bool circularArrayLoop(vector<int> &nums);
+  bool circularArrayLoop(vector<int> &nums);
 
-    int maxProfitAssignment(vector<int> &difficulty, vector<int> &profit, vector<int> &worker);
+  int maxProfitAssignment(vector<int> &difficulty, vector<int> &profit,
+                          vector<int> &worker);
 
-    int countBinarySubstrings(string s);
+  int countBinarySubstrings(string s);
 
-    int countSubstrings(string s);
+  int countSubstrings(string s);
 
-    int longestMountain(vector<int> &arr);
+  int longestMountain(vector<int> &arr);
 
-    string reverseStr(string s, int k);
+  string reverseStr(string s, int k);
 
-    vector<int> shortestToChar(string s, char c);
+  vector<int> shortestToChar(string s, char c);
 
-    int rangeSum(vector<int> &nums, int n, int left, int right);
+  int rangeSum(vector<int> &nums, int n, int left, int right);
 
-    string addSpaces(string s, vector<int> &spaces);
+  string addSpaces(string s, vector<int> &spaces);
 
-    long long minimumSteps(string s);
+  long long minimumSteps(string s);
 
-    int getCommon(vector<int> &nums1, vector<int> &nums2);
+  int getCommon(vector<int> &nums1, vector<int> &nums2);
 
-    int numFriendRequests(vector<int> &ages);
+  int numFriendRequests(vector<int> &ages);
 
-    string reverseOnlyLetters(string s);
+  string reverseOnlyLetters(string s);
 
-    int numRescueBoats(vector<int> &people, int limit);
+  int numRescueBoats(vector<int> &people, int limit);
 
-    int waysToSplit(vector<int> &nums);
+  int waysToSplit(vector<int> &nums);
 
-    vector<int> applyOperations(vector<int> &nums);
+  vector<int> applyOperations(vector<int> &nums);
 
-    // sliding window
-    bool containsNearbyDuplicate(vector<int>& nums, int k);
+  // sliding window
+  bool containsNearbyDuplicate(vector<int> &nums, int k);
 
-    int minSubArrayLen(int target, vector<int>& nums);
+  int minSubArrayLen(int target, vector<int> &nums);
 
-    int lengthOfLongestSubstring(string s);
+  int lengthOfLongestSubstring(string s);
 
-    string longestNiceSubstring(string s);
+  string longestNiceSubstring(string s);
 
-    int longestSubstring(string s, int k);
+  int longestSubstring(string s, int k);
 
-    int numberOfArithmeticSlices(vector<int>& nums);
+  int numberOfArithmeticSlices(vector<int> &nums);
 
-    vector<double> medianSlidingWindow(vector<int>& nums, int k);
+  vector<double> medianSlidingWindow(vector<int> &nums, int k);
 
-    int minimumSumSubarray(vector<int> &nums, int l, int r);
+  int minimumSumSubarray(vector<int> &nums, int l, int r);
 
-    int numSubarraysWithSum(vector<int> &nums, int goal);
+  int numSubarraysWithSum(vector<int> &nums, int goal);
 
-    int maxLength(vector<int> &nums);
+  int maxLength(vector<int> &nums);
 
-    int characterReplacement(string s, int k);
+  int characterReplacement(string s, int k);
 
-    int numSubarrayProductLessThanK(vector<int> &nums, int k);
+  int numSubarrayProductLessThanK(vector<int> &nums, int k);
 
-    int totalFruit(vector<int> &fruits);
+  int totalFruit(vector<int> &fruits);
 
-    int numberOfAlternatingGroups(vector<int> &colors);
+  int numberOfAlternatingGroups(vector<int> &colors);
 
-    int findLength(vector<int> &nums1, vector<int> &nums2);
+  int findLength(vector<int> &nums1, vector<int> &nums2);
 
-    int maxSatisfied(vector<int> &customers, vector<int> &grumpy, int minutes);
+  int maxSatisfied(vector<int> &customers, vector<int> &grumpy, int minutes);
 
-    int countKConstraintSubstrings(string s, int k);
+  int countKConstraintSubstrings(string s, int k);
 
-    int maxTurbulenceSize(vector<int> &arr);
+  int maxTurbulenceSize(vector<int> &arr);
 
-    int numberOfSubarrays(vector<int> &nums, int k);
+  int numberOfSubarrays(vector<int> &nums, int k);
 
-    int maximumUniqueSubarray(vector<int> &nums);
+  int maximumUniqueSubarray(vector<int> &nums);
 
+  // prefix sum
+  class NumArray {
+  private:
+    vector<int> prefix; // store prefix sums
+  public:
+    NumArray(vector<int> &nums);
+    int sumRanges(int left, int right);
+  };
 
+  class NumMatrix {
+  private:
+    vector<vector<int>> prefix;
 
-    // prefix sum
-    class NumArray {
-    private:
-	vector<int> prefix; // store prefix sums
-    public:
-        NumArray(vector<int>& nums);
-        int sumRanges(int left, int right);
-    };
+  public:
+    NumMatrix(vector<vector<int>> &matrix);
+    int sumRegion(int row1, int col1, int row2, int col2);
+  };
 
-    class NumMatrix {
-    private:
-	vector<vector<int>> prefix;
+  int maxSumSubmatrix(vector<vector<int>> &matrix, int k);
 
-    public:
-	NumMatrix(vector<vector<int>>& matrix);
-	int sumRegion(int row1, int col1, int row2, int col2);
-    };
+  // binary tree DFS
+  vector<double> averageOfLevels(TreeNode *root);
 
-    int maxSumSubmatrix(vector<vector<int>>& matrix, int k);
+  vector<int> rightSideView(TreeNode *root);
 
-    // binary tree DFS
-    vector<double> averageOfLevels(TreeNode* root);
+  vector<vector<int>> levelOrder(TreeNode *root);
 
-    vector<int> rightSideView(TreeNode* root);
+  vector<int> inorderTraversal(TreeNode *root);
 
-    vector<vector<int>> levelOrder(TreeNode* root);
+  int numTrees(int n);
 
-    vector<int> inorderTraversal(TreeNode *root);
+  vector<int> findFrequentTreeSum(TreeNode *root);
 
-    int numTrees(int n);
+  int maxAncestorDiff(TreeNode *root);
 
-    vector<int> findFrequentTreeSum(TreeNode *root);
+  class Codec {
+  public:
+    string serialize(TreeNode *root);
+    TreeNode *deserialize(string data);
 
-    int maxAncestorDiff(TreeNode *root);
+  private:
+    vector<string> split(const string &s, char delim);
+    TreeNode *build(const vector<string> &tokens, int &idx);
+  };
 
-    class Codec {
-    public:
-	string serialize(TreeNode* root);
-	TreeNode* deserialize(string data);
+  // stack
+  bool isValid(string s);
 
-    private:
-	vector<string> split(const string& s, char delim);
-	TreeNode* build(const vector<string>& tokens, int& idx);
-    };
+  string simplifyPath(string path);
 
-    // stack
-    bool isValid(string s); 
+  int evalRPN(vector<string> &tokens);
 
-    string simplifyPath(string path);
+  int calculate(string s);
 
-    int evalRPN(vector<string>& tokens);
+  vector<int> nextGreaterElement(vector<int> &nums1, vector<int> &nums2);
 
-    int calculate(string s);
+  string removeDuplicateLetters(string s);
 
-    vector<int> nextGreaterElement(vector<int>& nums1, vector<int>& nums2);
+  int calculateII(string s);
 
-    string removeDuplicateLetters(string s);
+  int longestValidParentheses(string s);
 
-    int calculateII(string s);
+  bool backspaceCompare(string s, string t);
 
-    int longestValidParentheses(string s);
+  int findUnsortedSubarray(vector<int> &nums);
 
-    bool backspaceCompare(string s, string t);
+  int carFleet(int target, vector<int> &position, vector<int> &speed);
 
-    int findUnsortedSubarray(vector<int>& nums);
+  int sumSubarrayMins(vector<int> &arr);
 
-    int carFleet(int target, vector<int>& position, vector<int>& speed);
+  string removeOccurrences(string s, string part);
 
-    int sumSubarrayMins(vector<int>& arr);
+  int maximumGain(string s, int x, int y);
 
-    string removeOccurrences(string s, string part);
+  int addMinimum(string word);
 
-    int maximumGain(string s, int x, int y);
+  long long calculateScore(string s);
 
-    int addMinimum(string word);
+  int minLengthAfterRemovals(string s);
 
-    long long calculateScore(string s);
+  int minLength(string s);
 
-    int minLengthAfterRemovals(string s);
+  vector<int> exclusiveTime(int n, vector<string> &logs);
 
-    int minLength(string s);
+  vector<string> buildArray(vector<int> &target, int n);
 
-    vector<int> exclusiveTime(int n, vector<string> &logs);
+  long long subArrayRanges(vector<int> &nums);
 
-    vector<string> buildArray(vector<int> &target, int n);
+  string makeGood(string s);
 
-    long long subArrayRanges(vector<int> &nums);
+  string reversePrefix(string word, char ch);
 
-    string makeGood(string s);
+  bool checkValidString(string s);
 
-    string reversePrefix(string word, char ch);
+  string removeDuplicates(string s);
 
-    bool checkValidString(string s);
+  bool find132pattern(vector<int> &nums);
 
-    string removeDuplicates(string s);
+  int maxWidthRamp(vector<int> &nums);
 
-    bool find132pattern(vector<int> &nums);
+  string clearDigits(string s);
 
-    int maxWidthRamp(vector<int> & nums);
+  bool validateStackSequences(vector<int> &pushed, vector<int> &popped);
 
-    string clearDigits(string s);
+  string minRemoveToMakeValid(string s);
 
-    bool validateStackSequences(vector<int> &pushed, vector<int> &popped);
+  int totalSteps(vector<int> &nums);
 
-    string minRemoveToMakeValid(string s);
+  int minOperations(vector<string> &logs);
 
-    int totalSteps(vector<int> &nums);
+  int scoreOfParentheses(string s);
 
-    int minOperations(vector<string> &logs);
+  int maximumPossibleSize(vector<int> &nums);
 
-    int scoreOfParentheses(string s);
+  vector<int> preorderTraversal(TreeNode *root);
 
-    int maximumPossibleSize(vector<int> &nums);
+  int maxBalanceShipments(vector<int> &weight);
 
-    vector<int> preorderTraversal(TreeNode *root);
+  long long bowlSubarrays(vector<int> &nums);
 
-    int maxBalanceShipments(vector<int> &weight);
+  vector<long long> mergeAdjacent(vector<int> &nums);
 
-    long long bowlSubarrays(vector<int> &nums);
+  vector<int> postorderTraversal(TreeNode *root);
 
-    vector<long long> mergeAdjacent(vector<int> &nums);
+  string decodeAtIndex(string s, int k);
 
-    vector<int> postorderTraversal(TreeNode *root);
+  bool isValidString(string s);
 
-    string decodeAtIndex(string s, int k);
+  // graph bfs
+  vector<vector<int>> levelOrderBottom(TreeNode *root);
 
-    bool isValidString(string s);
+  int minDepth(TreeNode *root);
 
-    // graph bfs
-    vector<vector<int>> levelOrderBottom(TreeNode* root); 
+  Node *connect(Node *root);
 
-    int minDepth(TreeNode *root);
+  vector<string> removeInvalidParentheses(string s);
 
-    Node* connect(Node* root);
+  int sumOfLeftLeaves(TreeNode *root);
 
-    vector<string> removeInvalidParentheses(string s);
+  int numSquares(int n);
 
-    int sumOfLeftLeaves(TreeNode* root);
+  bool canMeasureWater(int x, int y, int target);
 
-    int numSquares(int n);
+  vector<vector<string>> findLadders(string beginWord, string endWord,
+                                     vector<string> &wordList);
 
-    bool canMeasureWater(int x, int y, int target);
+  // graph
+  int findJudge(int n, vector<vector<int>> &trust);
 
-    vector<vector<string>> findLadders(string beginWord, string endWord, vector<string>& wordList);
+  int numIslands(vector<vector<char>> &grid);
 
-    // graph
-    int findJudge(int n, vector<vector<int>>& trust);
+  void solve(vector<vector<char>> &board);
 
-    int numIslands(vector<vector<char>>& grid);
+  int longestIncreasingPath(vector<vector<int>> &matrix);
 
-    void solve(vector<vector<char>>& board);
+  int findCenter(vector<vector<int>> &edges);
 
-    int longestIncreasingPath(vector<vector<int>>& matrix);
+  bool isBipartite(vector<vector<int>> &graph);
 
-    int findCenter(vector<vector<int>>& edges);
+  int numberOfComponents(vector<vector<int>> &properties, int k);
 
-    bool isBipartite(vector<vector<int>>& graph);
+  // heap
+  int lastStoneWeight(vector<int> &stones);
 
-    int numberOfComponents(vector<vector<int>>& properties, int k);
+  int nthUglyNumber(int n);
 
-    // heap
-    int lastStoneWeight(vector<int>& stones);
-    
-    int nthUglyNumber(int n);
+  vector<int> topKFrequent(vector<int> &nums, int k);
 
-    vector<int> topKFrequent(vector<int>& nums, int k);
+  vector<int> maxSlidingWindow(vector<int> &nums, int k);
 
-    vector<int> maxSlidingWindow(vector<int>& nums, int k);
+  int maxProduct(vector<int> &nums);
 
-    int maxProduct(vector<int> &nums);
+  string frequencySort(string s);
 
-    string frequencySort(string s);
+  vector<int> rearrangeBarcodes(vector<int> &barcodes);
 
-    vector<int> rearrangeBarcodes(vector<int> &barcodes);
+  int furthestBuilding(vector<int> &heights, int bricks, int ladders);
 
-    int furthestBuilding(vector<int> &heights, int bricks, int ladders);
+  vector<int> assignTasks(vector<int> &servers, vector<int> &tasks);
 
-    vector<int> assignTasks(vector<int> &servers, vector<int> &tasks);
+  vector<int> numberGame(vector<int> &nums);
 
-    vector<int> numberGame(vector<int> &nums);
+  int networkDelayTime(vector<vector<int>> &times, int n, int k);
 
-    int networkDelayTime(vector<vector<int>> &times, int n, int k);
+  int minSetSize(vector<int> &arr);
 
-    int minSetSize(vector<int> &arr);
+  int deleteGreatestValue(vector<vector<int>> &grid);
 
-    int deleteGreatestValue(vector<vector<int>> &grid);
+  string longestDiverseString(int a, int b, int c);
 
-    string longestDiverseString(int a, int b, int c);
+  int minimumEffortPath(vector<vector<int>> &heights);
 
-    int minimumEffortPath(vector<vector<int>> &heights);
+  long long pickGifts(vector<int> &gifts, int k);
 
-    long long pickGifts(vector<int> &gifts, int k);
+  vector<int> getOrder(vector<vector<int>> &tasks);
 
-    vector<int> getOrder(vector<vector<int>> &tasks);
+  // intervals
+  vector<string> summaryRanges(vector<int> &nums);
 
-    // intervals
-    vector<string> summaryRanges(vector<int>& nums);
+  vector<vector<int>> merge(vector<vector<int>> &intervals);
 
-    vector<vector<int>> merge(vector<vector<int>> &intervals);
+  vector<vector<int>> insert(vector<vector<int>> &intervals,
+                             vector<int> &newInterval);
 
-    vector<vector<int>> insert(vector<vector<int>>& intervals, vector<int>& newInterval);
+  int findMinArrowShots(vector<vector<int>> &points);
 
-    int findMinArrowShots(vector<vector<int>> & points);
+  // dp
+  int climbStairs(int n);
 
-    // dp
-    int climbStairs(int n);
+  int rob(vector<int> &nums);
 
-    int rob(vector<int>& nums);
+  bool wordBreak(string s, vector<string> &wordDict);
 
-    bool wordBreak(string s, vector<string>& wordDict);
+  bool isMatch(string s, string p);
 
-    bool isMatch(string s, string p);
+  // backtracking
+  vector<string> binaryTreePaths(TreeNode *root);
 
-    // backtracking
-    vector<string> binaryTreePaths(TreeNode* root);
+  vector<string> letterCombinations(string digits);
 
-    vector<string> letterCombinations(string digits);
+  vector<vector<int>> combine(int n, int k);
 
-    vector<vector<int>> combine(int n, int k);
+  int totalNQueens(int n);
 
-    int totalNQueens(int n);
+  vector<string> readBinaryWatch(int turnedOn);
 
-    vector<string> readBinaryWatch(int turnedOn);
+  vector<vector<int>> subsets(vector<int> &nums);
 
-    vector<vector<int>> subsets(vector<int>& nums);
- 
-    vector<int> grayCode(int n);
+  vector<int> grayCode(int n);
 
-    bool judgePoint24(vector<int>& cards); 
+  bool judgePoint24(vector<int> &cards);
 
-    vector<vector<int>> findSubsequences(vector<int> &nums);
+  vector<vector<int>> findSubsequences(vector<int> &nums);
 
-    // binary search
-    int searchInsert(vector<int>& nums, int target);
+  // binary search
+  int searchInsert(vector<int> &nums, int target);
 
-    bool searchMatric(vector<vector<int>>& matrix, int target);
+  bool searchMatric(vector<vector<int>> &matrix, int target);
 
-    int findPeakElement(vector<int>& nums);
+  int findPeakElement(vector<int> &nums);
 
-    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2);
+  double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2);
 
-    int missingNumber(vector<int>& nums);
+  int missingNumber(vector<int> &nums);
 
-    int findDuplicate(vector<int>& nums);
+  int findDuplicate(vector<int> &nums);
 
-    bool search(vector<int>& nums, int target);
+  bool search(vector<int> &nums, int target);
 
-    int findMin(vector<int>& nums);
+  int findMin(vector<int> &nums);
 
-    // linked list
-    bool hasCycle(ListNode* head);
+  // linked list
+  bool hasCycle(ListNode *head);
 
-    ListNode* addTwoNumber(ListNode* l1, ListNode* l2);
+  ListNode *addTwoNumber(ListNode *l1, ListNode *l2);
 
-    ListNode* removeNthFromEnd(ListNode* head, int n);
+  ListNode *removeNthFromEnd(ListNode *head, int n);
 
-    ListNode* reverseKGroup(ListNode* head, int k);
+  ListNode *reverseKGroup(ListNode *head, int k);
 
-    bool isPalindromeLinkedList(ListNode *head);
+  bool isPalindromeLinkedList(ListNode *head);
 
-    ListNode *swapPairs(ListNode *head);
+  ListNode *swapPairs(ListNode *head);
 
-    ListNode* reorderList(ListNode *head);
+  ListNode *reorderList(ListNode *head);
 
-    int numComponents(ListNode *head, vector<int> &nums);
+  int numComponents(ListNode *head, vector<int> &nums);
 
-    vector<int> nodesBetweenCriticalPoints(ListNode *head);
+  vector<int> nodesBetweenCriticalPoints(ListNode *head);
 
-    ListNode *removeNodes(ListNode *head);
+  ListNode *removeNodes(ListNode *head);
 
-    ListNode *doubleIt(ListNode *head);
+  ListNode *doubleIt(ListNode *head);
 
-    ListNode *middleNode(ListNode *head);
+  ListNode *middleNode(ListNode *head);
 
-    ListNode *mergeNodes(ListNode *head);
+  ListNode *mergeNodes(ListNode *head);
 
-    ListNode *insertGreatestCommonDivisors(ListNode *head);
+  ListNode *insertGreatestCommonDivisors(ListNode *head);
 
-    ListNode *deleteDuplicates(ListNode *head);
+  ListNode *deleteDuplicates(ListNode *head);
 
-    ListNode *mergeInBetween(ListNode *list1, int a, int b, ListNode *list2);
+  ListNode *mergeInBetween(ListNode *list1, int a, int b, ListNode *list2);
 
-    ListNode *modifiedList(vector<int> &nums, ListNode *head);
+  ListNode *modifiedList(vector<int> &nums, ListNode *head);
 
-    vector<int> nextLargerNodes(ListNode *head);
+  vector<int> nextLargerNodes(ListNode *head);
 
-    ListNode *removeElements(ListNode *head, int val);
+  ListNode *removeElements(ListNode *head, int val);
 
-    ListNode *insertionSortList(ListNode *head);
+  ListNode *insertionSortList(ListNode *head);
 
-    int getDecimalValue(ListNode *head);
+  int getDecimalValue(ListNode *head);
 
-    ListNode *reverseEvenLengthGroups(ListNode *head);
+  ListNode *reverseEvenLengthGroups(ListNode *head);
 
-    // matrix
-    int islandPerimeter(vector<vector<int>>& grid);
+  // matrix
+  int islandPerimeter(vector<vector<int>> &grid);
 
-    int kthSmallest(vector<vector<int>>& matrix, int k);
+  int kthSmallest(vector<vector<int>> &matrix, int k);
 
-    int countBattleships(vector<vector<char>>& board);
+  int countBattleships(vector<vector<char>> &board);
 
-    int maximalRectangle(vector<vector<char>>& matrix);
+  int maximalRectangle(vector<vector<char>> &matrix);
 };
 
-template <typename E>
-int purgatory_main(int argc, char **argv);
+template <typename E> int purgatory_main(int argc, char **argv);
 
 } /* namespace purgatory */
 
 #endif /* PURGATORY_H */
-
