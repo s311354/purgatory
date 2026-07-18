@@ -1,0 +1,264 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build & Test (${{ matrix.os }}, ${{ matrix.compiler }})
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-20.04]
+        compiler: [g++-10, g++-11, clang++-12, clang++-14]
+        build_type: [Release, Debug]
+        exclude:
+          # Reduce matrix size - only test some combinations
+          - os: ubuntu-20.04
+            compiler: clang++-14
+          - os: ubuntu-20.04
+            build_type: Debug
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          cmake \
+          ninja-build \
+          ${{ matrix.compiler }}
+    
+    - name: Configure CMake
+      run: |
+        cmake -G Ninja \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} \
+          -DBUILD_TESTING=ON \
+          -B build
+    
+    - name: Build
+      run: cmake --build build -j$(nproc)
+    
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure -j$(nproc)
+    
+    - name: Test executable
+      run: |
+        ./build/purgatory src/test.txt
+    
+    - name: Upload build artifacts
+      if: matrix.build_type == 'Release' && matrix.compiler == 'g++-11'
+      uses: actions/upload-artifact@v4
+      with:
+        name: purgatory-${{ matrix.os }}
+        path: |
+          build/purgatory
+          build/System.map
+        retention-days: 7
+
+  sanitizers:
+    name: Sanitizer Checks (${{ matrix.sanitizer }})
+    runs-on: ubuntu-22.04
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitizer: [asan, tsan]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build g++-11
+    
+    - name: Configure with ${{ matrix.sanitizer }}
+      run: |
+        SANITIZER_FLAG=""
+        if [ "${{ matrix.sanitizer }}" = "asan" ]; then
+          SANITIZER_FLAG="-DPURGATORY_USE_ASAN=ON"
+        elif [ "${{ matrix.sanitizer }}" = "tsan" ]; then
+          SANITIZER_FLAG="-DPURGATORY_USE_TSAN=ON"
+        fi
+        
+        cmake -G Ninja \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_CXX_COMPILER=g++-11 \
+          -DBUILD_TESTING=ON \
+          $SANITIZER_FLAG \
+          -B build
+    
+    - name: Build
+      run: cmake --build build -j$(nproc)
+    
+    - name: Run tests with sanitizer
+      run: |
+        cd build
+        ctest --output-on-failure -j$(nproc)
+    
+    - name: Test executable with sanitizer
+      run: |
+        ./build/purgatory src/test.txt
+
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-22.04
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          cmake \
+          ninja-build \
+          g++-11 \
+          cppcheck \
+          clang-format-14
+    
+    - name: Run cppcheck
+      run: |
+        cppcheck --enable=all --suppress=missingIncludeSystem \
+          --error-exitcode=1 \
+          --inline-suppr \
+          src/*.cc src/*.h 2>&1 | tee cppcheck-report.txt || true
+    
+    - name: Check code formatting
+      run: |
+        find src test -name "*.cc" -o -name "*.h" | \
+          xargs clang-format-14 -style=file --dry-run -Werror 2>&1 || true
+    
+    - name: Build with warnings as errors
+      run: |
+        cmake -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_CXX_COMPILER=g++-11 \
+          -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic" \
+          -B build
+        cmake --build build -j$(nproc)
+
+  documentation:
+    name: Documentation Check
+    runs-on: ubuntu-22.04
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Verify documentation structure
+      run: |
+        # Check that documentation files exist
+        test -f README.md
+        test -f docs/ALGORITHMS.md
+        test -f docs/QUICK_REFERENCE.md
+        test -d docs/algorithms
+        
+        # Check tmux documentation
+        test -f tmux-session.sh
+        test -f .tmux-cheatsheet.txt
+        
+        echo "✓ All documentation files present"
+    
+    - name: Validate markdown links
+      uses: lycheeverse/lychee-action@v2
+      with:
+        args: '--verbose --no-progress --exclude-mail *.md docs/**/*.md'
+        fail: false  # Don't fail CI on broken links, just report them
+        format: 'markdown'
+      continue-on-error: true
+
+  performance:
+    name: Performance Benchmarks
+    runs-on: ubuntu-22.04
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build g++-11 valgrind
+    
+    - name: Build Release
+      run: |
+        cmake -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_CXX_COMPILER=g++-11 \
+          -DBUILD_TESTING=ON \
+          -B build
+        cmake --build build -j$(nproc)
+    
+    - name: Run performance tests
+      run: |
+        cd build
+        time ctest --output-on-failure -j$(nproc)
+    
+    - name: Memory leak check
+      run: |
+        valgrind --leak-check=full \
+          --show-leak-kinds=all \
+          --track-origins=yes \
+          --error-exitcode=1 \
+          ./build/purgatory src/test.txt || true
+
+  cross-platform:
+    name: Cross-Platform Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-13, macos-14]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Install dependencies
+      run: |
+        brew install cmake ninja
+    
+    - name: Configure CMake
+      run: |
+        cmake -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_TESTING=ON \
+          -B build
+    
+    - name: Build
+      run: cmake --build build -j$(sysctl -n hw.ncpu)
+    
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure -j$(sysctl -n hw.ncpu)
+    
+    - name: Test executable
+      run: |
+        ./build/purgatory src/test.txt

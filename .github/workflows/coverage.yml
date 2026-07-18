@@ -1,0 +1,102 @@
+name: Code Coverage
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  coverage:
+    name: Generate Coverage Report
+    runs-on: ubuntu-22.04
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          cmake \
+          ninja-build \
+          g++-11 \
+          gcovr \
+          lcov
+    
+    - name: Configure with coverage
+      run: |
+        cmake -G Ninja \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_CXX_COMPILER=g++-11 \
+          -DCMAKE_CXX_FLAGS="--coverage -fprofile-arcs -ftest-coverage" \
+          -DCMAKE_EXE_LINKER_FLAGS="--coverage" \
+          -DBUILD_TESTING=ON \
+          -B build
+    
+    - name: Build
+      run: cmake --build build -j$(nproc)
+    
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure -j$(nproc)
+    
+    - name: Run executable for coverage
+      run: |
+        ./build/purgatory src/test.txt
+    
+    - name: Generate coverage report
+      run: |
+        gcovr --root . \
+          --filter src/ \
+          --exclude 'src/main.cc' \
+          --exclude 'src/entry.cc' \
+          --exclude-throw-branches \
+          --exclude-unreachable-branches \
+          --html-details coverage.html \
+          --xml coverage.xml \
+          --print-summary
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage.xml
+        flags: unittests
+        name: codecov-purgatory
+        fail_ci_if_error: false
+      continue-on-error: true
+    
+    - name: Upload coverage HTML report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage*.html
+        retention-days: 30
+    
+    - name: Coverage summary
+      run: |
+        gcovr --root . \
+          --filter src/ \
+          --exclude 'src/main.cc' \
+          --exclude 'src/entry.cc' \
+          --print-summary | tee coverage-summary.txt
+    
+    - name: Comment coverage on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const coverage = fs.readFileSync('coverage-summary.txt', 'utf8');
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## Code Coverage Report\n\`\`\`\n${coverage}\n\`\`\``
+          });
+      continue-on-error: true

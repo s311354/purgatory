@@ -1,0 +1,174 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g., v1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    name: Build Release (${{ matrix.os }}, ${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            arch: x86_64
+            artifact_name: purgatory-linux-x86_64
+          - os: ubuntu-22.04
+            arch: arm64
+            artifact_name: purgatory-linux-arm64
+          - os: macos-13
+            arch: x86_64
+            artifact_name: purgatory-macos-x86_64
+          - os: macos-14
+            arch: arm64
+            artifact_name: purgatory-macos-arm64
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+    
+    - name: Install dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build g++-11
+    
+    - name: Install dependencies (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install cmake ninja
+    
+    - name: Configure CMake
+      run: |
+        cmake -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_CXX_COMPILER=${{ runner.os == 'Linux' && 'g++-11' || 'clang++' }} \
+          -DBUILD_TESTING=ON \
+          -B build
+    
+    - name: Build
+      run: |
+        if [ "${{ runner.os }}" = "Linux" ]; then
+          cmake --build build -j$(nproc)
+        else
+          cmake --build build -j$(sysctl -n hw.ncpu)
+        fi
+    
+    - name: Run tests
+      run: |
+        cd build
+        if [ "${{ runner.os }}" = "Linux" ]; then
+          ctest --output-on-failure -j$(nproc)
+        else
+          ctest --output-on-failure -j$(sysctl -n hw.ncpu)
+        fi
+    
+    - name: Package release
+      run: |
+        mkdir -p release
+        cp build/purgatory release/
+        cp build/System.map release/ 2>/dev/null || true
+        cp README.md release/
+        cp LICENSE release/
+        cp -r docs release/
+        
+        cd release
+        tar -czf ../${{ matrix.artifact_name }}.tar.gz *
+        cd ..
+        
+        # Create checksum
+        if [ "${{ runner.os }}" = "Linux" ]; then
+          sha256sum ${{ matrix.artifact_name }}.tar.gz > ${{ matrix.artifact_name }}.tar.gz.sha256
+        else
+          shasum -a 256 ${{ matrix.artifact_name }}.tar.gz > ${{ matrix.artifact_name }}.tar.gz.sha256
+        fi
+    
+    - name: Upload artifacts for release
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact_name }}
+        path: |
+          ${{ matrix.artifact_name }}.tar.gz
+          ${{ matrix.artifact_name }}.tar.gz.sha256
+        retention-days: 30
+
+  create-release:
+    name: Create Release
+    needs: build-release
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+    
+    - name: Prepare release files
+      run: |
+        mkdir -p release-files
+        find artifacts -name "*.tar.gz*" -exec cp {} release-files/ \;
+        ls -la release-files/
+    
+    - name: Generate changelog
+      id: changelog
+      run: |
+        # Generate changelog from git log
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          TAG="${{ inputs.tag }}"
+        else
+          TAG="${GITHUB_REF#refs/tags/}"
+        fi
+        
+        echo "## Changes in $TAG" > CHANGELOG.md
+        echo "" >> CHANGELOG.md
+        
+        # Get commits since last tag
+        PREV_TAG=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) 2>/dev/null || echo "")
+        
+        if [ -n "$PREV_TAG" ]; then
+          echo "Changes since $PREV_TAG:" >> CHANGELOG.md
+          git log --pretty=format:"- %s (%h)" $PREV_TAG..HEAD >> CHANGELOG.md
+        else
+          echo "Initial release" >> CHANGELOG.md
+          git log --pretty=format:"- %s (%h)" >> CHANGELOG.md
+        fi
+        
+        echo "changelog<<EOF" >> $GITHUB_OUTPUT
+        cat CHANGELOG.md >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        name: Release ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        body: ${{ steps.changelog.outputs.changelog }}
+        draft: false
+        prerelease: false
+        files: |
+          release-files/*
+        generate_release_notes: false
+        make_latest: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
