@@ -11,7 +11,6 @@ purgatory is a lightweight, modular C++17-based environment for prototyping, emb
 - CMake 3.14 or later
 - A C++17 compiler
 - Git with submodule support
-- Ninja (recommended and used by CI)
 - clang-format 14 for the repository formatting check
 
 ## Project Layout
@@ -21,6 +20,7 @@ purgatory is a lightweight, modular C++17-based environment for prototyping, emb
 ├── .clang-format          # LLVM-based C++ formatting rules
 ├── .github/               # CI, coverage, and release workflows
 ├── CMakeLists.txt         # Root CMake configuration
+├── format.sh              # Check or apply clang-format
 ├── install-build-deps.sh  # Script to install compiler/tools
 ├── tmux-session.sh        # Launch development tmux sessions
 ├── src/
@@ -74,7 +74,6 @@ Configure, build, and run the same test path used by CI:
 
 ```shell
 cmake -S . -B build \
-  -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_CXX_COMPILER=c++ \
   -DBUILD_TESTING=ON
@@ -84,33 +83,22 @@ ctest --test-dir build --output-on-failure
 ./build/purgatory src/test.txt
 ```
 
-To build only the executable, use `-DBUILD_TESTING=OFF`; GoogleTest is not required for that configuration.
-
-## Code Formatting
-
-The committed `.clang-format` file defines the repository style. CI uses clang-format 14 and fails when tracked C or C++ files differ from that output.
-
-Check formatting:
-
-```shell
-git ls-files -z -- \
-  '*.c' '*.cc' '*.cpp' '*.cxx' \
-  '*.h' '*.hh' '*.hpp' '*.hxx' | \
-  xargs -0 clang-format-14 --style=file --dry-run --Werror
-```
-
-Apply formatting:
-
-```shell
-git ls-files -z -- \
-  '*.c' '*.cc' '*.cpp' '*.cxx' \
-  '*.h' '*.hh' '*.hpp' '*.hxx' | \
-  xargs -0 clang-format-14 --style=file -i
-```
-
 ## Development Workflow
 
 Add unit tests in `test/test.cc`, then run the build, CTest, sample executable, and formatting check before opening a pull request.
+
+### Code Formatting
+
+Use `format.sh` to check or apply clang-format:
+
+```shell
+./format.sh check              # Check formatting in src/ and test/
+./format.sh apply              # Apply formatting to src/ and test/
+./format.sh check src          # Check only src/ directory
+./format.sh apply test         # Apply formatting to test/ directory
+```
+
+### Development Environment
 
 For an optional tmux workspace:
 
