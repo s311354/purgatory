@@ -32,10 +32,24 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y \
-          cmake \
-          ninja-build \
-          ${{ matrix.compiler }}
+        sudo apt-get install -y cmake ninja-build
+        
+        # Install GCC compilers
+        if [[ "${{ matrix.compiler }}" == "g++-10" ]]; then
+          sudo apt-get install -y g++-10
+        elif [[ "${{ matrix.compiler }}" == "g++-11" ]]; then
+          sudo apt-get install -y g++-11
+        
+        # Install Clang compilers (use available versions)
+        elif [[ "${{ matrix.compiler }}" == "clang++-12" ]]; then
+          sudo apt-get install -y clang-12
+        elif [[ "${{ matrix.compiler }}" == "clang++-14" ]]; then
+          sudo apt-get install -y clang-14
+        else
+          echo "Unknown compiler: ${{ matrix.compiler }}"
+          # Try to install anyway as fallback
+          sudo apt-get install -y ${{ matrix.compiler }} || echo "Failed to install ${{ matrix.compiler }}, continuing..."
+        fi
     
     - name: Configure CMake
       run: |
