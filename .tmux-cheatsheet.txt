@@ -1,0 +1,220 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    PURGATORY TMUX QUICK REFERENCE                            ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  LAUNCH SESSIONS                                                             ║
+║  ───────────────────────────────────────────────────────────────────────────║
+║   ./tmux-session.sh dev       3-window: editor|build/test|git (default)     ║
+║   ./tmux-session.sh quick     2-pane: editor | terminal                     ║
+║                                                                              ║
+║   tmux attach -t purgatory    Reattach to existing session                  ║
+║   tmux ls                     List all sessions                             ║
+║   tmux kill-session -t NAME   Kill a session                                ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  DEV MODE (Full Workflow) - RECOMMENDED                                      ║
+║  ───────────────────────────────────────────────────────────────────────────║
+║   Win 0: editor      Edit code with Kiro CLI prompts                        ║
+║   Win 1: build       Build & test commands                                  ║
+║   Win 2: git         Version control                                        ║
+║                                                                              ║
+║   Workflow: Edit → Build → Test → Commit → Repeat                           ║
+║                                                                              ║
+║   Kiro CLI Example prompts (in editor window):                              ║
+║     kiro-cli chat                                                            ║
+║     → "implement quicksort in src/array.cc"                                  ║
+║     → "add tests for merge function"                                         ║
+║     → "fix the compilation error in window 1"                                ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  QUICK MODE (Minimal Setup)                                                  ║
+║  ───────────────────────────────────────────────────────────────────────────║
+║   Left pane:  editor         Edit code                                      ║
+║   Right pane: terminal       Build/run/test (40% width)                     ║
+║                                                                              ║
+║   Perfect for rapid prototyping and algorithm testing                       ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ESSENTIAL KEYS (Prefix: Ctrl+b)                                             ║
+║  ───────────────────────────────────────────────────────────────────────────║
+║   SESSION                   WINDOWS                   PANES                  ║
+║   ─────────────────────    ─────────────────────    ───────────────────────║
+║   d    Detach              0-2  Switch window       %    Split vertical     ║
+║   $    Rename              c    New window          "    Split horizontal   ║
+║   ?    Help                ,    Rename window       arrows Navigate         ║
+║   s    List sessions       w    List windows        x    Kill pane          ║
+║   (    Prev session        p    Previous window     z    Zoom/unzoom        ║
+║   )    Next session        n    Next window         space Cycle layouts     ║
+║                            &    Kill window         {/}  Swap panes         ║
+║                                                     o    Next pane          ║
+║                                                     q    Show pane numbers  ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  CUSTOM SHORTCUTS (with .tmux.conf.local)                                    ║
+║  ───────────────────────────────────────────────────────────────────────────║
+║   Alt+arrows            Navigate panes (NO PREFIX)                           ║
+║   Ctrl+Shift+arrows     Switch windows (NO PREFIX)                           ║
+║                                                                              ║
+║   Ctrl+b  |             Split vertical                                       ║
+║   Ctrl+b  -             Split horizontal                                     ║
+║   Ctrl+b  h/j/k/l       Vim-style pane navigation                            ║
+║   Ctrl+b  H/J/K/L       Vim-style pane resizing                              ║
+║                                                                              ║
+║   Ctrl+b  r             Reload tmux config                                   ║
+║   Ctrl+b  C-c           Create new session                                   ║
+║   Ctrl+b  C-f           Find session                                         ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  COPY MODE (Vim-style)                                                       ║
+║  ───────────────────────────────────────────────────────────────────────────║
+║   Ctrl+b  [             Enter copy mode                                      ║
+║             v           Start selection                                      ║
+║             y           Copy selection                                       ║
+║             /           Search forward                                       ║
+║             ?           Search backward                                      ║
+║             n           Next match                                           ║
+║             N           Previous match                                       ║
+║             q           Exit copy mode                                       ║
+║   Ctrl+b  ]             Paste                                                ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  COMMON DEVELOPMENT COMMANDS                                                 ║
+║  ───────────────────────────────────────────────────────────────────────────║
+║   Build & Configure:                                                         ║
+║     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ -B build      ║
+║     cmake -DBUILD_TESTING=ON -B build              Enable testing            ║
+║     cmake --build build -j$(nproc)                 Incremental build         ║
+║                                                                              ║
+║   Run & Test:                                                                ║
+║     ./build/purgatory src/test.txt                 Run main program          ║
+║     ctest --test-dir build --output-on-failure     Run all tests            ║
+║     ./build/test/unit_tests --gtest_filter=Test.*  Run specific test        ║
+║     ./build/test/unit_tests --gtest_list_tests     List all tests           ║
+║                                                                              ║
+║   Quick Iteration (in src/main.cc):                                          ║
+║     1. Edit src/main.cc                                                      ║
+║     2. cmake --build build && ./build/purgatory                              ║
+║     3. Verify output                                                         ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  DEBUGGING & PROFILING                                                       ║
+║  ───────────────────────────────────────────────────────────────────────────║
+║   cmake -DCMAKE_BUILD_TYPE=Debug -B build          Debug symbols            ║
+║   cmake -DPURGATORY_USE_ASAN=ON -B build           AddressSanitizer         ║
+║   cmake -DPURGATORY_USE_TSAN=ON -B build           ThreadSanitizer          ║
+║   valgrind --leak-check=full ./build/purgatory     Memory leak detection    ║
+║   gdb ./build/purgatory                            GNU Debugger             ║
+║   gprof ./build/purgatory build/gmon.out           Performance profiling    ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  PRO TIPS                                                                    ║
+║  ───────────────────────────────────────────────────────────────────────────║
+║   • Mouse mode enabled - Click to switch panes/windows                       ║
+║   • Ctrl+b z to zoom/unzoom current pane (great for focus)                   ║
+║   • Ctrl+b : to enter command mode for advanced operations                   ║
+║   • Use Ctrl+b [ then / to search through scrollback history                 ║
+║   • Ctrl+b Ctrl+arrow for pane resizing (hold Ctrl+b)                        ║
+║   • Ctrl+b ! to break pane into new window                                   ║
+║   • Ctrl+b Ctrl+o to rotate panes                                            ║
+║   • Use Ctrl+b w for visual window/session navigation                        ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  WORKFLOW EXAMPLES                                                           ║
+║  ───────────────────────────────────────────────────────────────────────────║
+║   1. Kiro-Assisted Development (RECOMMENDED):                                ║
+║      Win 0 → Start kiro-cli chat                                             ║
+║              Ask: "implement binary search in src/binarysearch.cc"           ║
+║      Win 1 → cmake --build build (verify compilation)                        ║
+║              ctest --test-dir build (run tests)                              ║
+║      Win 2 → git add src/binarysearch.cc test/test.cc                        ║
+║              git commit -m "Add binary search implementation"                ║
+║                                                                              ║
+║   2. Traditional Development (Dev Mode):                                     ║
+║      Win 0 → Edit src/array.cc                                               ║
+║      Win 1 → cmake --build build                                             ║
+║              ctest --test-dir build                                          ║
+║      Win 2 → git status && git diff                                          ║
+║              git add . && git commit                                         ║
+║                                                                              ║
+║   3. Quick Prototyping (Quick Mode):                                         ║
+║      Left pane  → Edit src/main.cc                                           ║
+║      Right pane → cmake --build build && ./build/purgatory                   ║
+║                   Iterate rapidly                                            ║
+║                                                                              ║
+║   4. Test-Driven Development:                                                ║
+║      Win 0 → Write test in test/test.cc                                      ║
+║      Win 1 → cmake --build build                                             ║
+║              ctest --test-dir build --output-on-failure                      ║
+║      Win 0 → Implement in src/*.cc until test passes                         ║
+║      Win 2 → git commit with passing tests                                   ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ALGORITHM CATEGORIES & FILES                                                ║
+║  ───────────────────────────────────────────────────────────────────────────║
+║   src/array.cc           Array & String (40+ algorithms)                    ║
+║   src/hashmap.cc         Hash Map (24+ algorithms)                          ║
+║   src/twopointers.cc     Two Pointers (26+ algorithms)                      ║
+║   src/slidingwindow.cc   Sliding Window (19+ algorithms)                    ║
+║   src/stack.cc           Stack (44+ algorithms)                             ║
+║   src/linkedlist.cc      Linked List                                        ║
+║   src/binarytree.cc      Binary Tree                                        ║
+║   src/graph.cc           Graph                                              ║
+║   src/graphbfs.cc        Graph BFS                                          ║
+║   src/heap.cc            Heap                                               ║
+║   src/dp.cc              Dynamic Programming                                ║
+║   src/backtracking.cc    Backtracking                                       ║
+║   src/binarysearch.cc    Binary Search                                      ║
+║   src/intervals.cc       Intervals                                          ║
+║   src/matrix.cc          Matrix                                             ║
+║   src/prefixsum.cc       Prefix Sum                                         ║
+║                                                                              ║
+║   See docs/ALGORITHMS.md for complete catalog with complexity analysis      ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  USEFUL TMUX COMMANDS                                                        ║
+║  ───────────────────────────────────────────────────────────────────────────║
+║   tmux                              Start new session                        ║
+║   tmux new -s NAME                  Start named session                     ║
+║   tmux ls                           List sessions                           ║
+║   tmux attach -t NAME               Attach to session                       ║
+║   tmux kill-session -t NAME         Kill session                            ║
+║   tmux kill-server                  Kill all sessions                       ║
+║                                                                              ║
+║   (inside tmux, prefix Ctrl+b)                                               ║
+║   :setw synchronize-panes on        Type in all panes simultaneously        ║
+║   :swap-window -s 2 -t 1            Swap window positions                   ║
+║   :source-file ~/.tmux.conf         Reload config                           ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  FILES & DOCUMENTATION                                                       ║
+║  ───────────────────────────────────────────────────────────────────────────║
+║   tmux-session.sh          Launch dev/quick sessions                        ║
+║   .tmux.conf.local         Custom tmux configuration                        ║
+║   .tmux-cheatsheet.txt     This quick reference card                        ║
+║                                                                              ║
+║   README.md                Project overview                                 ║
+║   docs/ALGORITHMS.md       Complete algorithm index                         ║
+║   docs/QUICK_REFERENCE.md  Pattern recognition & templates                  ║
+║   docs/algorithms/         Detailed documentation by category               ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Print this card or keep it open for quick reference while learning tmux!
+
+QUICK START:
+  1. ./tmux-session.sh dev       # Launch development environment
+  2. Ctrl+b 0/1/2                # Switch between windows
+  3. Ctrl+b d                    # Detach (session keeps running)
+  4. tmux attach -t purgatory    # Reattach later

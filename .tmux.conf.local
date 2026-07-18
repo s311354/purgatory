@@ -1,0 +1,141 @@
+# Purgatory-optimized tmux configuration
+# Copy to ~/.tmux.conf or source with: tmux source-file .tmux.conf.local
+
+# ============================================================
+# GENERAL SETTINGS
+# ============================================================
+
+# Use Ctrl+a as prefix (easier than Ctrl+b)
+# Uncomment to enable:
+# unbind C-b
+# set-option -g prefix C-a
+# bind-key C-a send-prefix
+
+# Enable mouse support for easier pane/window switching
+set -g mouse on
+
+# Increase scrollback buffer size
+set-option -g history-limit 10000
+
+# Start windows and panes at 1, not 0
+set -g base-index 1
+setw -g pane-base-index 1
+
+# Renumber windows when one is closed
+set -g renumber-windows on
+
+# Enable focus events for vim/neovim
+set -g focus-events on
+
+# Reduce escape time for faster command sequences
+set -sg escape-time 0
+
+# Enable 256 colors
+set -g default-terminal "screen-256color"
+
+# ============================================================
+# KEYBINDINGS
+# ============================================================
+
+# Reload config with r
+bind r source-file ~/.tmux.conf \; display "Config reloaded!"
+
+# Split panes using | and - (more intuitive)
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+unbind '"'
+unbind %
+
+# Switch panes using Alt+arrow without prefix
+bind -n M-Left select-pane -L
+bind -n M-Right select-pane -R
+bind -n M-Up select-pane -U
+bind -n M-Down select-pane -D
+
+# Vim-style pane navigation
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+# Vim-style pane resizing
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+# Quick window switching
+bind -n C-S-Left previous-window
+bind -n C-S-Right next-window
+
+# ============================================================
+# COPY MODE (Vim-style)
+# ============================================================
+
+# Use vim keybindings in copy mode
+setw -g mode-keys vi
+
+# Setup 'v' to begin selection as in Vim
+bind-key -T copy-mode-vi v send-keys -X begin-selection
+bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
+
+# ============================================================
+# STATUS BAR
+# ============================================================
+
+# Update status bar every 5 seconds
+set -g status-interval 5
+
+# Status bar colors
+set -g status-style bg=colour234,fg=colour137
+
+# Left status: session name
+set -g status-left '#[fg=colour81,bold] #S #[default]'
+set -g status-left-length 20
+
+# Right status: date and time
+set -g status-right '#[fg=colour233,bg=colour241,bold] %Y-%m-%d #[fg=colour233,bg=colour245,bold] %H:%M:%S '
+set -g status-right-length 50
+
+# Window status format
+setw -g window-status-format ' #I:#W '
+setw -g window-status-current-format '#[fg=colour81,bg=colour238,bold] #I:#W '
+
+# Pane border colors
+set -g pane-border-style fg=colour238
+set -g pane-active-border-style fg=colour81
+
+# Message style
+set -g message-style bg=colour235,fg=colour81
+
+# ============================================================
+# DEVELOPMENT SHORTCUTS (Purgatory-specific)
+# ============================================================
+
+# Quick build command (Ctrl+b, then b)
+bind b send-keys "cmake --build build -j\$(nproc)" C-m
+
+# Quick test command (Ctrl+b, then t)
+bind t send-keys "cd build && ctest --output-on-failure" C-m
+
+# Quick run command (Ctrl+b, then e)
+bind e send-keys "./build/purgatory src/test.txt" C-m
+
+# Open main.cc (Ctrl+b, then m)
+bind m send-keys "vim src/main.cc" C-m
+
+# Git status (Ctrl+b, then g)
+bind g send-keys "git status" C-m
+
+# ============================================================
+# PLUGINS (optional)
+# ============================================================
+
+# Tmux Plugin Manager (install with: git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm)
+# set -g @plugin 'tmux-plugins/tpm'
+# set -g @plugin 'tmux-plugins/tmux-sensible'
+# set -g @plugin 'tmux-plugins/tmux-resurrect'  # Save/restore sessions
+# set -g @plugin 'tmux-plugins/tmux-continuum'  # Auto-save sessions
+
+# Initialize TMUX plugin manager (keep this at the very bottom)
+# run '~/.tmux/plugins/tpm/tpm'

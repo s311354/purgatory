@@ -897,19 +897,19 @@ vector<int> Purgatory::applyOperations(vector<int> &nums) {
 	    nums[i] = current << 1;
 	    nums[i + 1] = 0;
 	}
-
-	int write = 0;
-	for (read = 0; read < n ; ++read) {
-	    if (nums[read] != 0)
-	        nums[write++] = nums[read];
-	}
-
-	for (write < n) {
-	    nums[write++] = 0;
-	}
-
-	return nums;
     }
+
+    int write = 0;
+    for (int read = 0; read < n ; ++read) {
+	if (nums[read] != 0)
+	    nums[write++] = nums[read];
+    }
+
+    while (write < n) {
+	nums[write++] = 0;
+    }
+
+    return nums;
 }
 
 

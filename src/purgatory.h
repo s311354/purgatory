@@ -269,7 +269,6 @@ public:
 
     vector<int> applyOperations(vector<int> &nums);
 
-
     // sliding window
     bool containsNearbyDuplicate(vector<int>& nums, int k);
 
