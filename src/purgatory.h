@@ -270,6 +270,12 @@ public:
 
   vector<int> applyOperations(vector<int> &nums);
 
+  int arithmeticTriplets(vector<int> &nums, int diff);
+
+  int findLUSlegnth(vector<string> &strs);
+
+  vector<int> partitionLabels(string s);
+
   // sliding window
   bool containsNearbyDuplicate(vector<int> &nums, int k);
 

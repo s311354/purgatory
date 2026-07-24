@@ -555,6 +555,64 @@ TEST(X86_64Test, numRescueBoatsCheck) {
   EXPECT_EQ(expected, solutions.numRescueBoats(people, limit));
 }
 
+TEST(X86_64Test, arithmeticTripletsCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  vector<int> nums = {0, 1, 4, 6, 7, 10};
+
+  int diff = 3;
+
+  int expected = 2;
+
+  EXPECT_EQ(expected, solutions.arithmeticTriplets(nums, diff));
+
+  // Edge Case:
+  nums = {1, 2, 3};
+
+  diff = 1;
+
+  expected = 1;
+
+  EXPECT_EQ(expected, solutions.arithmeticTriplets(nums, diff));
+}
+
+TEST(X86_64Test, findLUSlegnthCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  vector<string> strs = {"aba", "cdc", "eae"};
+
+  int expected = 3;
+
+  EXPECT_EQ(expected, solutions.findLUSlegnth(strs));
+
+  // Edge Case:
+  strs = {"aaa", "aaa", "aa"};
+
+  expected = -1;
+
+  EXPECT_EQ(expected, solutions.findLUSlegnth(strs));
+}
+
+TEST(X86_64Test, partitionLabelsCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  string s = "ababcbacadefegdehijhklij";
+
+  vector<int> expected = {9, 7, 8};
+
+  EXPECT_EQ(expected, solutions.partitionLabels(s));
+
+  // Edge Case:
+  s = "a";
+
+  expected = {1};
+
+  EXPECT_EQ(expected, solutions.partitionLabels(s));
+}
+
 TEST(X86_64Test, reverseOnlyLettersCheck) {
   purgatory::Purgatory solutions;
 

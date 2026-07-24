@@ -120,7 +120,7 @@ purgatory includes **300+ algorithm implementations** organized by pattern:
 
 - [Array & String (40+)](docs/algorithms/array.md)
 - [Hash Map (24+)](docs/algorithms/hashmap.md)
-- [Two Pointers (26+)](docs/algorithms/twopointers.md)
+- [Two Pointers (33)](docs/algorithms/twopointers.md)
 - [Sliding Window (19+)](docs/algorithms/slidingwindow.md)
 - [Stack (44+)](docs/algorithms/stack.md)
 - [Tree & Graph (23+)](docs/algorithms/tree-graph.md)

@@ -951,4 +951,111 @@ vector<int> Purgatory::applyOperations(vector<int> &nums) {
   return nums;
 }
 
+int Purgatory::arithmeticTriplets(vector<int> &nums, int diff) {
+  // register vs memory
+  int n = nums.size();
+
+  if (n < 3)
+    return 0;
+
+  int count = 0;
+  int left = 0;
+  int right = 2;
+
+  for (int mid = 0; mid < n - 1; ++mid) {
+    const int midValue = nums[mid];
+    const int leftTarget = midValue - diff;
+    const int rightTarget = midValue + diff;
+
+    while (left < mid && nums[left] < leftTarget) {
+      ++left;
+    }
+
+    if (right <= mid)
+      right = mid + 1;
+
+    while (right < n && nums[right] < rightTarget) {
+      ++right;
+    }
+
+    // branch prediction
+    const bool leftFound = left < mid && nums[left] == leftTarget;
+    const bool rightFound = right < n && nums[right] == rightTarget;
+
+    count += leftFound && rightFound;
+  }
+
+  return count;
+}
+
+int Purgatory::findLUSlegnth(vector<string> &strs) {
+  // register vs memory
+  int n = strs.size();
+
+  sort(strs.begin(), strs.end(),
+       [](string &a, string &b) { return a.size() > b.size(); });
+
+  for (int i = 0; i < n; ++i) {
+    bool uncommon = true;
+
+    for (int j = 0; j < n; ++j) {
+      // branch prediction
+      if (i == j || strs[j].size() < strs[i].size())
+        continue;
+
+      int count = 0;
+
+      for (char c : strs[j]) {
+        if (count < strs[i].size() && strs[i][count] == c)
+          ++count;
+      }
+
+      if (count == strs[i].size()) {
+        uncommon = false;
+        break;
+      }
+    }
+
+    if (uncommon)
+      return strs[i].size();
+  }
+  return -1;
+}
+
+vector<int> Purgatory::partitionLabels(string s) {
+  if (s.empty())
+    return {};
+
+  int length = s.size();
+
+  int lastPartition[26] = {};
+
+  for (int i = 0; i < length; ++i) {
+    lastPartition[s[i] - 'a'] = i;
+  }
+
+  // cache behavior
+  vector<int> result;
+  result.reserve(26);
+
+  int start = 0;
+  int end = 0;
+
+  for (int i = 0; i < length; ++i) {
+    // register vs memory
+    const int letter = s[i] - 'a';
+    const int letterEnd = lastPartition[letter];
+
+    if (end < letterEnd)
+      end = letterEnd;
+
+    if (end == i) {
+      result.push_back(end - start + 1);
+      start = i + 1;
+    }
+  }
+
+  return result;
+}
+
 } // namespace purgatory

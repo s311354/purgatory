@@ -15,7 +15,7 @@ Comprehensive catalog of all algorithms implemented in purgatory, organized by p
 |---------|------|-----|------------|---------------|
 | Array/String | array.cc | 1162 | 40+ | ✓ |
 | Hash Map | hashmap.cc | 762 | 24+ | ✓ |
-| Two Pointers | twopointers.cc | 916 | 26+ | ✓ |
+| Two Pointers | twopointers.cc | 1059 | 33 | ✓ |
 | Sliding Window | slidingwindow.cc | 596 | 19+ | ✓ |
 | Stack | stack.cc | 1178 | 44+ | ✓ |
 | Binary Tree | binarytree.cc | 446 | 11+ | ✓ |
@@ -39,12 +39,6 @@ Comprehensive catalog of all algorithms implemented in purgatory, organized by p
 - [Advanced Topics](algorithms/advanced.md)
 
 ## How to Use
-
-### Find by Pattern
-Browse sections below or use pattern-specific documentation files.
-
-### Search by Name
-Use Ctrl+F to find specific algorithm implementations.
 
 ### Filter by Complexity
 Each entry includes time/space complexity for quick reference.

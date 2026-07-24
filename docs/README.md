@@ -1,7 +1,5 @@
 # Documentation Guide
 
-Welcome to the purgatory algorithm documentation! This guide helps you find what you need quickly.
-
 ## 📁 Documentation Structure
 
 ```
@@ -11,7 +9,7 @@ docs/
 └── algorithms/
     ├── array.md            # Array & String (40+ problems)
     ├── hashmap.md          # Hash Map (24+ problems)
-    ├── twopointers.md      # Two Pointers (26+ problems)
+    ├── twopointers.md      # Two Pointers (33 problems)
     ├── slidingwindow.md    # Sliding Window (19+ problems)
     ├── stack.md            # Stack (44+ problems)
     ├── tree-graph.md       # Tree & Graph (23+ problems)
@@ -19,11 +17,6 @@ docs/
 ```
 
 ## 🎯 Quick Navigation
-
-### I want to...
-
-**Find a specific algorithm by name**
-→ Use Ctrl+F in [ALGORITHMS.md](ALGORITHMS.md) or search in pattern-specific files
 
 **Learn when to use each pattern**
 → Check [QUICK_REFERENCE.md](QUICK_REFERENCE.md#pattern-recognition)
@@ -33,12 +26,6 @@ docs/
 
 **Browse by difficulty**
 → Each pattern file (e.g., [array.md](algorithms/array.md)) groups by Easy/Medium/Hard
-
-**Find time/space complexity**
-→ Every algorithm entry includes complexity analysis
-
-**Understand testing strategy**
-→ See [QUICK_REFERENCE.md](QUICK_REFERENCE.md#testing-strategy)
 
 ## 📊 By Pattern
 
@@ -79,18 +66,6 @@ docs/
 
 ## 🔍 Search Tips
 
-### By Algorithm Name
-Use GitHub's search or Ctrl+F in browser:
-- Pattern files have alphabetically organized problem tables
-- Each function name is linked to its complexity
-
-### By Complexity
-Look for complexity tags in tables:
-- `O(n)` - Linear time
-- `O(log n)` - Logarithmic (usually binary search)
-- `O(n log n)` - Linearithmic (often sorting)
-- `O(n²)` - Quadratic (nested loops)
-
 ### By Keyword
 Common keywords in documentation:
 - "Greedy" → Array, Intervals
@@ -118,11 +93,7 @@ When adding algorithms:
 
 3. **Update test coverage** in `test/test.cc`
 
-4. **Verify links** work in all documentation
-
 ## 🚀 Getting Started
-
-New to the codebase? Follow this path:
 
 1. Read [README.md](../README.md) for project overview
 2. Browse [ALGORITHMS.md](ALGORITHMS.md) to see what's available

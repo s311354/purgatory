@@ -1,27 +1,3 @@
-# You can customize a build by specifying CMake options. An option may be
-# given in the -Dvariable=value form. For a boolean variable, `ON` or `1`
-# means true, while `OFF` or `0` means false.
-#
-# Here are a couple of common cmake options:
-#
-# -DCMAKE_C_COMPILER=<command-name>
-#
-#  Specifies the C compiler name to use. The default value is `cc`.
-#
-# -DCMAKE_CXX_COMPILER=<command-name>
-#
-#  Specifies the C++ compiler name to use. The default value is `c++`.
-#
-# -DCMAKE_BUILD_TYPE=[Debug | Release | RelWithDebInfo | MinSinzeRel]
-#  Specifies the build type. The default is `Release`, which is the right
-#  option unless you are debugging purgatory.
-#
-# An example of a cmake command line is shown below:
-#
-#  $ cmake -DCMAKE_CXX_COMPILER=g++-12 ..
-#
-# where `..` refers to this directory.
-
 cmake_minimum_required(VERSION 3.14)
 project(purgatory VERSION 0.0.0)
 
