@@ -9,7 +9,7 @@ namespace purgatory {
  *  - loop until <= 1 element left
  *  - handle smash rules
  */
-int Purgatory::lastStoneWeight(vector<int> &stones) {
+int Purgatory::lastStoneWeight(const vector<int> &stones) {
   // cache behavior
   vector<int> heap = stones;
   make_heap(heap.begin(), heap.end());
@@ -78,7 +78,7 @@ int Purgatory::nthUglyNumber(int n) {
  *  using a min-heap with size k here because we only need the top k frequent
  * elements, not a full sort.
  */
-vector<int> Purgatory::topKFrequent(vector<int> &nums, int k) {
+vector<int> Purgatory::topKFrequent(const vector<int> &nums, int k) {
   unordered_map<int, int> freq;
   // cache behavior
   freq.reserve(nums.size());
@@ -88,7 +88,7 @@ vector<int> Purgatory::topKFrequent(vector<int> &nums, int k) {
 
   // cpu pipeline
   struct Compare {
-    bool operator()(const pair<int, int> &a, const pair<int, int> &b) {
+    bool operator()(const pair<int, int> &a, const pair<int, int> &b) const {
       return a.first > b.first;
     }
   };
@@ -148,7 +148,7 @@ vector<int> Purgatory::maxSlidingWindow(vector<int> &nums, int k) {
   return result;
 }
 
-int Purgatory::maxProduct(vector<int> &nums) {
+int Purgatory::maxProduct(const vector<int> &nums) {
   // register vs memory
   int largest = 0;
   int secondLargest = 0;
@@ -349,7 +349,7 @@ struct EdgeNetwork {
   int w;
 };
 
-int Purgatory::networkDelayTime(vector<vector<int>> &times, int n, int k) {
+int Purgatory::networkDelayTime(const vector<vector<int>> &times, int n, int k) {
 
   // cache behavior
   vector<vector<EdgeNetwork>> graph(n + 1);
@@ -395,7 +395,7 @@ int Purgatory::networkDelayTime(vector<vector<int>> &times, int n, int k) {
   return maxDelay;
 }
 
-int Purgatory::minSetSize(vector<int> &arr) {
+int Purgatory::minSetSize(const vector<int> &arr) {
   // cache behavior
   unordered_map<int, int> freq;
   for (const int num : arr) {

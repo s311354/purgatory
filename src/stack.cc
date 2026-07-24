@@ -94,7 +94,7 @@ string Purgatory::simplifyPath(string path) {
  *  using a stack-based evaluation here because RPN naturally maps to push/pop
  * operations T: O(n), S: O(n)
  */
-int Purgatory::evalRPN(vector<string> &tokens) {
+int Purgatory::evalRPN(const vector<string> &tokens) {
   // cache behavior
   vector<int> st;
   st.reserve(tokens.size());
@@ -141,7 +141,7 @@ int Purgatory::evalRPN(vector<string> &tokens) {
  *  using a stack to store cotext when entering parentheses here because this
  * allows linear traversal. T: O(n), S: O(n)
  */
-int Purgatory::calculate(string s) {
+int Purgatory::calculate(const string &s) {
   // cache behavior
   vector<int> signs;
   signs.reserve(64);
@@ -186,8 +186,8 @@ int Purgatory::calculate(string s) {
  *  using a monotonic decreasing stack here because we can break the problem
  * into computing next greater element in linear time T: O(m + n), S: O(n)
  */
-vector<int> Purgatory::nextGreaterElement(vector<int> &nums1,
-                                          vector<int> &nums2) {
+vector<int> Purgatory::nextGreaterElement(const vector<int> &nums1,
+                                          const vector<int> &nums2) {
   // cache behavior
   vector<int> next(10001, -1);
   vector<int> st;
@@ -406,7 +406,7 @@ bool Purgatory::backspaceCompare(string s, string t) {
   }
 }
 
-int Purgatory::findUnsortedSubarray(vector<int> &nums) {
+int Purgatory::findUnsortedSubarray(const vector<int> &nums) {
   int n = nums.size();
   int left = n, right = -1;
 
@@ -490,7 +490,7 @@ int Purgatory::sumSubarrayMins(vector<int> &arr) {
   return (int)result;
 }
 
-string Purgatory::removeOccurrences(string s, string part) {
+string Purgatory::removeOccurrences(const string &s, const string &part) {
   string result;
 
   int m = part.size();
@@ -627,7 +627,7 @@ int Purgatory::minLength(string s) {
   return static_cast<int>(stackBuffer.size());
 }
 
-vector<int> Purgatory::exclusiveTime(int n, vector<string> &logs) {
+vector<int> Purgatory::exclusiveTime(int n, const vector<string> &logs) {
   vector<int> result(n, 0);
   // cache behavior
   stack<int> st;
@@ -666,7 +666,7 @@ vector<int> Purgatory::exclusiveTime(int n, vector<string> &logs) {
   return result;
 }
 
-vector<string> Purgatory::buildArray(vector<int> &target, int n) {
+vector<string> Purgatory::buildArray(const vector<int> &target, int n) {
   // register vs memory
   int size = target.size();
   // cache behavior
@@ -686,7 +686,7 @@ vector<string> Purgatory::buildArray(vector<int> &target, int n) {
   return st;
 }
 
-long long Purgatory::subArrayRanges(vector<int> &nums) {
+long long Purgatory::subArrayRanges(const vector<int> &nums) {
   int n = nums.size();
   long long maxSum = 0, minSum = 0;
 
@@ -833,7 +833,7 @@ string Purgatory::removeDuplicates(string s) {
   return stack;
 }
 
-bool Purgatory::find132pattern(vector<int> &nums) {
+bool Purgatory::find132pattern(const vector<int> &nums) {
   int n = nums.size();
   if (n < 3)
     return false;
@@ -867,7 +867,7 @@ bool Purgatory::find132pattern(vector<int> &nums) {
   return false;
 }
 
-int Purgatory::maxWidthRamp(vector<int> &nums) {
+int Purgatory::maxWidthRamp(const vector<int> &nums) {
   const int n = nums.size();
   if (n < 2)
     return 0;
@@ -920,8 +920,8 @@ string Purgatory::clearDigits(string s) {
   return string(st.begin(), st.end());
 }
 
-bool Purgatory::validateStackSequences(vector<int> &pushed,
-                                       vector<int> &popped) {
+bool Purgatory::validateStackSequences(const vector<int> &pushed,
+                                       const vector<int> &popped) {
   // cache behavior
   vector<int> stack;
   stack.reserve(pushed.size());
@@ -980,7 +980,7 @@ string Purgatory::minRemoveToMakeValid(string s) {
   return result;
 }
 
-int Purgatory::totalSteps(vector<int> &nums) {
+int Purgatory::totalSteps(const vector<int> &nums) {
   // cache behavior
   vector<pair<int, int>> st;
   int result = 0;
@@ -1003,7 +1003,7 @@ int Purgatory::totalSteps(vector<int> &nums) {
   return result;
 }
 
-int Purgatory::minOperations(vector<string> &logs) {
+int Purgatory::minOperations(const vector<string> &logs) {
   int result = 0;
 
   for (const string &log : logs) {
@@ -1043,7 +1043,7 @@ int Purgatory::scoreOfParentheses(string s) {
   return count;
 }
 
-int Purgatory::maximumPossibleSize(vector<int> &nums) {
+int Purgatory::maximumPossibleSize(const vector<int> &nums) {
   int n = nums.size();
   int count = 1;
   int last = nums[0];
@@ -1080,13 +1080,13 @@ vector<int> Purgatory::preorderTraversal(TreeNode *root) {
   return result;
 }
 
-int Purgatory::maxBalanceShipments(vector<int> &weights) {
-  int n = weights.size();
+int Purgatory::maxBalanceShipments(const vector<int> &weight) {
+  int n = weight.size();
   int count = 0;
 
   for (int i = 0; i < n;) {
     // branch prediction
-    const bool split = weights[i] < weights[i - 1];
+    const bool split = weight[i] < weight[i - 1];
     count += split;
 
     i += split ? 2 : 1;
@@ -1095,7 +1095,7 @@ int Purgatory::maxBalanceShipments(vector<int> &weights) {
   return count;
 }
 
-long long Purgatory::bowlSubarrays(vector<int> &nums) {
+long long Purgatory::bowlSubarrays(const vector<int> &nums) {
   int n = nums.size();
 
   // cache behavior
@@ -1118,7 +1118,7 @@ long long Purgatory::bowlSubarrays(vector<int> &nums) {
   return count;
 }
 
-vector<long long> Purgatory::mergeAdjacent(vector<int> &nums) {
+vector<long long> Purgatory::mergeAdjacent(const vector<int> &nums) {
   int n = nums.size();
   // cache behavior
   vector<long long> result;

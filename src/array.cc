@@ -15,7 +15,7 @@ Purgatory::~Purgatory(){};
  *  - if a third number is larger than second, we're done
  *  T: O(n), S: O(1)
  */
-bool Purgatory::increasingTriplet(vector<int> &nums) {
+bool Purgatory::increasingTriplet(const vector<int> &nums) {
   // initalize: first and second
   int first = INT_MAX, second = INT_MAX;
 
@@ -41,7 +41,7 @@ bool Purgatory::increasingTriplet(vector<int> &nums) {
  *  - only copying remaining nums2 if needed
  *  T: O(n), S: O(1)
  */
-void Purgatory::merge(vector<int> &nums1, int m, vector<int> &nums2, int n) {
+void Purgatory::merge(vector<int> &nums1, int m, const vector<int> &nums2, int n) {
   int p1 = m - 1, p2 = n - 1, p = m + n - 1;
 
   // Loop optimization
@@ -139,7 +139,7 @@ void Purgatory::rotate(vector<int> &nums, int k) {
  *  - right to left handles decreasing sequences
  *  T: O(n), S: O(n)
  */
-int Purgatory::candy(vector<int> &ratings) {
+int Purgatory::candy(const vector<int> &ratings) {
   int n = ratings.size();
   if (n == 0)
     return 0;
@@ -193,7 +193,7 @@ int Purgatory::removeElemet(vector<int> &nums, int val) {
  *  using a greedy strategy here because each step we only care about the
  * farthest we can reach from all previous positions T: O(n), S: O(1)
  */
-bool Purgatory::canJump(vector<int> &nums) {
+bool Purgatory::canJump(const vector<int> &nums) {
   int maxReach = 0, n = nums.size();
 
   for (int i = 0; i < n; ++i) {
@@ -216,7 +216,7 @@ bool Purgatory::canJump(vector<int> &nums) {
  *  using two-pass scan strategy
  *  T: O(n), S: O(1)
  */
-vector<int> Purgatory::productExceptSelf(vector<int> &nums) {
+vector<int> Purgatory::productExceptSelf(const vector<int> &nums) {
   int n = nums.size();
   vector<int> answer(n, 1);
 
@@ -507,7 +507,7 @@ string Purgatory::getEncryptedString(string s, int k) {
   return result;
 }
 
-int Purgatory::arrayPairSum(vector<int> &nums) {
+int Purgatory::arrayPairSum(const vector<int> &nums) {
   // cache behavior
   const int OFFSET = 10000;
   vector<int> count(20001, 0);
@@ -692,7 +692,7 @@ int Purgatory::maxRotateFunction(vector<int> &nums) {
   return (int)max;
 }
 
-vector<int> Purgatory::findRightInterval(vector<vector<int>> &intervals) {
+vector<int> Purgatory::findRightInterval(const vector<vector<int>> &intervals) {
   int n = intervals.size();
 
   // cache behavior
@@ -748,7 +748,7 @@ static bool cmpLargestNumber(const string &a, const string &b) {
   return false;
 }
 
-string Purgatory::largestNumber(vector<int> &nums) {
+string Purgatory::largestNumber(const vector<int> &nums) {
   // cache behavior
   vector<string> numStrs;
   numStrs.reserve(nums.size());
@@ -871,7 +871,7 @@ int Purgatory::arrayNesting(vector<int> &nums) {
   return result;
 }
 
-int Purgatory::maximumProduct(vector<int> &nums) {
+int Purgatory::maximumProduct(const vector<int> &nums) {
   // register vs memory
   int max1 = INT_MIN;
   int max2 = INT_MIN;
@@ -907,7 +907,7 @@ int Purgatory::maximumProduct(vector<int> &nums) {
   return case1 > case2 ? case1 : case2;
 }
 
-bool Purgatory::isPossbile(vector<int> &nums) {
+bool Purgatory::isPossbile(const vector<int> &nums) {
   // register vs memory
   vector<int> freq(2005, 0);
   vector<int> need(2005, 0);
@@ -1154,7 +1154,7 @@ int Purgatory::countPrimes(int n) {
   return count;
 }
 
-int Purgatory::wiggleMaxLength(vector<int> &nums) {
+int Purgatory::wiggleMaxLength(const vector<int> &nums) {
   int n = nums.size();
   if (n < 2)
     return n;

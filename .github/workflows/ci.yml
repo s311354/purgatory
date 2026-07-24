@@ -63,12 +63,31 @@ jobs:
     - name: Run cppcheck
       run: |
         cppcheck \
-          --enable=all \
-          --error-exitcode=0 \
+          --enable=warning,style,performance,portability \
+          --std=c++17 \
+          --error-exitcode=1 \
           --inline-suppr \
           --suppress=missingIncludeSystem \
-          src/*.cc src/*.h 2>&1 | tee cppcheck-report.txt
-        echo "Cppcheck completed (non-blocking)"
+          --suppress=functionStatic \
+          --suppress=useStlAlgorithm \
+          --suppress=noExplicitConstructor:src/query.h:79 \
+          --quiet \
+          src/ 2>&1 | tee cppcheck-report.txt
+        
+        if [ $? -eq 0 ]; then
+          echo "✓ Cppcheck passed - no issues found"
+        else
+          echo "✗ Cppcheck failed - issues found in cppcheck-report.txt"
+          exit 1
+        fi
+    
+    - name: Upload cppcheck report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: cppcheck-report
+        path: cppcheck-report.txt
+        retention-days: 30
     
     - name: Check code formatting
       run: |

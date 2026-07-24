@@ -7,7 +7,7 @@ namespace purgatory {
  * this let me check O(1) time whether the current element has appeared within
  * distance k. T: O(n), S: O(n)
  */
-bool Purgatory::containsNearbyDuplicate(vector<int> &nums, int k) {
+bool Purgatory::containsNearbyDuplicate(const vector<int> &nums, int k) {
   unordered_map<int, int> lastIndex;
   // register vs memory
   int n = nums.size();
@@ -35,7 +35,7 @@ bool Purgatory::containsNearbyDuplicate(vector<int> &nums, int k) {
  * ensuring that once the sum exceeds the target, moving left forward will only
  * reduce the sum. T: O(n), S: O(1)
  */
-int Purgatory::minSubArrayLen(int target, vector<int> &nums) {
+int Purgatory::minSubArrayLen(int target, const vector<int> &nums) {
   int left = 0, sum = 0;
   int minLen = INT_MAX;
 
@@ -65,7 +65,7 @@ int Purgatory::minSubArrayLen(int target, vector<int> &nums) {
  * window, left jumps past its previous occurrence. This ensure we always have a
  * substring with unique characters. T: O(n), S: O(n, charset_size)
  */
-int Purgatory::lengthOfLongestSubstring(string s) {
+int Purgatory::lengthOfLongestSubstring(const string &s) {
   // cache behavior
   int last[256];
   memset(last, -1, sizeof(last));
@@ -123,7 +123,7 @@ string solveLongestNiceSubstring(const string &s, int l, int r) {
   return s.substr(l, r - l);
 }
 
-string Purgatory::longestNiceSubstring(string s) {
+string Purgatory::longestNiceSubstring(const string &s) {
   return solveLongestNiceSubstring(s, 0, s.size());
 }
 
@@ -157,7 +157,7 @@ int solveLongestSubstring(const string &s, int l, int r, int k) {
   return r - l;
 }
 
-int Purgatory::longestSubstring(string s, int k) {
+int Purgatory::longestSubstring(const string &s, int k) {
   return solveLongestSubstring(s, 0, s.size(), k);
 }
 
@@ -190,7 +190,6 @@ int Purgatory::numberOfArithmeticSlices(vector<int> &nums) {
     count += current;
 
     prev_diff = diff;
-    prev = curr;
     curr = next;
   }
 
@@ -228,7 +227,7 @@ vector<double> Purgatory::medianSlidingWindow(vector<int> &nums, int k) {
   return res;
 }
 
-int Purgatory::minimumSumSubarray(vector<int> &nums, int l, int r) {
+int Purgatory::minimumSumSubarray(const vector<int> &nums, int l, int r) {
   int minSum = INT_MAX;
   int n = nums.size();
 
@@ -252,7 +251,7 @@ int Purgatory::minimumSumSubarray(vector<int> &nums, int l, int r) {
   return minSum == INT_MAX ? -1 : minSum;
 }
 
-int Purgatory::numSubarraysWithSum(vector<int> &nums, int goal) {
+int Purgatory::numSubarraysWithSum(const vector<int> &nums, int goal) {
   int n = nums.size();
   unordered_map<int, int> freq;
   // cache behavior
@@ -340,7 +339,7 @@ int Purgatory::characterReplacement(string s, int k) {
   return result;
 }
 
-int Purgatory::numSubarrayProductLessThanK(vector<int> &nums, int k) {
+int Purgatory::numSubarrayProductLessThanK(const vector<int> &nums, int k) {
   if (k <= 1)
     return 0;
 
@@ -362,7 +361,7 @@ int Purgatory::numSubarrayProductLessThanK(vector<int> &nums, int k) {
   return result;
 }
 
-int Purgatory::totalFruit(vector<int> &fruits) {
+int Purgatory::totalFruit(const vector<int> &fruits) {
   int result = 0;
 
   // cache behavior
@@ -405,7 +404,7 @@ int Purgatory::totalFruit(vector<int> &fruits) {
   return result;
 }
 
-int Purgatory::numberOfAlternatingGroups(vector<int> &colors) {
+int Purgatory::numberOfAlternatingGroups(const vector<int> &colors) {
   int n = colors.size();
   int result = 0;
 
@@ -422,7 +421,7 @@ int Purgatory::numberOfAlternatingGroups(vector<int> &colors) {
   return result;
 }
 
-int Purgatory::findLength(vector<int> &nums1, vector<int> &nums2) {
+int Purgatory::findLength(const vector<int> &nums1, const vector<int> &nums2) {
   int result = 0;
 
   const int n = nums1.size();
@@ -446,7 +445,7 @@ int Purgatory::findLength(vector<int> &nums1, vector<int> &nums2) {
   return result;
 }
 
-int Purgatory::maxSatisfied(vector<int> &customers, vector<int> &grumpy,
+int Purgatory::maxSatisfied(const vector<int> &customers, const vector<int> &grumpy,
                             int minutes) {
   int baseSatisfied = 0;
   int currentGain = 0;
@@ -494,7 +493,7 @@ int Purgatory::countKConstraintSubstrings(string s, int k) {
   return result;
 }
 
-int Purgatory::maxTurbulenceSize(vector<int> &arr) {
+int Purgatory::maxTurbulenceSize(const vector<int> &arr) {
   int result = 1;
   int n = arr.size();
 
@@ -520,7 +519,7 @@ int Purgatory::maxTurbulenceSize(vector<int> &arr) {
   return result;
 }
 
-int Purgatory::numberOfSubarrays(vector<int> &nums, int k) {
+int Purgatory::numberOfSubarrays(const vector<int> &nums, int k) {
   int result = 0;
   int n = nums.size();
 
@@ -548,7 +547,7 @@ int Purgatory::numberOfSubarrays(vector<int> &nums, int k) {
   return result;
 }
 
-int Purgatory::maximumUniqueSubarray(vector<int> &nums) {
+int Purgatory::maximumUniqueSubarray(const vector<int> &nums) {
   int result = 0;
   // cache behavior
   vector<int> freq(10001, 0);

@@ -6,7 +6,7 @@ namespace purgatory {
  *  using frequency array here because we can break the problem into how many
  * times each letter is available T: O(n), S: O(1)
  */
-bool Purgatory::canConstruct(string rasomNote, string magazine) {
+bool Purgatory::canConstruct(string ransomNot, string magazine) {
   int count[26] = {0};
 
   // register vs memory
@@ -18,10 +18,10 @@ bool Purgatory::canConstruct(string rasomNote, string magazine) {
   }
 
   // register vs memory
-  int n = rasomNote.size();
+  int n = ransomNot.size();
   // cache behavior
   for (int i = 0; i < n; ++i) {
-    int idx = rasomNote[i] - 'a';
+    int idx = ransomNot[i] - 'a';
     int val = --count[idx];
 
     if (val < 0)
@@ -102,7 +102,7 @@ int Purgatory::longestConsecutive(vector<int> &nums) {
  *  using sliding window here because we can break the problem into checking
  * fixed-length segments T: O(n), S: O(m)
  */
-vector<int> Purgatory::findSubstring(string s, vector<string> &words) {
+vector<int> Purgatory::findSubstring(const string &s, vector<string> &words) {
   vector<int> result;
 
   if (words.empty() || s.empty())
@@ -174,7 +174,7 @@ vector<int> Purgatory::findSubstring(string s, vector<string> &words) {
  *  using a hash-set approach here because we can break the problem into a
  * membership detection. T: O(n), S: O(n)
  */
-bool Purgatory::containsDuplicate(vector<int> &nums) {
+bool Purgatory::containsDuplicate(const vector<int> &nums) {
   unordered_set<int> seen;
   // cache behavior
   seen.reserve(nums.size());
@@ -199,6 +199,8 @@ bool Purgatory::containsDuplicate(vector<int> &nums) {
  *  T: O(k), S: O(k)
  */
 string Purgatory::fractionToDecimal(int numerator, int denominator) {
+  if (denominator == 0)
+    return "0";  // or throw exception
   if (numerator == 0)
     return "0";
 
@@ -212,6 +214,9 @@ string Purgatory::fractionToDecimal(int numerator, int denominator) {
 
   long long n = llabs(numerator);
   long long d = llabs(denominator);
+
+  if (d == 0)
+    return "0";  // Additional safety check
 
   result += to_string(n / d);
 
@@ -237,9 +242,13 @@ string Purgatory::fractionToDecimal(int numerator, int denominator) {
 
     remainder *= 10;
     // register vs memory
-    int digit = remainder / d;
-    result.push_back('0' + digit);
-    remainder %= d;
+    if (d != 0) {
+      int digit = remainder / d;
+      result.push_back('0' + digit);
+      remainder %= d;
+    } else {
+      break;  // Safety: should never happen
+    }
   }
 
   return result;
@@ -315,7 +324,7 @@ vector<int> Purgatory::intersection(vector<int> &nums1, vector<int> &nums2) {
   return result;
 }
 
-vector<int> Purgatory::majorityElement(vector<int> &nums) {
+vector<int> Purgatory::majorityElement(const vector<int> &nums) {
   int candidate1 = 0, candidate2 = 0;
   int count1 = 0, count2 = 0;
 
@@ -357,7 +366,7 @@ vector<int> Purgatory::majorityElement(vector<int> &nums) {
   return result;
 }
 
-string Purgatory::getHint(string &secret, string &guess) {
+string Purgatory::getHint(const string &secret, const string &guess) {
   int bulls = 0, cows = 0;
   int freq[10] = {0};
 
@@ -381,7 +390,7 @@ string Purgatory::getHint(string &secret, string &guess) {
   return to_string(bulls) + 'A' + to_string(cows) + 'B';
 }
 
-int Purgatory::numberOfBoomeranges(vector<vector<int>> &points) {
+int Purgatory::numberOfBoomeranges(const vector<vector<int>> &points) {
   int n = points.size();
   int total = 0;
 
@@ -455,7 +464,7 @@ vector<int> Purgatory::findAnagrams(string s, string p) {
   return result;
 }
 
-int Purgatory::subarraySum(vector<int> &nums, int k) {
+int Purgatory::subarraySum(const vector<int> &nums, int k) {
   // cache behavior
   unordered_map<int, int> prefixCount;
   prefixCount.reserve(nums.size());
@@ -514,7 +523,7 @@ string Purgatory::longestWord(vector<string> &words) {
   return result;
 }
 
-int Purgatory::deleteAndEarn(vector<int> &nums) {
+int Purgatory::deleteAndEarn(const vector<int> &nums) {
   // cache behavior
   int sum[10001] = {0};
   int maxVal = 0;
@@ -545,7 +554,7 @@ struct TrieNode {
 
 int Purgatory::minimumLengthEncoding(vector<string> &words) {
   sort(words.begin(), words.end(),
-       [](string &a, string &b) { return a.size() > b.size(); });
+       [](const string &a, const string &b) { return a.size() > b.size(); });
 
   TrieNode *root = new TrieNode();
   int totalLength = 0;
@@ -576,12 +585,12 @@ int Purgatory::minimumLengthEncoding(vector<string> &words) {
   return totalLength;
 }
 
-vector<string> Purgatory::wordSubsets(vector<string> &words1,
-                                      vector<string> &words2) {
+vector<string> Purgatory::wordSubsets(const vector<string> &words1,
+                                      const vector<string> &word2) {
   // cache behavior
   int maxFreq[26] = {0};
 
-  for (const string &b : words2) {
+  for (const string &b : word2) {
     int freq[26] = {0};
 
     for (char c : b)
@@ -619,7 +628,7 @@ vector<string> Purgatory::wordSubsets(vector<string> &words1,
   return result;
 }
 
-vector<int> Purgatory::findErrorNums(vector<int> &nums) {
+vector<int> Purgatory::findErrorNums(const vector<int> &nums) {
   int n = nums.size();
   vector<int> freq(n + 1, 0);
 
@@ -657,7 +666,7 @@ int Purgatory::longestPalindrome(string s) {
   return result;
 }
 
-int Purgatory::findMaxLength(vector<int> &nums) {
+int Purgatory::findMaxLength(const vector<int> &nums) {
   int n = nums.size();
   // cache behavior
   vector<int> findIndex((n << 1) + 1, -2);
@@ -682,8 +691,8 @@ int Purgatory::findMaxLength(vector<int> &nums) {
   return result;
 }
 
-vector<int> Purgatory::fairCandySwap(vector<int> &aliceSizes,
-                                     vector<int> &bobSizes) {
+vector<int> Purgatory::fairCandySwap(const vector<int> &aliceSizes,
+                                     const vector<int> &bobSizes) {
   int sumA = 0, sumB = 0;
 
   unordered_set<int> set;
@@ -711,7 +720,7 @@ vector<int> Purgatory::fairCandySwap(vector<int> &aliceSizes,
   return {};
 }
 
-bool Purgatory::checkSubarraySum(vector<int> &nums, int k) {
+bool Purgatory::checkSubarraySum(const vector<int> &nums, int k) {
   int n = nums.size();
 
   if (n < 2)

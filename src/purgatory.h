@@ -43,7 +43,7 @@ struct TreeNode {
   int val;
   TreeNode *left;
   TreeNode *right;
-  TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+  explicit TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
 };
 
 struct Node {
@@ -54,7 +54,7 @@ struct Node {
 
   Node() : val(0), left(nullptr), right(nullptr), next(nullptr) {}
 
-  Node(int _val) : val(_val), left(nullptr), right(nullptr), next(nullptr) {}
+  explicit Node(int _val) : val(_val), left(nullptr), right(nullptr), next(nullptr) {}
 
   Node(int _val, Node *_left, Node *_right, Node *_next)
       : val(_val), left(_left), right(_right), next(_next) {}
@@ -63,7 +63,7 @@ struct Node {
 struct ListNode {
   int val;
   ListNode *next;
-  ListNode(int x) : val(x), next(nullptr) {}
+  explicit ListNode(int x) : val(x), next(nullptr) {}
   ListNode(int x, ListNode *next) : val(x), next(next) {}
 };
 
@@ -84,26 +84,26 @@ class Purgatory {
 
 public:
   Purgatory();
-  Purgatory(istream &s);
+  explicit Purgatory(istream &s);
 
   virtual ~Purgatory();
 
   // array/string
-  bool increasingTriplet(vector<int> &nums);
+  bool increasingTriplet(const vector<int> &nums);
 
-  void merge(vector<int> &nums1, int m, vector<int> &nums2, int n);
+  void merge(vector<int> &nums1, int m, const vector<int> &nums2, int n);
 
   int removeDuplicates(vector<int> &nums);
 
   void rotate(vector<int> &nums, int k);
 
-  int candy(vector<int> &ratings);
+  int candy(const vector<int> &ratings);
 
   int removeElemet(vector<int> &nums, int val);
 
-  bool canJump(vector<int> &nums);
+  bool canJump(const vector<int> &nums);
 
-  vector<int> productExceptSelf(vector<int> &nums);
+  vector<int> productExceptSelf(const vector<int> &nums);
 
   vector<string> fullJustify(vector<string> &words, int maxWidth);
 
@@ -117,7 +117,7 @@ public:
 
   string getEncryptedString(string s, int k);
 
-  int arrayPairSum(vector<int> &nums);
+  int arrayPairSum(const vector<int> &nums);
 
   int maxProduct(vector<string> &words);
 
@@ -127,9 +127,9 @@ public:
 
   int maxRotateFunction(vector<int> &nums);
 
-  vector<int> findRightInterval(vector<vector<int>> &intervals);
+  vector<int> findRightInterval(const vector<vector<int>> &intervals);
 
-  string largestNumber(vector<int> &nums);
+  string largestNumber(const vector<int> &nums);
 
   int minimumPairRemoval(vector<int> &nums);
 
@@ -137,9 +137,9 @@ public:
 
   int arrayNesting(vector<int> &nums);
 
-  int maximumProduct(vector<int> &nums);
+  int maximumProduct(const vector<int> &nums);
 
-  bool isPossbile(vector<int> &nums);
+  bool isPossbile(const vector<int> &nums);
 
   bool canPartitionKSubsets(vector<int> &nums, int k);
 
@@ -150,9 +150,9 @@ public:
 
   int longestConsecutive(vector<int> &nums);
 
-  vector<int> findSubstring(string s, vector<string> &words);
+  vector<int> findSubstring(const string &s, vector<string> &words);
 
-  bool containsDuplicate(vector<int> &nums);
+  bool containsDuplicate(const vector<int> &nums);
 
   string fractionToDecimal(int numerator, int denominator);
 
@@ -160,35 +160,35 @@ public:
 
   vector<int> intersection(vector<int> &nums1, vector<int> &nums2);
 
-  vector<int> majorityElement(vector<int> &nums);
+  vector<int> majorityElement(const vector<int> &nums);
 
-  string getHint(string &secret, string &guess);
+  string getHint(const string &secret, const string &guess);
 
-  int numberOfBoomeranges(vector<vector<int>> &points);
+  int numberOfBoomeranges(const vector<vector<int>> &points);
 
   char findTheDifference(string s, string t);
 
   vector<int> findAnagrams(string s, string p);
 
-  int subarraySum(vector<int> &nums, int k);
+  int subarraySum(const vector<int> &nums, int k);
 
   string longestWord(vector<string> &words);
 
-  int deleteAndEarn(vector<int> &nums);
+  int deleteAndEarn(const vector<int> &nums);
 
   int minimumLengthEncoding(vector<string> &words);
 
-  vector<string> wordSubsets(vector<string> &words1, vector<string> &word2);
+  vector<string> wordSubsets(const vector<string> &words1, const vector<string> &word2);
 
-  vector<int> findErrorNums(vector<int> &nums);
+  vector<int> findErrorNums(const vector<int> &nums);
 
   int longestPalindrome(string s);
 
-  int findMaxLength(vector<int> &nums);
+  int findMaxLength(const vector<int> &nums);
 
-  vector<int> fairCandySwap(vector<int> &aliceSizes, vector<int> &bobSizes);
+  vector<int> fairCandySwap(const vector<int> &aliceSizes, const vector<int> &bobSizes);
 
-  bool checkSubarraySum(vector<int> &nums, int k);
+  bool checkSubarraySum(const vector<int> &nums, int k);
 
   vector<vector<string>> findDuplicate(vector<string> &paths);
 
@@ -204,7 +204,7 @@ public:
 
   int countPrimes(int n);
 
-  int wiggleMaxLength(vector<int> &nums);
+  int wiggleMaxLength(const vector<int> &nums);
 
   vector<int> findDuplicates(vector<int> &nums);
 
@@ -221,9 +221,9 @@ public:
 
   void sortColors(vector<int> &nums);
 
-  int compareVersion(string version1, string version2);
+  int compareVersion(const string &version1, const string &version2);
 
-  vector<int> maxNumber(vector<int> &nums1, vector<int> &nums2, int k);
+  vector<int> maxNumber(const vector<int> &nums1, const vector<int> &nums2, int k);
 
   int findContentChildren(vector<int> &g, vector<int> &s);
 
@@ -233,7 +233,7 @@ public:
 
   bool judgeSquareSum(int c);
 
-  int removePalindromeSub(string s);
+  int removePalindromeSub(const string &s);
 
   int findRadius(vector<int> &house, vector<int> &heaters);
 
@@ -242,11 +242,11 @@ public:
   int maxProfitAssignment(vector<int> &difficulty, vector<int> &profit,
                           vector<int> &worker);
 
-  int countBinarySubstrings(string s);
+  int countBinarySubstrings(const string &s);
 
-  int countSubstrings(string s);
+  int countSubstrings(const string &s);
 
-  int longestMountain(vector<int> &arr);
+  int longestMountain(const vector<int> &arr);
 
   string reverseStr(string s, int k);
 
@@ -256,11 +256,11 @@ public:
 
   string addSpaces(string s, vector<int> &spaces);
 
-  long long minimumSteps(string s);
+  long long minimumSteps(const string &s);
 
-  int getCommon(vector<int> &nums1, vector<int> &nums2);
+  int getCommon(const vector<int> &nums1, const vector<int> &nums2);
 
-  int numFriendRequests(vector<int> &ages);
+  int numFriendRequests(const vector<int> &ages);
 
   string reverseOnlyLetters(string s);
 
@@ -270,60 +270,60 @@ public:
 
   vector<int> applyOperations(vector<int> &nums);
 
-  int arithmeticTriplets(vector<int> &nums, int diff);
+  int arithmeticTriplets(const vector<int> &nums, int diff);
 
   int findLUSlegnth(vector<string> &strs);
 
   vector<int> partitionLabels(string s);
 
   // sliding window
-  bool containsNearbyDuplicate(vector<int> &nums, int k);
+  bool containsNearbyDuplicate(const vector<int> &nums, int k);
 
-  int minSubArrayLen(int target, vector<int> &nums);
+  int minSubArrayLen(int target, const vector<int> &nums);
 
-  int lengthOfLongestSubstring(string s);
+  int lengthOfLongestSubstring(const string &s);
 
-  string longestNiceSubstring(string s);
+  string longestNiceSubstring(const string &s);
 
-  int longestSubstring(string s, int k);
+  int longestSubstring(const string &s, int k);
 
   int numberOfArithmeticSlices(vector<int> &nums);
 
   vector<double> medianSlidingWindow(vector<int> &nums, int k);
 
-  int minimumSumSubarray(vector<int> &nums, int l, int r);
+  int minimumSumSubarray(const vector<int> &nums, int l, int r);
 
-  int numSubarraysWithSum(vector<int> &nums, int goal);
+  int numSubarraysWithSum(const vector<int> &nums, int goal);
 
   int maxLength(vector<int> &nums);
 
   int characterReplacement(string s, int k);
 
-  int numSubarrayProductLessThanK(vector<int> &nums, int k);
+  int numSubarrayProductLessThanK(const vector<int> &nums, int k);
 
-  int totalFruit(vector<int> &fruits);
+  int totalFruit(const vector<int> &fruits);
 
-  int numberOfAlternatingGroups(vector<int> &colors);
+  int numberOfAlternatingGroups(const vector<int> &colors);
 
-  int findLength(vector<int> &nums1, vector<int> &nums2);
+  int findLength(const vector<int> &nums1, const vector<int> &nums2);
 
-  int maxSatisfied(vector<int> &customers, vector<int> &grumpy, int minutes);
+  int maxSatisfied(const vector<int> &customers, const vector<int> &grumpy, int minutes);
 
   int countKConstraintSubstrings(string s, int k);
 
-  int maxTurbulenceSize(vector<int> &arr);
+  int maxTurbulenceSize(const vector<int> &arr);
 
-  int numberOfSubarrays(vector<int> &nums, int k);
+  int numberOfSubarrays(const vector<int> &nums, int k);
 
-  int maximumUniqueSubarray(vector<int> &nums);
+  int maximumUniqueSubarray(const vector<int> &nums);
 
   // prefix sum
   class NumArray {
   private:
     vector<int> prefix; // store prefix sums
   public:
-    NumArray(vector<int> &nums);
-    int sumRanges(int left, int right);
+    explicit NumArray(const vector<int> &nums);
+    int sumRanges(int left, int right) const;
   };
 
   class NumMatrix {
@@ -331,8 +331,8 @@ public:
     vector<vector<int>> prefix;
 
   public:
-    NumMatrix(vector<vector<int>> &matrix);
-    int sumRegion(int row1, int col1, int row2, int col2);
+    explicit NumMatrix(vector<vector<int>> &matrix);
+    int sumRegion(int row1, int col1, int row2, int col2) const;
   };
 
   int maxSumSubmatrix(vector<vector<int>> &matrix, int k);
@@ -355,7 +355,7 @@ public:
   class Codec {
   public:
     string serialize(TreeNode *root);
-    TreeNode *deserialize(string data);
+    TreeNode *deserialize(const string &data);
 
   private:
     vector<string> split(const string &s, char delim);
@@ -367,11 +367,11 @@ public:
 
   string simplifyPath(string path);
 
-  int evalRPN(vector<string> &tokens);
+  int evalRPN(const vector<string> &tokens);
 
-  int calculate(string s);
+  int calculate(const string &s);
 
-  vector<int> nextGreaterElement(vector<int> &nums1, vector<int> &nums2);
+  vector<int> nextGreaterElement(const vector<int> &nums1, const vector<int> &nums2);
 
   string removeDuplicateLetters(string s);
 
@@ -381,13 +381,13 @@ public:
 
   bool backspaceCompare(string s, string t);
 
-  int findUnsortedSubarray(vector<int> &nums);
+  int findUnsortedSubarray(const vector<int> &nums);
 
   int carFleet(int target, vector<int> &position, vector<int> &speed);
 
   int sumSubarrayMins(vector<int> &arr);
 
-  string removeOccurrences(string s, string part);
+  string removeOccurrences(const string &s, const string &part);
 
   int maximumGain(string s, int x, int y);
 
@@ -399,11 +399,11 @@ public:
 
   int minLength(string s);
 
-  vector<int> exclusiveTime(int n, vector<string> &logs);
+  vector<int> exclusiveTime(int n, const vector<string> &logs);
 
-  vector<string> buildArray(vector<int> &target, int n);
+  vector<string> buildArray(const vector<int> &target, int n);
 
-  long long subArrayRanges(vector<int> &nums);
+  long long subArrayRanges(const vector<int> &nums);
 
   string makeGood(string s);
 
@@ -413,31 +413,31 @@ public:
 
   string removeDuplicates(string s);
 
-  bool find132pattern(vector<int> &nums);
+  bool find132pattern(const vector<int> &nums);
 
-  int maxWidthRamp(vector<int> &nums);
+  int maxWidthRamp(const vector<int> &nums);
 
   string clearDigits(string s);
 
-  bool validateStackSequences(vector<int> &pushed, vector<int> &popped);
+  bool validateStackSequences(const vector<int> &pushed, const vector<int> &popped);
 
   string minRemoveToMakeValid(string s);
 
-  int totalSteps(vector<int> &nums);
+  int totalSteps(const vector<int> &nums);
 
-  int minOperations(vector<string> &logs);
+  int minOperations(const vector<string> &logs);
 
   int scoreOfParentheses(string s);
 
-  int maximumPossibleSize(vector<int> &nums);
+  int maximumPossibleSize(const vector<int> &nums);
 
   vector<int> preorderTraversal(TreeNode *root);
 
-  int maxBalanceShipments(vector<int> &weight);
+  int maxBalanceShipments(const vector<int> &weight);
 
-  long long bowlSubarrays(vector<int> &nums);
+  long long bowlSubarrays(const vector<int> &nums);
 
-  vector<long long> mergeAdjacent(vector<int> &nums);
+  vector<long long> mergeAdjacent(const vector<int> &nums);
 
   vector<int> postorderTraversal(TreeNode *root);
 
@@ -464,7 +464,7 @@ public:
                                      vector<string> &wordList);
 
   // graph
-  int findJudge(int n, vector<vector<int>> &trust);
+  int findJudge(int n, const vector<vector<int>> &trust);
 
   int numIslands(vector<vector<char>> &grid);
 
@@ -472,22 +472,22 @@ public:
 
   int longestIncreasingPath(vector<vector<int>> &matrix);
 
-  int findCenter(vector<vector<int>> &edges);
+  int findCenter(const vector<vector<int>> &edges);
 
   bool isBipartite(vector<vector<int>> &graph);
 
-  int numberOfComponents(vector<vector<int>> &properties, int k);
+  int numberOfComponents(const vector<vector<int>> &properties, int k);
 
   // heap
-  int lastStoneWeight(vector<int> &stones);
+  int lastStoneWeight(const vector<int> &stones);
 
   int nthUglyNumber(int n);
 
-  vector<int> topKFrequent(vector<int> &nums, int k);
+  vector<int> topKFrequent(const vector<int> &nums, int k);
 
   vector<int> maxSlidingWindow(vector<int> &nums, int k);
 
-  int maxProduct(vector<int> &nums);
+  int maxProduct(const vector<int> &nums);
 
   string frequencySort(string s);
 
@@ -499,9 +499,9 @@ public:
 
   vector<int> numberGame(vector<int> &nums);
 
-  int networkDelayTime(vector<vector<int>> &times, int n, int k);
+  int networkDelayTime(const vector<vector<int>> &times, int n, int k);
 
-  int minSetSize(vector<int> &arr);
+  int minSetSize(const vector<int> &arr);
 
   int deleteGreatestValue(vector<vector<int>> &grid);
 
@@ -514,23 +514,23 @@ public:
   vector<int> getOrder(vector<vector<int>> &tasks);
 
   // intervals
-  vector<string> summaryRanges(vector<int> &nums);
+  vector<string> summaryRanges(const vector<int> &nums);
 
   vector<vector<int>> merge(vector<vector<int>> &intervals);
 
   vector<vector<int>> insert(vector<vector<int>> &intervals,
-                             vector<int> &newInterval);
+                             const vector<int> &newInterval);
 
   int findMinArrowShots(vector<vector<int>> &points);
 
   // dp
   int climbStairs(int n);
 
-  int rob(vector<int> &nums);
+  int rob(const vector<int> &nums);
 
-  bool wordBreak(string s, vector<string> &wordDict);
+  bool wordBreak(const string &s, vector<string> &wordDict);
 
-  bool isMatch(string s, string p);
+  bool isMatch(const string &s, const string &p);
 
   // backtracking
   vector<string> binaryTreePaths(TreeNode *root);
@@ -552,15 +552,15 @@ public:
   vector<vector<int>> findSubsequences(vector<int> &nums);
 
   // binary search
-  int searchInsert(vector<int> &nums, int target);
+  int searchInsert(const vector<int> &nums, int target);
 
   bool searchMatric(vector<vector<int>> &matrix, int target);
 
-  int findPeakElement(vector<int> &nums);
+  int findPeakElement(const vector<int> &nums);
 
   double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2);
 
-  int missingNumber(vector<int> &nums);
+  int missingNumber(const vector<int> &nums);
 
   int findDuplicate(vector<int> &nums);
 
@@ -601,7 +601,7 @@ public:
 
   ListNode *mergeInBetween(ListNode *list1, int a, int b, ListNode *list2);
 
-  ListNode *modifiedList(vector<int> &nums, ListNode *head);
+  ListNode *modifiedList(const vector<int> &nums, ListNode *head);
 
   vector<int> nextLargerNodes(ListNode *head);
 

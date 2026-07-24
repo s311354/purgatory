@@ -98,6 +98,23 @@ Use `format.sh` to check or apply clang-format:
 ./format.sh apply test         # Apply formatting to test/ directory
 ```
 
+### Static Analysis
+
+Use `cppcheck.sh` to run static code analysis:
+
+```shell
+./cppcheck.sh check            # Standard checks (warnings + style + performance) [default]
+./cppcheck.sh strict           # Comprehensive analysis (includes portability)
+./cppcheck.sh report           # Generate detailed report to cppcheck-report.txt
+```
+
+The script automatically suppresses:
+- `functionStatic` - Intentional class-based design pattern
+- `useStlAlgorithm` - Educational emphasis on explicit implementations
+- `noExplicitConstructor` - Query class requires implicit conversion
+
+To review and apply fixes for cppcheck findings:
+
 ### Development Environment
 
 For an optional tmux workspace:

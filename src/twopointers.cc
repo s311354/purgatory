@@ -200,7 +200,7 @@ void Purgatory::sortColors(vector<int> &nums) {
  *  using two-pointer parsing method here because we can break the problem into
  * small numeric segments without splitting strings T: O(n + m), S: O(1)
  */
-int Purgatory::compareVersion(string version1, string version2) {
+int Purgatory::compareVersion(const string &version1, const string &version2) {
   // register vs memory
   const char *p1 = version1.c_str();
   const char *p2 = version2.c_str();
@@ -231,7 +231,7 @@ int Purgatory::compareVersion(string version1, string version2) {
   return 0;
 }
 
-vector<int> maxSubsequence(vector<int> &nums, int k) {
+vector<int> maxSubsequence(const vector<int> &nums, int k) {
   vector<int> st;
 
   int drop = nums.size() - k;
@@ -285,7 +285,7 @@ vector<int> mergeMaxNumber(vector<int> &a, vector<int> &b) {
  *  - trying all possible divisons
  *  T:((M + N)^2), S:O(K)
  */
-vector<int> Purgatory::maxNumber(vector<int> &nums1, vector<int> &nums2,
+vector<int> Purgatory::maxNumber(const vector<int> &nums1, const vector<int> &nums2,
                                  int k) {
   vector<int> best;
 
@@ -425,7 +425,7 @@ bool Purgatory::judgeSquareSum(int c) {
   return false;
 }
 
-int Purgatory::removePalindromeSub(string s) {
+int Purgatory::removePalindromeSub(const string &s) {
   // cache behavior
   const char *l = s.data();
   const char *r = l + s.size() - 1;
@@ -440,22 +440,22 @@ int Purgatory::removePalindromeSub(string s) {
   return 1;
 }
 
-int Purgatory::findRadius(vector<int> &houses, vector<int> &heaters) {
+int Purgatory::findRadius(vector<int> &house, vector<int> &heaters) {
   // cpu pipeline
-  sort(houses.begin(), houses.end());
+  sort(house.begin(), house.end());
   sort(heaters.begin(), heaters.end());
 
   int i = 0;
   int maxRadius = 0;
 
-  for (int house : houses) {
+  for (int h : house) {
     // branch prediction
     while (i < heaters.size() - 1 &&
-           abs(heaters[i + 1] - house) <= abs(heaters[i] - house)) {
+           abs(heaters[i + 1] - h) <= abs(heaters[i] - h)) {
       ++i;
     }
 
-    maxRadius = max(maxRadius, abs(heaters[i] - house));
+    maxRadius = max(maxRadius, abs(heaters[i] - h));
   }
 
   return maxRadius;
@@ -488,7 +488,7 @@ bool Purgatory::circularArrayLoop(vector<int> &nums) {
       int valFast2 = nums[nextFast];
 
       // branch prediction
-      if (((valSlow > 0) != isForward) | ((valFast1 > 0) != isForward) |
+      if (((valSlow > 0) != isForward) || ((valFast1 > 0) != isForward) ||
           ((valFast2 > 0) != isForward))
         break;
 
@@ -498,7 +498,7 @@ bool Purgatory::circularArrayLoop(vector<int> &nums) {
       if (slow == fast) {
         int next = slow + nums[slow];
 
-        if (next >= 0 || next < 0)
+        if (next >= n || next < 0)
           next = (next % n + n) % n;
 
         if (next == slow)
@@ -574,7 +574,7 @@ int Purgatory::maxProfitAssignment(vector<int> &difficulty, vector<int> &profit,
   return total;
 }
 
-int Purgatory::countBinarySubstrings(string s) {
+int Purgatory::countBinarySubstrings(const string &s) {
   int prevGroup = 0;
   int currGroup = 1;
   int totalCount = 0;
@@ -614,7 +614,7 @@ int expandAorundCenterCountSubstrings(const string &s, int left, int right) {
   return palindromeCount;
 }
 
-int Purgatory::countSubstrings(string s) {
+int Purgatory::countSubstrings(const string &s) {
   // register vs memory
   int n = s.size();
   int totalPalindromes = 0;
@@ -629,7 +629,7 @@ int Purgatory::countSubstrings(string s) {
   return totalPalindromes;
 }
 
-int Purgatory::longestMountain(vector<int> &arr) {
+int Purgatory::longestMountain(const vector<int> &arr) {
   int n = arr.size();
 
   if (n < 3)
@@ -758,7 +758,7 @@ string Purgatory::addSpaces(string s, vector<int> &spaces) {
   return result;
 }
 
-long long Purgatory::minimumSteps(string s) {
+long long Purgatory::minimumSteps(const string &s) {
   long long onesCount = 0;
   long long totalSwaps = 0;
 
@@ -776,7 +776,7 @@ long long Purgatory::minimumSteps(string s) {
   return totalSwaps;
 }
 
-int Purgatory::getCommon(vector<int> &nums1, vector<int> &nums2) {
+int Purgatory::getCommon(const vector<int> &nums1, const vector<int> &nums2) {
   // register vs memory
   int n1 = nums1.size(), n2 = nums2.size();
 
@@ -801,7 +801,7 @@ int Purgatory::getCommon(vector<int> &nums1, vector<int> &nums2) {
   return -1;
 }
 
-int Purgatory::numFriendRequests(vector<int> &ages) {
+int Purgatory::numFriendRequests(const vector<int> &ages) {
 
   // cache behavior
   int cnt[121] = {};
@@ -951,7 +951,7 @@ vector<int> Purgatory::applyOperations(vector<int> &nums) {
   return nums;
 }
 
-int Purgatory::arithmeticTriplets(vector<int> &nums, int diff) {
+int Purgatory::arithmeticTriplets(const vector<int> &nums, int diff) {
   // register vs memory
   int n = nums.size();
 
@@ -993,7 +993,7 @@ int Purgatory::findLUSlegnth(vector<string> &strs) {
   int n = strs.size();
 
   sort(strs.begin(), strs.end(),
-       [](string &a, string &b) { return a.size() > b.size(); });
+       [](const string &a, const string &b) { return a.size() > b.size(); });
 
   for (int i = 0; i < n; ++i) {
     bool uncommon = true;

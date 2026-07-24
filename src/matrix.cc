@@ -45,7 +45,7 @@ struct NodekthSmallest {
 };
 
 struct Compare {
-  bool operator()(const NodekthSmallest &a, const NodekthSmallest &b) {
+  bool operator()(const NodekthSmallest &a, const NodekthSmallest &b) const {
     return a.val > b.val;
   }
 };
@@ -96,13 +96,10 @@ int Purgatory::countBattleships(vector<vector<char>> &board) {
   int count = 0;
 
   for (int i = 0; i < m; ++i) {
-    // register vs memory
-    auto &row = board[i];
-    auto &prev = (i > 0) ? board[i - 1] : row;
     for (int j = 0; j < n; ++j) {
       // branch prediction
-      if (board[i][j] == 'X' && (i == 0 || row[j] != 'X') &&
-          (j == 0 || prev[j - 1] != 'X'))
+      if (board[i][j] == 'X' && (i == 0 || board[i - 1][j] != 'X') &&
+          (j == 0 || board[i][j - 1] != 'X'))
         ++count;
     }
   }
@@ -110,7 +107,7 @@ int Purgatory::countBattleships(vector<vector<char>> &board) {
   return count;
 }
 
-int largestRectangleArea(vector<int> &h) {
+int largestRectangleArea(const vector<int> &h) {
 
   int n = h.size();
   // cache behavior

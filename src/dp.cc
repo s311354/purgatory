@@ -32,7 +32,7 @@ int Purgatory::climbStairs(int n) {
  *  using DP recurrence here because at each house, the choice is rob it or skip
  * it
  */
-int Purgatory::rob(vector<int> &nums) {
+int Purgatory::rob(const vector<int> &nums) {
   int n = nums.size();
 
   if (n == 0)
@@ -64,7 +64,7 @@ int Purgatory::rob(vector<int> &nums) {
  *  - each dp[i] depends on whether there's a valid split at j
  *  - the hash set look up ensures substring membership is O(1)
  */
-bool Purgatory::wordBreak(string s, vector<string> &wordDict) {
+bool Purgatory::wordBreak(const string &s, vector<string> &wordDict) {
   // cache behavoir
   unordered_set<string> dict;
   dict.reserve(wordDict.size() * 2);
@@ -108,7 +108,7 @@ bool Purgatory::wordBreak(string s, vector<string> &wordDict) {
  *  using DP here because regex matching has overlapping subproblems. We break
  * it into status (i, j) where i is string length, j is pattern length
  */
-bool Purgatory::isMatch(string s, string p) {
+bool Purgatory::isMatch(const string &s, const string &p) {
   int m = s.size(), n = p.size();
 
   // cache behavior
@@ -137,9 +137,9 @@ bool Purgatory::isMatch(string s, string p) {
 
       // branch prediction
       if (pc != '*') {
-        dp[j] = prev & (pc == '.' || pc == sc);
+        dp[j] = prev && (pc == '.' || pc == sc);
       } else {
-        dp[j] = dp[j - 2] | ((pp[j - 2] == '.' || pp[j - 2] == sc) & dp[j]);
+        dp[j] = dp[j - 2] || ((pp[j - 2] == '.' || pp[j - 2] == sc) && dp[j]);
       }
 
       prev = temp;

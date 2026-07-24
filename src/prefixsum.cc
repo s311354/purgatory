@@ -6,7 +6,7 @@ namespace purgatory {
  *  using prefix sums here because we can break the problem into pre computation
  * O(n) + query O(1)
  */
-Purgatory::NumArray::NumArray(vector<int> &nums) {
+Purgatory::NumArray::NumArray(const vector<int> &nums) {
   int n = nums.size();
   prefix.resize(n + 1, 0);
 
@@ -15,7 +15,7 @@ Purgatory::NumArray::NumArray(vector<int> &nums) {
   }
 }
 
-int Purgatory::NumArray::sumRanges(int left, int right) {
+int Purgatory::NumArray::sumRanges(int left, int right) const {
   return prefix[right + 1] - prefix[left];
 }
 
@@ -37,7 +37,7 @@ Purgatory::NumMatrix::NumMatrix(vector<vector<int>> &matrix) {
   }
 }
 
-int Purgatory::NumMatrix::sumRegion(int row1, int col1, int row2, int col2) {
+int Purgatory::NumMatrix::sumRegion(int row1, int col1, int row2, int col2) const {
   row1++;
   col1++;
   row2++;

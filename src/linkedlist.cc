@@ -289,7 +289,7 @@ vector<int> Purgatory::nodesBetweenCriticalPoints(ListNode *head) {
 
     // branch prediction
     bool isCritical = ((currVal > prevVal) && (currVal > nextVal)) ||
-                      ((currVal < prevVal) & (currVal < nextVal));
+                      ((currVal < prevVal) && (currVal < nextVal));
 
     if (isCritical) {
       if (firstCritical == -1)
@@ -486,7 +486,7 @@ ListNode *Purgatory::mergeInBetween(ListNode *list1, int a, int b,
   return list1;
 }
 
-ListNode *Purgatory::modifiedList(vector<int> &nums, ListNode *head) {
+ListNode *Purgatory::modifiedList(const vector<int> &nums, ListNode *head) {
 
   // cache behavior
   vector<bool> buckets(100001, false);

@@ -37,9 +37,13 @@ A failing configure, build, unit test, or sample run fails the job.
 
 The `code-quality` job installs clang-format 14 and cppcheck.
 
-- cppcheck scans `src/*.cc` and `src/*.h`. Its findings are currently informational because the command uses `--error-exitcode=0`.
-- clang-format checks all tracked files with common C and C++ extensions. Formatting differences fail the job.
+- **cppcheck** performs static analysis on `src/` with `--enable=warning,style,performance,portability` and will fail the build if issues are found (`--error-exitcode=1`). The check automatically suppresses:
+  - `functionStatic` - Intentional class-based design pattern
+  - `useStlAlgorithm` - Educational emphasis on explicit implementations
+  - `noExplicitConstructor` - Query class requires implicit conversion
+- **clang-format** checks all tracked files with common C and C++ extensions. Formatting differences fail the job.
 - The committed `.clang-format` file defines the LLVM-based repository style.
+- The cppcheck report is uploaded as an artifact and retained for 30 days.
 
 The formatting check uses tracked files rather than scanning dependency or build directories, so the GoogleTest submodule and generated sources are excluded.
 
@@ -137,15 +141,28 @@ If `g++-11` is unavailable, use another C++17 compiler such as `c++` or `clang++
 
 ### Static Analysis
 
-Run the same informational cppcheck scan as CI:
+Run the same cppcheck checks as CI:
 
 ```bash
 cppcheck \
-  --enable=all \
-  --error-exitcode=0 \
+  --enable=warning,style,performance,portability \
+  --std=c++17 \
+  --error-exitcode=1 \
   --inline-suppr \
   --suppress=missingIncludeSystem \
-  src/*.cc src/*.h
+  --suppress=functionStatic \
+  --suppress=useStlAlgorithm \
+  --suppress=noExplicitConstructor:src/query.h:79 \
+  --quiet \
+  src/
+```
+
+Or use the provided script:
+
+```bash
+./cppcheck.sh strict   # Same checks as CI (includes portability)
+./cppcheck.sh check    # Standard checks (warnings + style + performance)
+./cppcheck.sh report   # Generate detailed report
 ```
 
 ### Formatting

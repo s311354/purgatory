@@ -195,7 +195,7 @@ vector<string> Purgatory::removeInvalidParentheses(string s) {
   return result;
 }
 
-int Purgatory::findCenter(vector<vector<int>> &edges) {
+int Purgatory::findCenter(const vector<vector<int>> &edges) {
   int a = edges[0][0], b = edges[0][1];
   int c = edges[1][0], d = edges[1][1];
 
@@ -245,7 +245,7 @@ bool Purgatory::isBipartite(vector<vector<int>> &graph) {
   return true;
 }
 
-int Purgatory::numberOfComponents(vector<vector<int>> &properties, int k) {
+int Purgatory::numberOfComponents(const vector<vector<int>> &properties, int k) {
   int n = properties.size();
 
   vector<int> parent(n), rank(n, 0);

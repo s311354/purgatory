@@ -81,7 +81,8 @@ vector<int> Purgatory::rightSideView(TreeNode *root) {
       if (right)
         q.push_back(right);
     }
-    res.push_back(lastNode->val);
+    if (lastNode)
+      res.push_back(lastNode->val);
   }
   return res;
 }
@@ -155,7 +156,7 @@ int Purgatory::sumOfLeftLeaves(TreeNode *root) {
 
     if (left) {
       // branch prediction
-      bool isLeaf = (left->left == nullptr) & (left->right == nullptr);
+      bool isLeaf = (left->left == nullptr) && (left->right == nullptr);
       if (isLeaf)
         sum += left->val;
       else
@@ -260,7 +261,7 @@ void findLaddersbfs(const string &beginWord, const string &endWord,
   }
 }
 
-void backtrackFindLadders(string &word, string &beginWord,
+void backtrackFindLadders(const string &word, string &beginWord,
                           unordered_map<string, vector<string>> &parents,
                           vector<string> &path, vector<vector<string>> &res) {
   if (word == beginWord) {
@@ -434,7 +435,7 @@ string Purgatory::Codec::serialize(TreeNode *root) {
          serialize(root->right);
 }
 
-TreeNode *Purgatory::Codec::deserialize(string data) {
+TreeNode *Purgatory::Codec::deserialize(const string &data) {
   vector<string> tokens = split(data, ',');
   int idx = 0;
   return build(tokens, idx);

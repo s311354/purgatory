@@ -9,7 +9,7 @@ namespace purgatory {
  *  - incoming edges -> candidate for judge
  *  T: O(m + n), S: O(n)
  */
-int Purgatory::findJudge(int n, vector<vector<int>> &trust) {
+int Purgatory::findJudge(int n, const vector<vector<int>> &trust) {
   if (n == 1 && trust.empty())
     return 1;
 

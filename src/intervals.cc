@@ -6,7 +6,7 @@ namespace purgatory {
  *  using a two-pointer style approach here because the array is sorted, we just
  * need to find where a consecutive run starts and ends. T: O(n), S: O(n)
  */
-vector<string> Purgatory::summaryRanges(vector<int> &nums) {
+vector<string> Purgatory::summaryRanges(const vector<int> &nums) {
   vector<string> result;
   // register vs memory
   int n = nums.size();
@@ -105,7 +105,7 @@ vector<vector<int>> Purgatory::merge(vector<vector<int>> &intervals) {
  *  T: O(n), S: O(n)
  */
 vector<vector<int>> Purgatory::insert(vector<vector<int>> &intervals,
-                                      vector<int> &newInterval) {
+                                      const vector<int> &newInterval) {
   vector<vector<int>> result;
   // register vs memory
   int n = intervals.size();
@@ -174,6 +174,9 @@ int Purgatory::findMinArrowShots(vector<vector<int>> &points) {
   }
 
   sort(order.begin(), order.end());
+
+  if (order.empty())
+    return 0;
 
   int arrows = 1;
   int arrowPos = order[0].first;

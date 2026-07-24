@@ -8,7 +8,7 @@ namespace purgatory {
  * The final left variable naturally gives us the correct insertion index,
  * whether the target is found or not. T:O(log n), S: O(1)
  */
-int Purgatory::searchInsert(vector<int> &nums, int target) {
+int Purgatory::searchInsert(const vector<int> &nums, int target) {
   int left = 0, right = nums.size();
 
   while (left < right) {
@@ -78,7 +78,7 @@ bool Purgatory::searchMatric(vector<vector<int>> &matrix, int target) {
  *  using binary search on slope property here
  *  T: O(log n), S: O(1)
  */
-int Purgatory::findPeakElement(vector<int> &nums) {
+int Purgatory::findPeakElement(const vector<int> &nums) {
   int left = 0, right = nums.size() - 1;
 
   while (left < right) {
@@ -152,7 +152,7 @@ double Purgatory::findMedianSortedArrays(vector<int> &nums1,
  *  using XOR here because we can break the problem into elimination pairs
  * symmetrically T: O(n), S: O(1)
  */
-int Purgatory::missingNumber(vector<int> &nums) {
+int Purgatory::missingNumber(const vector<int> &nums) {
   int n = nums.size();
   int x = n;
 

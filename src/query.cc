@@ -95,7 +95,7 @@ QueryResult NotQuery::eval(const TextQuery &text) const {
   for (size_t n = 0; n != sz; ++n) {
     if (beg == end || *beg != n)
       ret_lines->insert(n);
-    else if (beg != end)
+    else
       ++beg;
   }
 

@@ -11,7 +11,7 @@ class TextQuery {
 public:
   using line_no = vector<string>::size_type;
 
-  TextQuery(ifstream &);
+  explicit TextQuery(ifstream &);
 
   QueryResult query(const string &) const;
 
@@ -26,7 +26,7 @@ class QueryResult {
   friend ostream &print(ostream &, const QueryResult &);
 
 public:
-  QueryResult(string s, shared_ptr<set<TextQuery::line_no>> p,
+  QueryResult(const string &s, shared_ptr<set<TextQuery::line_no>> p,
               shared_ptr<vector<string>> f)
       : sought(s), lines(p), file(f) {}
 
@@ -69,7 +69,7 @@ class Query {
   friend Query operator&(const Query &, const Query &);
 
 public:
-  Query(const string &);
+  explicit Query(const string &);
 
   // call QueryResult's default copy constructor
   QueryResult eval(const TextQuery &t) const { return q->eval(t); }
@@ -84,10 +84,10 @@ private:
 class WordQuery : public Query_base {
   friend class Query;
 
-  WordQuery(const string &s) : query_word(s) {}
+  explicit WordQuery(const string &s) : query_word(s) {}
 
-  QueryResult eval(const TextQuery &t) const { return t.query(query_word); }
-  string rep() const { return query_word; }
+  QueryResult eval(const TextQuery &t) const override { return t.query(query_word); }
+  string rep() const override { return query_word; }
 
   string query_word;
 };
@@ -95,19 +95,19 @@ class WordQuery : public Query_base {
 class NotQuery : public Query_base {
   friend Query operator~(const Query &);
 
-  NotQuery(const Query &q) : query(q) {}
+  explicit NotQuery(const Query &q) : query(q) {}
 
-  QueryResult eval(const TextQuery &) const;
-  string rep() const { return "~(" + query.rep() + ")"; }
+  QueryResult eval(const TextQuery &) const override;
+  string rep() const override { return "~(" + query.rep() + ")"; }
 
   Query query;
 };
 
 class BinaryQuery : public Query_base {
 protected:
-  BinaryQuery(const Query &l, const Query &r, string s)
+  BinaryQuery(const Query &l, const Query &r, const string &s)
       : lhs(l), rhs(r), opSym(s) {}
-  string rep() const {
+  string rep() const override {
     return "(" + lhs.rep() + " " + opSym + " " + rhs.rep() + ")";
   }
 
@@ -120,7 +120,7 @@ class AndQuery : public BinaryQuery {
   AndQuery(const Query &left, const Query &right)
       : BinaryQuery(left, right, "&") {}
 
-  QueryResult eval(const TextQuery &) const;
+  QueryResult eval(const TextQuery &) const override;
 };
 
 class OrQuery : public BinaryQuery {
@@ -128,7 +128,7 @@ class OrQuery : public BinaryQuery {
   OrQuery(const Query &left, const Query &right)
       : BinaryQuery(left, right, "|") {}
 
-  QueryResult eval(const TextQuery &) const;
+  QueryResult eval(const TextQuery &) const override;
 };
 
 ostream &operator<<(ostream &os, const Query &query);
