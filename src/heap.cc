@@ -349,7 +349,8 @@ struct EdgeNetwork {
   int w;
 };
 
-int Purgatory::networkDelayTime(const vector<vector<int>> &times, int n, int k) {
+int Purgatory::networkDelayTime(const vector<vector<int>> &times, int n,
+                                int k) {
 
   // cache behavior
   vector<vector<EdgeNetwork>> graph(n + 1);

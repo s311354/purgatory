@@ -41,7 +41,8 @@ bool Purgatory::increasingTriplet(const vector<int> &nums) {
  *  - only copying remaining nums2 if needed
  *  T: O(n), S: O(1)
  */
-void Purgatory::merge(vector<int> &nums1, int m, const vector<int> &nums2, int n) {
+void Purgatory::merge(vector<int> &nums1, int m, const vector<int> &nums2,
+                      int n) {
   int p1 = m - 1, p2 = n - 1, p = m + n - 1;
 
   // Loop optimization

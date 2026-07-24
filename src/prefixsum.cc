@@ -37,7 +37,8 @@ Purgatory::NumMatrix::NumMatrix(vector<vector<int>> &matrix) {
   }
 }
 
-int Purgatory::NumMatrix::sumRegion(int row1, int col1, int row2, int col2) const {
+int Purgatory::NumMatrix::sumRegion(int row1, int col1, int row2,
+                                    int col2) const {
   row1++;
   col1++;
   row2++;

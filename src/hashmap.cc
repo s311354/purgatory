@@ -200,7 +200,7 @@ bool Purgatory::containsDuplicate(const vector<int> &nums) {
  */
 string Purgatory::fractionToDecimal(int numerator, int denominator) {
   if (denominator == 0)
-    return "0";  // or throw exception
+    return "0"; // or throw exception
   if (numerator == 0)
     return "0";
 
@@ -216,7 +216,7 @@ string Purgatory::fractionToDecimal(int numerator, int denominator) {
   long long d = llabs(denominator);
 
   if (d == 0)
-    return "0";  // Additional safety check
+    return "0"; // Additional safety check
 
   result += to_string(n / d);
 
@@ -247,7 +247,7 @@ string Purgatory::fractionToDecimal(int numerator, int denominator) {
       result.push_back('0' + digit);
       remainder %= d;
     } else {
-      break;  // Safety: should never happen
+      break; // Safety: should never happen
     }
   }
 

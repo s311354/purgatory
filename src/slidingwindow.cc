@@ -445,8 +445,8 @@ int Purgatory::findLength(const vector<int> &nums1, const vector<int> &nums2) {
   return result;
 }
 
-int Purgatory::maxSatisfied(const vector<int> &customers, const vector<int> &grumpy,
-                            int minutes) {
+int Purgatory::maxSatisfied(const vector<int> &customers,
+                            const vector<int> &grumpy, int minutes) {
   int baseSatisfied = 0;
   int currentGain = 0;
   int maxGain = 0;

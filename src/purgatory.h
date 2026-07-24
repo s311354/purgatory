@@ -54,7 +54,8 @@ struct Node {
 
   Node() : val(0), left(nullptr), right(nullptr), next(nullptr) {}
 
-  explicit Node(int _val) : val(_val), left(nullptr), right(nullptr), next(nullptr) {}
+  explicit Node(int _val)
+      : val(_val), left(nullptr), right(nullptr), next(nullptr) {}
 
   Node(int _val, Node *_left, Node *_right, Node *_next)
       : val(_val), left(_left), right(_right), next(_next) {}
@@ -178,7 +179,8 @@ public:
 
   int minimumLengthEncoding(vector<string> &words);
 
-  vector<string> wordSubsets(const vector<string> &words1, const vector<string> &word2);
+  vector<string> wordSubsets(const vector<string> &words1,
+                             const vector<string> &word2);
 
   vector<int> findErrorNums(const vector<int> &nums);
 
@@ -186,7 +188,8 @@ public:
 
   int findMaxLength(const vector<int> &nums);
 
-  vector<int> fairCandySwap(const vector<int> &aliceSizes, const vector<int> &bobSizes);
+  vector<int> fairCandySwap(const vector<int> &aliceSizes,
+                            const vector<int> &bobSizes);
 
   bool checkSubarraySum(const vector<int> &nums, int k);
 
@@ -223,7 +226,8 @@ public:
 
   int compareVersion(const string &version1, const string &version2);
 
-  vector<int> maxNumber(const vector<int> &nums1, const vector<int> &nums2, int k);
+  vector<int> maxNumber(const vector<int> &nums1, const vector<int> &nums2,
+                        int k);
 
   int findContentChildren(vector<int> &g, vector<int> &s);
 
@@ -307,7 +311,8 @@ public:
 
   int findLength(const vector<int> &nums1, const vector<int> &nums2);
 
-  int maxSatisfied(const vector<int> &customers, const vector<int> &grumpy, int minutes);
+  int maxSatisfied(const vector<int> &customers, const vector<int> &grumpy,
+                   int minutes);
 
   int countKConstraintSubstrings(string s, int k);
 
@@ -371,7 +376,8 @@ public:
 
   int calculate(const string &s);
 
-  vector<int> nextGreaterElement(const vector<int> &nums1, const vector<int> &nums2);
+  vector<int> nextGreaterElement(const vector<int> &nums1,
+                                 const vector<int> &nums2);
 
   string removeDuplicateLetters(string s);
 
@@ -419,7 +425,8 @@ public:
 
   string clearDigits(string s);
 
-  bool validateStackSequences(const vector<int> &pushed, const vector<int> &popped);
+  bool validateStackSequences(const vector<int> &pushed,
+                              const vector<int> &popped);
 
   string minRemoveToMakeValid(string s);
 

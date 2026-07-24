@@ -285,8 +285,8 @@ vector<int> mergeMaxNumber(vector<int> &a, vector<int> &b) {
  *  - trying all possible divisons
  *  T:((M + N)^2), S:O(K)
  */
-vector<int> Purgatory::maxNumber(const vector<int> &nums1, const vector<int> &nums2,
-                                 int k) {
+vector<int> Purgatory::maxNumber(const vector<int> &nums1,
+                                 const vector<int> &nums2, int k) {
   vector<int> best;
 
   int m = nums1.size(), n = nums2.size();

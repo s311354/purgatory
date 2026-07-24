@@ -245,7 +245,8 @@ bool Purgatory::isBipartite(vector<vector<int>> &graph) {
   return true;
 }
 
-int Purgatory::numberOfComponents(const vector<vector<int>> &properties, int k) {
+int Purgatory::numberOfComponents(const vector<vector<int>> &properties,
+                                  int k) {
   int n = properties.size();
 
   vector<int> parent(n), rank(n, 0);
