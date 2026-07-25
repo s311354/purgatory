@@ -21,6 +21,7 @@ purgatory is a lightweight, modular C++17-based environment for prototyping, emb
 ├── .github/               # CI, coverage, and release workflows
 ├── CMakeLists.txt         # Root CMake configuration
 ├── format.sh              # Check or apply clang-format
+├── coverage.sh            # Generate code coverage reports
 ├── install-build-deps.sh  # Script to install compiler/tools
 ├── tmux-session.sh        # Launch development tmux sessions
 ├── src/
@@ -112,6 +113,15 @@ The script automatically suppresses:
 - `functionStatic` - Intentional class-based design pattern
 - `useStlAlgorithm` - Educational emphasis on explicit implementations
 - `noExplicitConstructor` - Query class requires implicit conversion
+
+### Code Coverage
+
+Use `coverage.sh` to generate code coverage reports:
+
+```shell
+./coverage.sh                  # Generate text summary (default)
+./coverage.sh --clean          # Clean coverage artifacts
+```
 
 To review and apply fixes for cppcheck findings:
 

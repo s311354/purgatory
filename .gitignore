@@ -6,3 +6,11 @@
 core
 gentoo
 /build*
+
+# Coverage artifacts
+*.gcda
+*.gcno
+*.gcov
+coverage*.html
+coverage.xml
+coverage-summary.txt

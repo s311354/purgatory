@@ -147,7 +147,14 @@ vector<int> toVector(ListNode *head) {
 
 } // namespace purgatory
 
-TEST(X86_64Test, BasicCheck) { EXPECT_EQ(1 + 1, 2); }
+TEST(X86_64Test, BasicCheck) {
+  EXPECT_EQ(1 + 1, 2);
+
+  // Test constructors (lines 5-6 in array.cc)
+  purgatory::Purgatory solutions1;
+  std::stringstream ss;
+  purgatory::Purgatory solutions2(ss);
+}
 
 TEST(X86_64Test, increasingTripletCheck) {
 
@@ -159,6 +166,24 @@ TEST(X86_64Test, increasingTripletCheck) {
   bool output = solutions.increasingTriplet(nums);
 
   bool expected = true;
+
+  EXPECT_EQ(output, expected);
+
+  // Edge Case - no triplet found (line 34)
+  nums = {5, 4, 3, 2, 1};
+
+  output = solutions.increasingTriplet(nums);
+
+  expected = false;
+
+  EXPECT_EQ(output, expected);
+
+  // Edge Case - all equal
+  nums = {1, 1, 1, 1};
+
+  output = solutions.increasingTriplet(nums);
+
+  expected = false;
 
   EXPECT_EQ(output, expected);
 }
@@ -189,6 +214,18 @@ TEST(X86_64Test, mergeCheck) {
   expected = {1, 2};
 
   EXPECT_EQ(expected, nums1);
+
+  // Edge Case - all nums2 elements smaller (line 62-63)
+  nums1 = {4, 5, 6, 0, 0, 0};
+  nums2 = {1, 2, 3};
+  m = 3;
+  n = 3;
+
+  solutions.merge(nums1, m, nums2, n);
+
+  expected = {1, 2, 3, 4, 5, 6};
+
+  EXPECT_EQ(expected, nums1);
 }
 
 TEST(X86_64Test, removeDuplicatesCheck) {
@@ -207,6 +244,22 @@ TEST(X86_64Test, removeDuplicatesCheck) {
   k = solutions.removeDuplicates(nums);
 
   expected = 2;
+
+  EXPECT_EQ(expected, k);
+
+  // Edge Case - single element (line 79)
+  nums = {1};
+  k = solutions.removeDuplicates(nums);
+
+  expected = 1;
+
+  EXPECT_EQ(expected, k);
+
+  // Edge Case - empty array (line 79)
+  nums = {};
+  k = solutions.removeDuplicates(nums);
+
+  expected = 0;
 
   EXPECT_EQ(expected, k);
 }
@@ -233,6 +286,26 @@ TEST(X86_64Test, rotateCheck) {
   expected = {2, 1};
 
   EXPECT_EQ(expected, nums);
+
+  // Edge Case - k == 0 (line 126)
+  nums = {1, 2, 3};
+  k = 0;
+
+  solutions.rotate(nums, k);
+
+  expected = {1, 2, 3};
+
+  EXPECT_EQ(expected, nums);
+
+  // Edge Case - k multiple of n (line 126)
+  nums = {1, 2, 3, 4};
+  k = 8; // 8 % 4 = 0
+
+  solutions.rotate(nums, k);
+
+  expected = {1, 2, 3, 4};
+
+  EXPECT_EQ(expected, nums);
 }
 
 TEST(X86_64Test, candyCheck) {
@@ -249,6 +322,13 @@ TEST(X86_64Test, candyCheck) {
   ratings = {1, 2, 2};
 
   expected = 4;
+
+  EXPECT_EQ(expected, solutions.candy(ratings));
+
+  // Edge Case - empty array (line 146)
+  ratings = {};
+
+  expected = 0;
 
   EXPECT_EQ(expected, solutions.candy(ratings));
 }
@@ -340,6 +420,38 @@ TEST(X86_64Test, fullJustifyCheck) {
   result = solutions.fullJustify(words, maxWidth);
 
   expected = {" "};
+
+  EXPECT_EQ(expected, result);
+
+  // Edge Case - last line left-justified (line 275)
+  words = {"What", "must", "be", "acknowledgment", "shall", "be"};
+  maxWidth = 16;
+
+  result = solutions.fullJustify(words, maxWidth);
+
+  expected = {"What   must   be", "acknowledgment  ", "shall be        "};
+
+  EXPECT_EQ(expected, result);
+
+  // Edge Case - single word per line (line 276)
+  words = {"acknowledgment", "distributed", "evenly"};
+  maxWidth = 16;
+
+  result = solutions.fullJustify(words, maxWidth);
+
+  expected = {"acknowledgment  ", "distributed     ", "evenly          "};
+
+  EXPECT_EQ(expected, result);
+
+  // Edge Case - extra space distribution (line 360, 371-373)
+  words = {"Science", "is",     "what", "we",     "understand",
+           "well",    "enough", "to",   "explain"};
+  maxWidth = 20;
+
+  result = solutions.fullJustify(words, maxWidth);
+
+  expected = {"Science  is  what we", "understand      well",
+              "enough to explain   "};
 
   EXPECT_EQ(expected, result);
 }
@@ -1299,6 +1411,37 @@ TEST(X86_64Test, serializeCheck) {
   EXPECT_EQ(expected, codec.serialize(purgatory::buildTree(nums)));
 }
 
+TEST(X86_64Test, deserializeCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  string data = "1,2,null,null,3,4,null,null,5,null,null,";
+
+  purgatory::Purgatory::Codec codec;
+
+  purgatory::TreeNode *result = codec.deserialize(data);
+
+  string serialized = codec.serialize(result);
+
+  EXPECT_EQ(data, serialized);
+
+  // Edge Case: null tree
+  data = "null,";
+
+  result = codec.deserialize(data);
+
+  EXPECT_EQ(nullptr, result);
+
+  // Edge Case: single node
+  data = "5,null,null,";
+
+  result = codec.deserialize(data);
+
+  serialized = codec.serialize(result);
+
+  EXPECT_EQ(data, serialized);
+}
+
 TEST(X86_64Test, isValidCheck) {
   purgatory::Purgatory solutions;
 
@@ -1522,6 +1665,20 @@ TEST(X86_64Test, removeInvalidParenthesesCheck) {
   expected = {""};
 
   EXPECT_EQ(expected, solutions.removeInvalidParentheses(s));
+
+  // Edge Case - empty string (line 152)
+  s = "";
+
+  expected = {""};
+
+  EXPECT_EQ(expected, solutions.removeInvalidParentheses(s));
+
+  // Edge Case - string with letters (line 180)
+  s = "(a)())()";
+
+  expected = {"(a())()", "(a)()()"};
+
+  EXPECT_EQ(expected, solutions.removeInvalidParentheses(s));
 }
 
 TEST(X86_64Test, findCenterCheck) {
@@ -1578,6 +1735,15 @@ TEST(X86_64Test, numberOfComponentsCheck) {
   k = 2;
 
   expected = 2;
+
+  EXPECT_EQ(expected, solutions.numberOfComponents(properties, k));
+
+  // Edge Case - test union-find branches (lines 273, 276)
+  // Create properties that will trigger multiple union operations
+  properties = {{1, 2, 3}, {2, 3, 4}, {3, 4, 5}, {4, 5, 6}};
+  k = 2;
+
+  expected = 1; // All should be connected
 
   EXPECT_EQ(expected, solutions.numberOfComponents(properties, k));
 }
@@ -2289,6 +2455,14 @@ TEST(X86_64Test, insertCheck) {
   expected = {{5, 7}};
 
   EXPECT_EQ(expected, solutions.insert(intervals, newInterval));
+
+  // Edge Case - newInterval comes after all intervals (lines 127-128)
+  intervals = {{1, 2}, {3, 4}, {6, 7}};
+  newInterval = {8, 10};
+
+  expected = {{1, 2}, {3, 4}, {6, 7}, {8, 10}};
+
+  EXPECT_EQ(expected, solutions.insert(intervals, newInterval));
 }
 
 TEST(X86_64Test, findMinArrowShotsCheck) {
@@ -2307,6 +2481,13 @@ TEST(X86_64Test, findMinArrowShotsCheck) {
   expected = 3;
 
   EXPECT_EQ(expected, solutions.findMinArrowShots(points));
+
+  // Edge Case - empty (line 164)
+  points = {};
+
+  expected = 0;
+
+  EXPECT_EQ(expected, solutions.findMinArrowShots(points));
 }
 
 TEST(X86_64Test, climbStairsCheck) {
@@ -2323,6 +2504,21 @@ TEST(X86_64Test, climbStairsCheck) {
   n = 1;
 
   expected = 1;
+
+  EXPECT_EQ(expected, solutions.climbStairs(n));
+
+  // Test loop unrolling - odd number
+  n = 5;
+
+  expected = 8; // 1,1,1,1,1 / 2,1,1,1 / 1,2,1,1 / 1,1,2,1 / 1,1,1,2 / 2,2,1 /
+                // 2,1,2 / 1,2,2
+
+  EXPECT_EQ(expected, solutions.climbStairs(n));
+
+  // Test loop unrolling - even number
+  n = 4;
+
+  expected = 5; // 1,1,1,1 / 2,1,1 / 1,2,1 / 1,1,2 / 2,2
 
   EXPECT_EQ(expected, solutions.climbStairs(n));
 }
@@ -2575,6 +2771,37 @@ TEST(X86_64Test, searchMatricCheck) {
   expected = true;
 
   EXPECT_EQ(expected, solutions.searchMatric(matrix, target));
+
+  // Test target not found in row
+  matrix = {{1, 3, 5, 7}, {10, 11, 16, 20}, {23, 30, 34, 60}};
+  target = 13;
+
+  expected = false;
+
+  EXPECT_EQ(expected, solutions.searchMatric(matrix, target));
+
+  // Test target smaller than first element
+  target = 0;
+
+  expected = false;
+
+  EXPECT_EQ(expected, solutions.searchMatric(matrix, target));
+
+  // Test empty matrix
+  matrix = {};
+  target = 5;
+
+  expected = false;
+
+  EXPECT_EQ(expected, solutions.searchMatric(matrix, target));
+
+  // Test mid2 calculation bug - line 71 coverage
+  matrix = {{1, 3, 5, 7, 9, 11, 13, 15}, {17, 19, 21, 23, 25, 27, 29, 31}};
+  target = 23;
+
+  expected = true;
+
+  EXPECT_EQ(expected, solutions.searchMatric(matrix, target));
 }
 
 TEST(X86_64Test, findPeakElementCheck) {
@@ -2591,6 +2818,20 @@ TEST(X86_64Test, findPeakElementCheck) {
   nums = {1};
 
   expected = 0;
+
+  EXPECT_EQ(expected, solutions.findPeakElement(nums));
+
+  // Test descending sequence
+  nums = {5, 4, 3, 2, 1};
+
+  expected = 0;
+
+  EXPECT_EQ(expected, solutions.findPeakElement(nums));
+
+  // Test ascending sequence
+  nums = {1, 2, 3, 4, 5};
+
+  expected = 4;
 
   EXPECT_EQ(expected, solutions.findPeakElement(nums));
 }
@@ -2610,6 +2851,38 @@ TEST(X86_64Test, findMedianSortedArraysCheck) {
   nums2 = {1};
 
   expected = 1;
+
+  EXPECT_EQ(expected, solutions.findMedianSortedArrays(nums1, nums2));
+
+  // Test odd total length - line 143
+  nums1 = {1, 2};
+  nums2 = {3, 4, 5};
+
+  expected = 3.0;
+
+  EXPECT_EQ(expected, solutions.findMedianSortedArrays(nums1, nums2));
+
+  // Test left1 > right2 branch - line 128
+  nums1 = {3, 4, 5};
+  nums2 = {1, 2};
+
+  expected = 3.0;
+
+  EXPECT_EQ(expected, solutions.findMedianSortedArrays(nums1, nums2));
+
+  // Test left2 > right1 branch - line 145
+  nums1 = {1, 2};
+  nums2 = {3, 4};
+
+  expected = 2.5;
+
+  EXPECT_EQ(expected, solutions.findMedianSortedArrays(nums1, nums2));
+
+  // Test even total length - line 148
+  nums1 = {1, 3};
+  nums2 = {2, 7};
+
+  expected = 2.5;
 
   EXPECT_EQ(expected, solutions.findMedianSortedArrays(nums1, nums2));
 }
@@ -2668,6 +2941,46 @@ TEST(X86_64Test, searchCheck) {
   expected = true;
 
   EXPECT_EQ(expected, solutions.search(nums, target));
+
+  // Test left sorted case with target in range - line 224
+  nums = {4, 5, 6, 7, 0, 1, 2};
+  target = 5;
+
+  expected = true;
+
+  EXPECT_EQ(expected, solutions.search(nums, target));
+
+  // Test left sorted case with target out of range - line 225
+  nums = {4, 5, 6, 7, 0, 1, 2};
+  target = 1;
+
+  expected = true;
+
+  EXPECT_EQ(expected, solutions.search(nums, target));
+
+  // Test right sorted case with target in range - line 227
+  nums = {6, 7, 0, 1, 2, 4, 5};
+  target = 1;
+
+  expected = true;
+
+  EXPECT_EQ(expected, solutions.search(nums, target));
+
+  // Test right sorted case with target out of range - line 231
+  nums = {6, 7, 0, 1, 2, 4, 5};
+  target = 6;
+
+  expected = true;
+
+  EXPECT_EQ(expected, solutions.search(nums, target));
+
+  // Test not found - line 237
+  nums = {1, 3, 5};
+  target = 2;
+
+  expected = false;
+
+  EXPECT_EQ(expected, solutions.search(nums, target));
 }
 
 TEST(X86_64Test, findMinCheck) {
@@ -2723,6 +3036,33 @@ TEST(X86_64Test, nextPermutationCheck) {
   solutions.nextPermutation(nums);
 
   expected = {1};
+
+  EXPECT_EQ(expected, nums);
+
+  // Edge Case - descending order (line 962)
+  nums = {3, 2, 1};
+
+  solutions.nextPermutation(nums);
+
+  expected = {1, 2, 3};
+
+  EXPECT_EQ(expected, nums);
+
+  // Edge Case - find swap position (line 968, 975)
+  nums = {1, 3, 2};
+
+  solutions.nextPermutation(nums);
+
+  expected = {2, 1, 3};
+
+  EXPECT_EQ(expected, nums);
+
+  // Edge Case - reverse after swap (line 982)
+  nums = {1, 5, 8, 4, 7, 6, 5, 3, 1};
+
+  solutions.nextPermutation(nums);
+
+  expected = {1, 5, 8, 5, 1, 3, 4, 6, 7};
 
   EXPECT_EQ(expected, nums);
 }
@@ -3123,6 +3463,22 @@ TEST(X86_64Test, matrixReshapeCheck) {
 
   expected = {{1}};
   EXPECT_EQ(expected, solutions.matrixReshape(mat, r, c));
+
+  // Edge Case - incompatible dimensions (line 1125-1126)
+  mat = {{1, 2}, {3, 4}};
+  r = 2;
+  c = 3;
+
+  expected = {{1, 2}, {3, 4}};
+  EXPECT_EQ(expected, solutions.matrixReshape(mat, r, c));
+
+  // Edge Case - wrap around columns (line 1143)
+  mat = {{1, 2, 3, 4}};
+  r = 2;
+  c = 2;
+
+  expected = {{1, 2}, {3, 4}};
+  EXPECT_EQ(expected, solutions.matrixReshape(mat, r, c));
 }
 
 TEST(X86_64Test, arrayNestingCheck) {
@@ -3461,6 +3817,13 @@ TEST(X86_64Test, minimumPairRemovalCheck) {
   nums = {1, 2, 2};
 
   expected = 0;
+
+  EXPECT_EQ(expected, solutions.minimumPairRemoval(nums));
+
+  // Edge Case - test sorting check and min sum (lines 1066, 1068, 1081)
+  nums = {4, 1, 3, 2};
+
+  expected = 2;
 
   EXPECT_EQ(expected, solutions.minimumPairRemoval(nums));
 }
@@ -4089,14 +4452,14 @@ TEST(X86_64Test, maxAncestorDiffCheck) {
 
   int expected = 3;
 
-  // EXPECT_EQ(expected, solutions.maxAncestorDiff(purgatory::buildTree(root)));
+  EXPECT_EQ(expected, solutions.maxAncestorDiff(purgatory::buildTree(root)));
 
   // Edge Case:
   root = {5, 5, 5};
 
   expected = 0;
 
-  // EXPECT_EQ(expected, solutions.maxAncestorDiff(purgatory::buildTree(root)));
+  EXPECT_EQ(expected, solutions.maxAncestorDiff(purgatory::buildTree(root)));
 }
 
 TEST(X86_64Test, findContentChildrenCheck) {
@@ -4207,6 +4570,20 @@ TEST(X86_64Test, maxProductCheck) {
   expected = 0;
 
   EXPECT_EQ(expected, solutions.maxProduct(words));
+
+  // Edge Case - n < 2 (line 540)
+  words = {"single"};
+
+  expected = 0;
+
+  EXPECT_EQ(expected, solutions.maxProduct(words));
+
+  // Edge Case - early break on product <= maxProduct (line 590)
+  words = {"abcdefgh", "ab", "cd", "ef"};
+
+  expected = 4;
+
+  EXPECT_EQ(expected, solutions.maxProduct(words));
 }
 
 TEST(X86_64Test, largestDivisibleSubsetCheck) {
@@ -4222,6 +4599,18 @@ TEST(X86_64Test, largestDivisibleSubsetCheck) {
   // Edge Case:
   nums = {1};
   expected = {1};
+
+  EXPECT_EQ(expected, solutions.largestDivisibleSubset(nums));
+
+  // Edge Case - empty (line 606)
+  nums = {};
+  expected = {};
+
+  EXPECT_EQ(expected, solutions.largestDivisibleSubset(nums));
+
+  // Edge Case - dp skip condition (line 821)
+  nums = {1, 2, 3, 6, 12};
+  expected = {1, 3, 6, 12};
 
   EXPECT_EQ(expected, solutions.largestDivisibleSubset(nums));
 }
@@ -4242,6 +4631,13 @@ TEST(X86_64Test, distributeCandiesCheck) {
   expected = 1;
 
   EXPECT_EQ(expected, solutions.distributeCandies(candyType));
+
+  // Edge Case - test unique counting (line 889-893)
+  candyType = {1, 2, 3, 4, 5, 6, 7, 8};
+
+  expected = 4;
+
+  EXPECT_EQ(expected, solutions.distributeCandies(candyType));
 }
 
 TEST(X86_64Test, maxRotateFunctionCheck) {
@@ -4260,6 +4656,13 @@ TEST(X86_64Test, maxRotateFunctionCheck) {
   expected = 0;
 
   EXPECT_EQ(expected, solutions.maxRotateFunction(nums));
+
+  // Edge Case - test max calculation (line 931-932)
+  nums = {1, 2, 3, 4, 5};
+
+  expected = 30;
+
+  EXPECT_EQ(expected, solutions.maxRotateFunction(nums));
 }
 
 TEST(X86_64Test, findRightIntervalCheck) {
@@ -4276,6 +4679,13 @@ TEST(X86_64Test, findRightIntervalCheck) {
   intervals = {{1, 2}};
 
   expected = {-1};
+
+  EXPECT_EQ(expected, solutions.findRightInterval(intervals));
+
+  // Edge Case - found interval (line 1032, 1042)
+  intervals = {{1, 4}, {2, 3}, {3, 4}};
+
+  expected = {-1, 2, -1};
 
   EXPECT_EQ(expected, solutions.findRightInterval(intervals));
 }
@@ -4350,6 +4760,20 @@ TEST(X86_64Test, circularArrayLoopCheck) {
   nums = {1, 1, 1};
 
   expected = true;
+
+  EXPECT_EQ(expected, solutions.circularArrayLoop(nums));
+
+  // Test negative cycle
+  nums = {-1, -2, -3, -4, -5};
+
+  expected = false;
+
+  EXPECT_EQ(expected, solutions.circularArrayLoop(nums));
+
+  // Test self loop (single element pointing to itself)
+  nums = {1};
+
+  expected = false;
 
   EXPECT_EQ(expected, solutions.circularArrayLoop(nums));
 }

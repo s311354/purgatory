@@ -122,7 +122,7 @@ Node *Purgatory::connect(Node *root) {
   return root;
 }
 
-bool isValid(const string &s) {
+bool isValidParentheses(const string &s) {
   int count = 0;
 
   // register vs memory
@@ -132,9 +132,10 @@ bool isValid(const string &s) {
     if (c == '(')
       count++;
     else if (c == ')') {
-      count--;
-      if (count < 0)
+      if (count == 0)
         return false;
+
+      count--;
     }
   }
 
@@ -146,10 +147,10 @@ bool isValid(const string &s) {
  * find valid strings, we don't need to go deeper. T: O(n * 2 ^n), S: O(n * 2^n)
  */
 vector<string> Purgatory::removeInvalidParentheses(string s) {
-  vector<string> result;
-
   if (s.empty())
     return {""};
+
+  vector<string> result;
 
   // memory allocation
   unordered_set<string> visited;
@@ -159,15 +160,14 @@ vector<string> Purgatory::removeInvalidParentheses(string s) {
   vector<string> q;
   q.push_back(s);
   int head = 0;
-
   bool found = false;
 
   visited.insert(s);
 
-  while (head < q.size()) {
+  while (head < static_cast<int>(q.size())) {
     string cur = std::move(q[head++]);
 
-    if (isValid(cur)) {
+    if (isValidParentheses(cur)) {
       result.push_back(cur);
       found = true;
     }
@@ -175,14 +175,16 @@ vector<string> Purgatory::removeInvalidParentheses(string s) {
     if (found)
       continue;
 
-    for (int i = 0; i < cur.size(); ++i) {
+    size_t cur_size = cur.size();
+    for (size_t i = 0; i < cur_size; ++i) {
       if (cur[i] != '(' && cur[i] != ')')
         continue;
 
       string next;
-      next.reserve(cur.size() - 1);
+      next.reserve(cur_size - 1);
+
       // cache behavior
-      for (int j = 0; j < cur.size(); ++j)
+      for (size_t j = 0; j < cur_size; ++j)
         if (j != i)
           next.push_back(cur[j]);
 
