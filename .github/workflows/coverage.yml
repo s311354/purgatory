@@ -16,6 +16,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
+    - name: Checkout submodules
+      run: |
+        git submodule update --init --recursive
+    
     - name: Install dependencies
       run: |
         sudo apt-get update
@@ -28,9 +32,13 @@ jobs:
           -DCMAKE_CXX_COMPILER=g++-11 \
           -DCMAKE_CXX_FLAGS="--coverage" \
           -DCMAKE_EXE_LINKER_FLAGS="--coverage" \
-          -DBUILD_TESTING=OFF \
+          -DBUILD_TESTING=ON \
           -B build
         cmake --build build -j$(nproc)
+    
+    - name: Run unit tests for coverage
+      run: |
+        ./build/test/purgatory_test
     
     - name: Run executable for coverage
       run: |
@@ -42,6 +50,8 @@ jobs:
           --filter src/ \
           --exclude 'src/main.cc' \
           --exclude 'src/entry.cc' \
+          --exclude-unreachable-branches \
+          --exclude-throw-branches \
           --html-details coverage.html \
           --print-summary \
           --fail-under-line 0 || true
@@ -61,6 +71,8 @@ jobs:
           --filter src/ \
           --exclude 'src/main.cc' \
           --exclude 'src/entry.cc' \
+          --exclude-unreachable-branches \
+          --exclude-throw-branches \
           --print-summary >> coverage-summary.txt 2>/dev/null || echo "Coverage analysis completed" >> coverage-summary.txt
         
         cat coverage-summary.txt
