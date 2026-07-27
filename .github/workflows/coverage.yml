@@ -38,7 +38,7 @@ jobs:
     
     - name: Run unit tests for coverage
       run: |
-        ./build/test/purgatory_test
+        ctest --test-dir build --output-on-failure -j$(nproc)
     
     - name: Run executable for coverage
       run: |
