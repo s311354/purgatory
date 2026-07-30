@@ -280,6 +280,14 @@ public:
 
   vector<int> partitionLabels(string s);
 
+  vector<int> findIndices(vector<int> &nums, int indexDifference,
+                          int valueDifference);
+
+  long long perfectPairs(vector<int> &nums);
+
+  int maxCapacity(const vector<int> &costs, const vector<int> &capacity,
+                  int budget);
+
   // sliding window
   bool containsNearbyDuplicate(const vector<int> &nums, int k);
 

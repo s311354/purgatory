@@ -723,6 +723,20 @@ TEST(X86_64Test, partitionLabelsCheck) {
   expected = {1};
 
   EXPECT_EQ(expected, solutions.partitionLabels(s));
+
+  // Test all same characters
+  s = "aaaaaaa";
+
+  expected = {7};
+
+  EXPECT_EQ(expected, solutions.partitionLabels(s));
+
+  // Test alternating characters
+  s = "abcabc";
+
+  expected = {6};
+
+  EXPECT_EQ(expected, solutions.partitionLabels(s));
 }
 
 TEST(X86_64Test, reverseOnlyLettersCheck) {
@@ -739,6 +753,20 @@ TEST(X86_64Test, reverseOnlyLettersCheck) {
   s = "--";
 
   expected = "--";
+
+  EXPECT_EQ(expected, solutions.reverseOnlyLetters(s));
+
+  // Test with trailing non-letters
+  s = "a-bC-dEf-ghIj---";
+
+  expected = "j-Ih-gfE-dCba---";
+
+  EXPECT_EQ(expected, solutions.reverseOnlyLetters(s));
+
+  // Test with uppercase and lowercase letters mixed with digits
+  s = "Test1ng-Leet=code-Q!";
+
+  expected = "Qedo1ct-eeLg=ntse-T!";
 
   EXPECT_EQ(expected, solutions.reverseOnlyLetters(s));
 }
@@ -865,6 +893,22 @@ TEST(X86_64Test, compareVersionCheck) {
   version2 = "1";
 
   expected = 1;
+
+  EXPECT_EQ(expected, solutions.compareVersion(version1, version2));
+
+  // Test version1 < version2
+  version1 = "0.1";
+  version2 = "1.1";
+
+  expected = -1;
+
+  EXPECT_EQ(expected, solutions.compareVersion(version1, version2));
+
+  // Test multiple segments
+  version1 = "7.5.2.4";
+  version2 = "7.5.3";
+
+  expected = -1;
 
   EXPECT_EQ(expected, solutions.compareVersion(version1, version2));
 }
@@ -1647,6 +1691,74 @@ TEST(X86_64Test, connectCheck) {
 
   EXPECT_EQ(expected, purgatory::serializeWithNext(
                           (solutions.connect(purgatory::buildNode(nums)))));
+}
+
+TEST(X86_64Test, findIndicesCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  vector<int> nums = {5, 1, 4, 1};
+
+  int indexDifference = 2;
+
+  int valueDifference = 4;
+
+  vector<int> expected = {0, 3};
+
+  EXPECT_EQ(expected,
+            solutions.findIndices(nums, indexDifference, valueDifference));
+
+  // Edge Case:
+  nums = {2};
+
+  indexDifference = 0;
+
+  valueDifference = 0;
+
+  expected = {0, 0};
+
+  EXPECT_EQ(expected,
+            solutions.findIndices(nums, indexDifference, valueDifference));
+}
+
+TEST(X86_64Test, perfectPairsCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  vector<int> nums = {0, 1, 2, 3};
+
+  long long expected = 2;
+
+  EXPECT_EQ(expected, solutions.perfectPairs(nums));
+
+  // Edge Case:
+  nums = {0, 0, 0};
+
+  expected = 3;
+
+  EXPECT_EQ(expected, solutions.perfectPairs(nums));
+}
+
+TEST(X86_64Test, maxCapacityCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  vector<int> costs = {2, 2, 2};
+  vector<int> capacity = {3, 4, 5};
+  int budget = 5;
+
+  int expected = 9;
+
+  EXPECT_EQ(expected, solutions.maxCapacity(costs, capacity, budget));
+
+  // Edge Case:
+  costs = {3, 5, 7, 4};
+  capacity = {2, 4, 3, 6};
+  budget = 7;
+
+  expected = 6;
+
+  EXPECT_EQ(expected, solutions.maxCapacity(costs, capacity, budget));
 }
 
 TEST(X86_64Test, removeInvalidParenthesesCheck) {
@@ -4742,6 +4854,22 @@ TEST(X86_64Test, findRadiusCheck) {
   heaters = {100};
 
   expected = 99;
+
+  EXPECT_EQ(expected, solutions.findRadius(houses, heaters));
+
+  // Multiple heaters - test the while loop branch
+  houses = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  heaters = {3, 8};
+
+  expected = 2;
+
+  EXPECT_EQ(expected, solutions.findRadius(houses, heaters));
+
+  // Houses requiring heater switching
+  houses = {1, 5, 10, 15, 20};
+  heaters = {2, 12, 18};
+
+  expected = 3;
 
   EXPECT_EQ(expected, solutions.findRadius(houses, heaters));
 }

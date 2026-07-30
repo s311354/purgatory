@@ -1,7 +1,7 @@
 # Two Pointers Algorithms
 
-**File**: `src/twopointers.cc` (1059 LOC)  
-**Total Problems**: 33
+**File**: `src/twopointers.cc` (1200 LOC)  
+**Total Problems**: 36
 
 ## Problems
 
@@ -24,7 +24,7 @@
 | `applyOperations()` | Apply operations | O(n) | O(1) |
 | `arithmeticTriplets()` | Count arithmetic triplets | O(n²) | O(1) |
 
-### Medium (18 problems)
+### Medium (21 problems)
 
 | Function | Description | Time | Space |
 |----------|-------------|------|-------|
@@ -46,6 +46,9 @@
 | `numRescueBoats()` | Number of rescue boats | O(n log n) | O(1) |
 | `waysToSplit()` | Ways to split array | O(n log n) | O(n) |
 | `partitionLabels()` | Partition labels | O(n) | O(1) |
+| `findIndices()` | Find indices with difference constraints | O(n) | O(1) |
+| `perfectPairs()` | Count perfect pairs | O(n) | O(1) |
+| `maxCapacity()` | Maximum capacity with budget | O(n) | O(budget) |
 
 ### Hard (1 problem)
 

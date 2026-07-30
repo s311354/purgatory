@@ -1058,4 +1058,145 @@ vector<int> Purgatory::partitionLabels(string s) {
   return result;
 }
 
+vector<int> Purgatory::findIndices(vector<int> &nums, int indexDifference,
+                                   int valueDifference) {
+  const int length = static_cast<int>(nums.size());
+  if (length == 0)
+    return {-1, -1};
+
+  int minIndex = -1;
+  int maxIndex = -1;
+
+  int minValue = INT_MAX;
+  int maxValue = INT_MIN;
+
+  // CPU pipleline
+  for (int rightIndex = 0; rightIndex < length; ++rightIndex) {
+    const int eligibalIndex = rightIndex - indexDifference;
+
+    if (eligibalIndex >= 0) {
+      const int eligibalValue = nums[eligibalIndex];
+
+      if (eligibalValue < minValue) {
+        minIndex = eligibalIndex;
+        minValue = eligibalValue;
+      }
+
+      if (eligibalValue > maxValue) {
+        maxIndex = eligibalIndex;
+        maxValue = eligibalValue;
+      }
+    }
+
+    if (minIndex == -1)
+      continue;
+
+    // register vs memory
+    const int currentValue = nums[rightIndex];
+
+    if (currentValue - minValue >= valueDifference)
+      return {minIndex, rightIndex};
+
+    if (maxValue - currentValue >= valueDifference)
+      return {maxIndex, rightIndex};
+  }
+
+  return {-1, -1};
+}
+
+long long Purgatory::perfectPairs(vector<int> &nums) {
+  if (nums.size() < 2)
+    return 0;
+
+  // cache behavior
+  vector<long long> values;
+  values.reserve(nums.size());
+
+  for (int value : nums) {
+    values.push_back(llabs(static_cast<long long>(value)));
+  }
+
+  sort(values.begin(), values.end());
+
+  long long count = 0;
+  int left = 0;
+  for (int right = 0; right < values.size(); ++right) {
+    // register vs memory
+    const long long currentValue = values[right];
+
+    while (left < right && currentValue > values[left] << 1) {
+      ++left;
+    }
+
+    count += right - left;
+  }
+
+  return count;
+}
+
+int Purgatory::maxCapacity(const vector<int> &costs,
+                           const vector<int> &capacity, int budget) {
+  const int n = costs.size();
+
+  if (n == 0 || budget <= 1)
+    return 0;
+
+  const int maxCost = budget - 1;
+
+  // cache behavior
+  vector<int> firstCapacity(maxCost + 1, 0);
+  vector<int> secondCapacity(maxCost + 1, 0);
+
+  for (int i = 0; i < n; ++i) {
+    const int cost = costs[i];
+
+    if (cost >= budget)
+      continue;
+
+    const int currentCapacity = capacity[i];
+
+    // register vs memory
+    int &firsthigh = firstCapacity[cost];
+    int &secondhigh = secondCapacity[cost];
+
+    // branch prediction
+    if (currentCapacity > firsthigh) {
+      secondhigh = firsthigh;
+      firsthigh = currentCapacity;
+    } else if (currentCapacity > secondhigh) {
+      secondhigh = currentCapacity;
+    }
+  }
+
+  // CPU pipleline
+  vector<int> prefixBest(maxCost + 1, 0);
+
+  for (int cost = 1; cost <= maxCost; ++cost) {
+    prefixBest[cost] = max(prefixBest[cost - 1], firstCapacity[cost]);
+  }
+
+  int result = 0;
+
+  for (int cost = 1; cost <= maxCost; ++cost) {
+    const int currentBest = firstCapacity[cost];
+
+    if (currentBest == 0)
+      continue;
+
+    result = max(result, currentBest);
+
+    if (cost < budget - cost && secondCapacity[cost] > 0) {
+      result = max(result, currentBest + secondCapacity[cost]);
+    }
+
+    const int maxPartnerCost = min(cost - 1, budget - cost - 1);
+
+    if (maxPartnerCost >= 1) {
+      result = max(result, currentBest + prefixBest[maxPartnerCost]);
+    }
+  }
+
+  return result;
+}
+
 } // namespace purgatory

@@ -9,7 +9,7 @@ docs/
 └── algorithms/
     ├── array.md            # Array & String (40+ problems)
     ├── hashmap.md          # Hash Map (24+ problems)
-    ├── twopointers.md      # Two Pointers (33 problems)
+    ├── twopointers.md      # Two Pointers (36 problems)
     ├── slidingwindow.md    # Sliding Window (19+ problems)
     ├── stack.md            # Stack (44+ problems)
     ├── tree-graph.md       # Tree & Graph (23+ problems)
