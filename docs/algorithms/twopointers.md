@@ -1,7 +1,7 @@
 # Two Pointers Algorithms
 
-**File**: `src/twopointers.cc` (1200 LOC)  
-**Total Problems**: 36
+**File**: `src/twopointers.cc` (1292 LOC)  
+**Total Problems**: 38
 
 ## Problems
 
@@ -24,7 +24,7 @@
 | `applyOperations()` | Apply operations | O(n) | O(1) |
 | `arithmeticTriplets()` | Count arithmetic triplets | O(n²) | O(1) |
 
-### Medium (21 problems)
+### Medium (23 problems)
 
 | Function | Description | Time | Space |
 |----------|-------------|------|-------|
@@ -49,6 +49,8 @@
 | `findIndices()` | Find indices with difference constraints | O(n) | O(1) |
 | `perfectPairs()` | Count perfect pairs | O(n) | O(1) |
 | `maxCapacity()` | Maximum capacity with budget | O(n) | O(budget) |
+| `distinctAverage()` | Number of distinct averages | O(n) | O(1) |
+| `maximumTotalDamage()` | Maximum total damage | O(n log n) | O(n) |
 
 ### Hard (1 problem)
 

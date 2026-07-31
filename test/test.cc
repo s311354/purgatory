@@ -1693,6 +1693,42 @@ TEST(X86_64Test, connectCheck) {
                           (solutions.connect(purgatory::buildNode(nums)))));
 }
 
+TEST(X86_64Test, distinctAverageCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  vector<int> nums = {4, 1, 4, 0, 3, 5};
+
+  int expected = 2;
+
+  EXPECT_EQ(expected, solutions.distinctAverage(nums));
+
+  // Edge Case:
+  nums = {0, 0, 0, 0};
+
+  expected = 1;
+
+  EXPECT_EQ(expected, solutions.distinctAverage(nums));
+}
+
+TEST(X86_64Test, maximumTotalDamageCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  vector<int> power = {1, 1, 3, 4};
+
+  long long expected = 6;
+
+  EXPECT_EQ(expected, solutions.maximumTotalDamage(power));
+
+  // Edge Case:
+  power = {5, 5, 5};
+
+  expected = 15;
+
+  EXPECT_EQ(expected, solutions.maximumTotalDamage(power));
+}
+
 TEST(X86_64Test, findIndicesCheck) {
   purgatory::Purgatory solutions;
 

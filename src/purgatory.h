@@ -288,6 +288,10 @@ public:
   int maxCapacity(const vector<int> &costs, const vector<int> &capacity,
                   int budget);
 
+  int distinctAverage(const vector<int> &nums);
+
+  long long maximumTotalDamage(vector<int> &power);
+
   // sliding window
   bool containsNearbyDuplicate(const vector<int> &nums, int k);
 

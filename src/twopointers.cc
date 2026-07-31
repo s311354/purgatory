@@ -1199,4 +1199,94 @@ int Purgatory::maxCapacity(const vector<int> &costs,
   return result;
 }
 
+int Purgatory::distinctAverage(const vector<int> &nums) {
+  if (nums.empty() || nums.size() % 2 != 0)
+    return 0;
+
+  // CPU pipleline
+  array<int, 101> freq{};
+
+  for (int value : nums) {
+    ++freq[value];
+  }
+
+  int minValue = 0;
+  int maxValue = 100;
+
+  int pairsNum = nums.size() >> 1;
+
+  bitset<201> seenSums;
+
+  while (pairsNum-- > 0) {
+    while (freq[minValue] == 0)
+      ++minValue;
+
+    while (freq[maxValue] == 0)
+      --maxValue;
+
+    seenSums.set(minValue + maxValue);
+
+    --freq[minValue];
+    --freq[maxValue];
+  }
+
+  return seenSums.count();
+}
+
+long long Purgatory::maximumTotalDamage(vector<int> &power) {
+  if (power.empty())
+    return 0;
+
+  sort(power.begin(), power.end());
+
+  const int n = power.size();
+  vector<int> values;
+  values.reserve(n);
+
+  // cache behavior
+  vector<int> gains;
+  gains.reserve(n);
+
+  int index = 0;
+  while (index < n) {
+    const int damage = power[index];
+    long long total = 0;
+
+    do {
+      total += damage;
+      ++index;
+    } while (index < n && power[index] == damage);
+
+    values.push_back(damage);
+    gains.push_back(total);
+  }
+
+  const int groupCount = values.size();
+
+  vector<long long> dp(groupCount, 0);
+
+  int last = -1;
+
+  for (int current = 0; current < groupCount; ++current) {
+    const int currentDamage = values[current];
+    const long long currentGain = gains[current];
+    const int limit = currentDamage - 3;
+
+    // branch prediction
+    while (last + 1 < current && values[last + 1] <= limit) {
+      ++last;
+    }
+
+    const long long skip = (current == 0) ? 0 : dp[current - 1];
+
+    const long long best = (last < 0) ? 0 : dp[last];
+
+    const long long take = currentGain + best;
+
+    dp[current] = max(skip, take);
+  }
+
+  return dp.back();
+}
+
 } // namespace purgatory
