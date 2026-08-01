@@ -57,213 +57,42 @@ jobs:
         retention-days: 90
     
     # ========================================
-    # Main Branch: Validate and Store Baseline
+    # Validate and Store Baseline
     # ========================================
-    # These steps run on push to main to validate benchmark output
-    # and store it as the baseline for future PR comparisons
+    # Validate benchmark output before storing as baseline
     
     - name: Setup Python for validation
-      if: github.ref == 'refs/heads/main'
       uses: actions/setup-python@v5
       with:
         python-version: '3.x'
     
-    - name: Validate benchmark results (main branch)
-      if: github.ref == 'refs/heads/main'
+    - name: Validate benchmark results
       run: |
         set -euo pipefail
         
-        echo "🔍 Validating benchmark output before storing as baseline..."
+        echo "🔍 Validating benchmark output..."
         
         # Validate JSON structure
         if ! python3 -c "import json; data = json.load(open('benchmark_results.json')); print(f\"Found {len(data.get('benchmarks', []))} benchmarks\")" 2>&1; then
-          echo "::error::Invalid benchmark JSON output - cannot store as baseline"
+          echo "::error::Invalid benchmark JSON output"
           exit 1
         fi
         
         # Check for empty results
         benchmark_count=$(python3 -c "import json; print(len(json.load(open('benchmark_results.json')).get('benchmarks', [])))")
         if [[ "$benchmark_count" -eq 0 ]]; then
-          echo "::error::No benchmarks found in output - cannot store as baseline"
+          echo "::error::No benchmarks found in output"
           exit 1
         fi
         
         echo "✅ Benchmark validation passed: $benchmark_count benchmarks"
     
-    - name: Upload benchmark results (main branch baseline)
-      if: github.ref == 'refs/heads/main'
+    - name: Upload benchmark baseline
       uses: actions/upload-artifact@v4
       with:
         name: benchmark-baseline
         path: benchmark_results.json
         retention-days: 90
-    
-    # ========================================
-    # Pull Requests: Compare Against Baseline
-    # ========================================
-    # These steps run only on PRs to compare performance
-    # against the baseline stored from main branch
-    
-    - name: Setup Python for benchmark comparison
-      if: github.event_name == 'pull_request'
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.x'
-    
-    - name: Download baseline results
-      if: github.event_name == 'pull_request'
-      uses: dawidd6/action-download-artifact@v3
-      with:
-        workflow: benchmark.yml
-        branch: main
-        name: benchmark-baseline
-        path: baseline
-        if_no_artifact_found: warn
-      continue-on-error: true
-    
-    - name: Performance regression check
-      if: github.event_name == 'pull_request'
-      env:
-        REGRESSION_THRESHOLD: ${{ vars.BENCHMARK_THRESHOLD || '10' }}
-        STRICT_MODE: ${{ vars.BENCHMARK_STRICT_MODE || 'false' }}
-      run: |
-        set -euo pipefail
-        
-        # Validate Python availability
-        if ! python3 --version; then
-          echo "::error::Python3 not available for benchmark comparison"
-          exit 1
-        fi
-        
-        # Check for baseline
-        if [[ ! -f baseline/benchmark_results.json ]]; then
-          echo "⚠️  No baseline found - this may be the first benchmark run"
-          echo "::warning::No baseline benchmark available for comparison"
-          echo "BASELINE_AVAILABLE=false" >> $GITHUB_ENV
-          exit 0
-        fi
-        
-        # Validate benchmark output
-        if ! python3 -c "import json; json.load(open('benchmark_results.json'))" 2>/dev/null; then
-          echo "::error::Invalid benchmark JSON output"
-          exit 1
-        fi
-        
-        # Run comparison
-        echo "📊 Comparing against baseline (threshold: ${REGRESSION_THRESHOLD}%)..."
-        
-        if python3 benchmark/benchmark_compare.py \
-            baseline/benchmark_results.json \
-            benchmark_results.json \
-            --threshold "${REGRESSION_THRESHOLD}" 2>&1 | tee comparison_report.txt; then
-          echo "REGRESSION_DETECTED=false" >> $GITHUB_ENV
-          echo "BASELINE_AVAILABLE=true" >> $GITHUB_ENV
-        else
-          echo "REGRESSION_DETECTED=true" >> $GITHUB_ENV
-          echo "BASELINE_AVAILABLE=true" >> $GITHUB_ENV
-          
-          # Check if strict mode is enabled
-          if [[ "${STRICT_MODE}" == "true" ]]; then
-            echo "::error::Performance regressions detected above ${REGRESSION_THRESHOLD}% threshold"
-            echo "::error::BENCHMARK_STRICT_MODE is enabled - failing the workflow"
-            exit 1
-          else
-            echo "::warning::Performance regressions detected but not blocking (set BENCHMARK_STRICT_MODE=true to enforce)"
-          fi
-        fi
-    
-    - name: Generate benchmark report
-      env:
-        REGRESSION_THRESHOLD: ${{ vars.BENCHMARK_THRESHOLD || '10' }}
-      run: |
-        {
-          echo "# 📊 Benchmark Results"
-          echo ""
-          echo "## Configuration"
-          echo "- **Compiler**: g++-12"
-          echo "- **Build**: Release with -O3"
-          echo "- **Linker**: mold"
-          echo "- **Repetitions**: 3"
-          echo "- **Regression Threshold**: ${REGRESSION_THRESHOLD}%"
-          echo ""
-          echo "## Quick Benchmarks"
-          echo '```'
-        } > benchmark_report.md
-        
-        ./build/benchmark/purgatory_bench \
-          --benchmark_filter=.*_Short \
-          --benchmark_repetitions=3 \
-          --benchmark_display_aggregates_only=true 2>&1 | \
-          tee -a benchmark_report.md || echo "Benchmark execution completed with warnings"
-        
-        echo '```' >> benchmark_report.md
-        echo "" >> benchmark_report.md
-        
-        if [[ "${BASELINE_AVAILABLE:-false}" == "true" ]] && [[ -f comparison_report.txt ]]; then
-          echo "## 🔍 Regression Analysis" >> benchmark_report.md
-          echo '```' >> benchmark_report.md
-          cat comparison_report.txt >> benchmark_report.md
-          echo '```' >> benchmark_report.md
-          
-          if [[ "${REGRESSION_DETECTED:-false}" == "true" ]]; then
-            echo "" >> benchmark_report.md
-            echo "⚠️ **Performance regressions detected!** Review the comparison above." >> benchmark_report.md
-          else
-            echo "" >> benchmark_report.md
-            echo "✅ **No performance regressions detected.**" >> benchmark_report.md
-          fi
-        fi
-        
-        echo "" >> benchmark_report.md
-        echo "---" >> benchmark_report.md
-        echo "*Full results available in workflow artifacts*" >> benchmark_report.md
-    
-    - name: Comment PR with results
-      if: github.event_name == 'pull_request' && always()
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const fs = require('fs');
-          
-          if (!fs.existsSync('benchmark_report.md')) {
-            console.log('No benchmark report found, skipping comment');
-            return;
-          }
-          
-          const report = fs.readFileSync('benchmark_report.md', 'utf8');
-          
-          // Check if there's already a comment from this workflow
-          const { data: comments } = await github.rest.issues.listComments({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number,
-          });
-          
-          const botComment = comments.find(comment => 
-            comment.user.type === 'Bot' && 
-            comment.body.includes('📊 Benchmark Results')
-          );
-          
-          const body = '## ⚡ Performance Benchmark Results\n\n' + report;
-          
-          if (botComment) {
-            // Update existing comment
-            await github.rest.issues.updateComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: botComment.id,
-              body: body
-            });
-          } else {
-            // Create new comment
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: body
-            });
-          }
-      continue-on-error: true
 
   cpu-profiling:
     name: CPU Profiling

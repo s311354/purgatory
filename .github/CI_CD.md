@@ -96,30 +96,10 @@ The `benchmark` job runs on Ubuntu 22.04 with GCC 12, Ninja, and the mold linker
 1. Checks out the repository with the GoogleTest and Google Benchmark submodules.
 2. Configures a Release build with `BUILD_BENCHMARKS=ON` and optimizations enabled.
 3. Runs benchmarks with 3 repetitions and JSON output.
-4. Uploads benchmark results as artifacts (retained for 90 days).
-5. For main branch: validates and saves results as `benchmark-baseline` for future comparisons.
-6. For pull requests: downloads the baseline and performs regression analysis.
+4. Validates benchmark JSON structure and ensures non-empty results.
+5. Uploads benchmark results as artifacts (retained for 90 days) with baseline naming.
 
-### Regression Detection
-
-The workflow uses a **two-tier threshold approach**:
-
-- **10% threshold** (default for PRs): Strict detection during code review
-  - Catches performance regressions early
-  - Used by `benchmark_compare.py` for PR comparisons
-  - Generates detailed comparison reports
-
-- **20% threshold** (for persistent tracking): Reduces CI noise
-  - Used by `github-action-benchmark` for long-term trends
-  - Only alerts on significant regressions
-  - Accounts for CI environment variability
-
-The default 10% threshold can be overridden using the `BENCHMARK_THRESHOLD` repository variable.
-
-Pull requests automatically receive a comment with:
-- Quick benchmark results (short benchmarks)
-- Regression analysis compared to main branch baseline
-- Performance improvements and unchanged benchmarks
+The workflow stores validated benchmark results for historical tracking and performance monitoring.
 
 ### CPU Profiling
 
