@@ -87,6 +87,36 @@ jobs:
         
         echo "✅ Benchmark validation passed: $benchmark_count benchmarks"
     
+    # ========================================
+    # Performance Regression Check
+    # ========================================
+    # Download previous baseline and compare (only on main branch pushes)
+    
+    - name: Download previous baseline
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      uses: dawidd6/action-download-artifact@v3
+      with:
+        workflow: benchmark.yml
+        branch: main
+        name: benchmark-baseline
+        path: baseline/
+        if_no_artifact_found: warn
+      continue-on-error: true
+    
+    - name: Compare against baseline
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        if [[ -f baseline/benchmark_results.json ]]; then
+          echo "📊 Comparing against previous baseline..."
+          python3 benchmark/benchmark_compare.py \
+            baseline/benchmark_results.json \
+            benchmark_results.json \
+            --threshold 10
+        else
+          echo "⚠️  No previous baseline found - this may be the first run"
+          echo "✅ Skipping regression check"
+        fi
+    
     - name: Upload benchmark baseline
       uses: actions/upload-artifact@v4
       with:
@@ -97,7 +127,7 @@ jobs:
   cpu-profiling:
     name: CPU Profiling
     runs-on: ubuntu-22.04
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
     
     steps:
     - name: Checkout code
