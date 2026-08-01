@@ -1,11 +1,12 @@
 # CI/CD Guide
 
-This project uses three GitHub Actions workflows:
+This project uses four GitHub Actions workflows:
 
 | Workflow | Purpose | Main output |
 | --- | --- | --- |
 | `CI` | Build, unit tests, sample run, code quality, and documentation checks | Linux executable artifact |
 | `Code Coverage` | Exercise the sample program with GCC coverage instrumentation | HTML coverage report |
+| `Performance Benchmarks` | Run microbenchmarks and detect performance regressions | Benchmark results and comparison reports |
 | `Release` | Build and publish a tagged Linux release | Binary archive and SHA-256 checksum |
 
 The workflow definitions in `.github/workflows/` are the source of truth. This guide documents their current behavior and the corresponding local commands.
@@ -76,6 +77,60 @@ The coverage job runs on Ubuntu 22.04 with GCC 11, Ninja, and gcovr. It:
 6. Prints a text summary in the workflow log.
 
 This is sample-program coverage, not unit-test coverage. Report generation and upload are intentionally non-blocking, and there is currently no minimum coverage threshold.
+
+## Performance Benchmarks
+
+File: [workflows/benchmark.yml](workflows/benchmark.yml)
+
+Triggers:
+
+- Pushes to `main`
+- Tags matching `v*`
+- Pull requests targeting `main` with changes to `src/`, `CMakeLists.txt`, or `benchmark/`
+- Manual `workflow_dispatch`
+
+### Benchmark Execution
+
+The `benchmark` job runs on Ubuntu 22.04 with GCC 12, Ninja, and the mold linker:
+
+1. Checks out the repository with the GoogleTest and Google Benchmark submodules.
+2. Configures a Release build with `BUILD_BENCHMARKS=ON` and optimizations enabled.
+3. Runs benchmarks with 3 repetitions and JSON output.
+4. Uploads benchmark results as artifacts (retained for 90 days).
+5. For main branch: saves results as `benchmark-baseline` for future comparisons.
+6. For pull requests: downloads the baseline and performs regression analysis.
+
+### Regression Detection
+
+The workflow uses a **two-tier threshold approach**:
+
+- **10% threshold** (default for PRs): Strict detection during code review
+  - Catches performance regressions early
+  - Used by `benchmark_compare.py` for PR comparisons
+  - Generates detailed comparison reports
+
+- **20% threshold** (for persistent tracking): Reduces CI noise
+  - Used by `github-action-benchmark` for long-term trends
+  - Only alerts on significant regressions
+  - Accounts for CI environment variability
+
+The default 10% threshold can be overridden using the `BENCHMARK_THRESHOLD` repository variable.
+
+Pull requests automatically receive a comment with:
+- Quick benchmark results (short benchmarks)
+- Regression analysis compared to main branch baseline
+- Performance improvements and unchanged benchmarks
+
+### CPU Profiling
+
+The `cpu-profiling` job runs on workflow dispatch or version tags:
+
+1. Builds with RelWithDebInfo and profiling flags (`-pg`).
+2. Runs the main executable and benchmarks with gprof.
+3. Performs cache analysis with Valgrind's cachegrind.
+4. Uploads profiling reports as artifacts (retained for 30 days).
+
+This job is intentionally non-blocking and continues on errors to maximize data collection.
 
 ## Release
 
@@ -206,6 +261,39 @@ gcovr --root . \
   --html-details coverage.html \
   --print-summary
 ```
+
+### Benchmarks
+
+Build and run benchmarks:
+
+```bash
+cmake -S . -B build \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_CXX_COMPILER=g++-12 \
+  -DBUILD_BENCHMARKS=ON \
+  -DPURGATORY_USE_MOLD=ON
+
+cmake --build build --parallel
+./build/benchmark/purgatory_bench
+```
+
+Generate baseline and verify performance:
+
+```bash
+# Generate baseline
+./benchmark_verify.sh --output baseline.json
+
+# Later, verify against baseline (10% threshold)
+./benchmark_verify.sh --baseline baseline.json
+
+# Custom threshold (e.g., 15%)
+./benchmark_verify.sh --baseline baseline.json --threshold 15
+
+# Filter specific benchmarks
+./benchmark_verify.sh --baseline baseline.json --filter "BM_TwoSum.*"
+```
+
+See [benchmark/README.md](../benchmark/README.md) for detailed benchmark usage and troubleshooting.
 
 ## Creating a Release
 

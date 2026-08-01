@@ -1,0 +1,268 @@
+name: Performance Benchmarks
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'CMakeLists.txt'
+      - 'benchmark/**'
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    name: Run Benchmarks
+    runs-on: ubuntu-22.04
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build g++-12 mold
+    
+    - name: Configure CMake with optimizations
+      run: |
+        cmake -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_CXX_COMPILER=g++-12 \
+          -DBUILD_TESTING=ON \
+          -DBUILD_BENCHMARKS=ON \
+          -DPURGATORY_USE_MOLD=ON \
+          -B build
+    
+    - name: Build
+      run: cmake --build build --parallel
+    
+    - name: Run benchmarks
+      run: |
+        ./build/benchmark/purgatory_bench \
+          --benchmark_format=json \
+          --benchmark_out=benchmark_results.json \
+          --benchmark_repetitions=3 \
+          --benchmark_report_aggregates_only=true
+    
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-results-${{ github.sha }}
+        path: benchmark_results.json
+        retention-days: 90
+    
+    - name: Upload benchmark results (main branch baseline)
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-artifact@v4
+      with:
+        name: benchmark-baseline
+        path: benchmark_results.json
+        retention-days: 90
+    
+    - name: Download baseline results
+      if: github.event_name == 'pull_request'
+      uses: dawidd6/action-download-artifact@v3
+      with:
+        workflow: benchmark.yml
+        branch: main
+        name: benchmark-baseline
+        path: baseline
+        if_no_artifact_found: warn
+      continue-on-error: true
+    
+    - name: Performance regression check
+      if: github.event_name == 'pull_request'
+      env:
+        REGRESSION_THRESHOLD: ${{ vars.BENCHMARK_THRESHOLD || '10' }}
+      run: |
+        if [[ ! -f baseline/benchmark_results.json ]]; then
+          echo "⚠️  No baseline found - this may be the first benchmark run"
+          echo "BASELINE_AVAILABLE=false" >> $GITHUB_ENV
+        else
+          echo "📊 Comparing against baseline (threshold: ${REGRESSION_THRESHOLD}%)..."
+          python3 benchmark/benchmark_compare.py \
+            baseline/benchmark_results.json \
+            benchmark_results.json \
+            --threshold "${REGRESSION_THRESHOLD}" > comparison_report.txt || echo "REGRESSION_DETECTED=true" >> $GITHUB_ENV
+          
+          echo "BASELINE_AVAILABLE=true" >> $GITHUB_ENV
+          cat comparison_report.txt
+        fi
+    
+    - name: Generate benchmark report
+      env:
+        REGRESSION_THRESHOLD: ${{ vars.BENCHMARK_THRESHOLD || '10' }}
+      run: |
+        {
+          echo "# 📊 Benchmark Results"
+          echo ""
+          echo "## Configuration"
+          echo "- **Compiler**: g++-12"
+          echo "- **Build**: Release with -O3"
+          echo "- **Linker**: mold"
+          echo "- **Repetitions**: 3"
+          echo "- **Regression Threshold**: ${REGRESSION_THRESHOLD}%"
+          echo ""
+          echo "## Quick Benchmarks"
+          echo '```'
+        } > benchmark_report.md
+        
+        ./build/benchmark/purgatory_bench \
+          --benchmark_filter=.*_Short \
+          --benchmark_repetitions=3 \
+          --benchmark_display_aggregates_only=true 2>&1 | \
+          tee -a benchmark_report.md || echo "Benchmark execution completed with warnings"
+        
+        echo '```' >> benchmark_report.md
+        echo "" >> benchmark_report.md
+        
+        if [[ "${BASELINE_AVAILABLE:-false}" == "true" ]] && [[ -f comparison_report.txt ]]; then
+          echo "## 🔍 Regression Analysis" >> benchmark_report.md
+          echo '```' >> benchmark_report.md
+          cat comparison_report.txt >> benchmark_report.md
+          echo '```' >> benchmark_report.md
+          
+          if [[ "${REGRESSION_DETECTED:-false}" == "true" ]]; then
+            echo "" >> benchmark_report.md
+            echo "⚠️ **Performance regressions detected!** Review the comparison above." >> benchmark_report.md
+          else
+            echo "" >> benchmark_report.md
+            echo "✅ **No performance regressions detected.**" >> benchmark_report.md
+          fi
+        fi
+        
+        echo "" >> benchmark_report.md
+        echo "---" >> benchmark_report.md
+        echo "*Full results available in workflow artifacts*" >> benchmark_report.md
+    
+    - name: Comment PR with results
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          if (!fs.existsSync('benchmark_report.md')) {
+            console.log('No benchmark report found, skipping comment');
+            return;
+          }
+          
+          const report = fs.readFileSync('benchmark_report.md', 'utf8');
+          
+          // Check if there's already a comment from this workflow
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          
+          const botComment = comments.find(comment => 
+            comment.user.type === 'Bot' && 
+            comment.body.includes('📊 Benchmark Results')
+          );
+          
+          const body = '## ⚡ Performance Benchmark Results\n\n' + report;
+          
+          if (botComment) {
+            // Update existing comment
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: body
+            });
+          } else {
+            // Create new comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+          }
+      continue-on-error: true
+    
+    - name: Store benchmark result
+      if: github.ref == 'refs/heads/main'
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        tool: 'googlecpp'
+        output-file-path: benchmark_results.json
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        auto-push: true
+        alert-threshold: '120%'
+        comment-on-alert: true
+        fail-on-alert: false
+        alert-comment-cc-users: '@s311354'
+      continue-on-error: true
+
+  cpu-profiling:
+    name: CPU Profiling
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build g++-12 linux-tools-generic valgrind
+    
+    - name: Configure with profiling
+      run: |
+        cmake -G Ninja \
+          -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+          -DCMAKE_CXX_COMPILER=g++-12 \
+          -DCMAKE_CXX_FLAGS="-pg" \
+          -DCMAKE_EXE_LINKER_FLAGS="-pg" \
+          -DBUILD_TESTING=ON \
+          -DBUILD_BENCHMARKS=ON \
+          -B build-prof
+    
+    - name: Build
+      run: cmake --build build-prof --parallel
+    
+    - name: Run with gprof
+      run: |
+        # Run both main executable and benchmarks for profiling
+        if [[ -f build-prof/purgatory ]]; then
+          ./build-prof/purgatory src/test.txt
+          gprof ./build-prof/purgatory gmon.out > gprof_report.txt 2>&1 || true
+        fi
+        
+        if [[ -f build-prof/benchmark/purgatory_bench ]]; then
+          ./build-prof/benchmark/purgatory_bench --benchmark_filter=.*_Short
+          gprof ./build-prof/benchmark/purgatory_bench gmon.out > gprof_bench_report.txt 2>&1 || true
+        fi
+      continue-on-error: true
+    
+    - name: Run cachegrind
+      run: |
+        if [[ -f build-prof/purgatory ]]; then
+          valgrind --tool=cachegrind \
+            --cachegrind-out-file=cachegrind.out \
+            ./build-prof/purgatory src/test.txt 2>&1 || true
+          
+          cg_annotate cachegrind.out > cachegrind_report.txt 2>&1 || true
+        fi
+      continue-on-error: true
+    
+    - name: Upload profiling reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: profiling-reports
+        path: |
+          gprof_report.txt
+          gprof_bench_report.txt
+          cachegrind_report.txt
+        retention-days: 30
+      continue-on-error: true

@@ -3,6 +3,7 @@
 ![CI](https://github.com/s311354/purgatory/workflows/CI/badge.svg)
 ![Release](https://github.com/s311354/purgatory/workflows/Release/badge.svg)
 ![Code Coverage](https://github.com/s311354/purgatory/workflows/Code%20Coverage/badge.svg)
+![Performance Benchmarks](https://github.com/s311354/purgatory/workflows/Performance%20Benchmarks/badge.svg)
 
 purgatory is a lightweight, modular C++17-based environment for prototyping, embedded experimentation, and test-driven workflows.
 

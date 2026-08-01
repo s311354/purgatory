@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 3.14)
 project(purgatory VERSION 0.0.0)
 
+# Profiling support
+option(PURGATORY_ENABLE_PROFILING "Enable gprof profiling" OFF)
+if(PURGATORY_ENABLE_PROFILING)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pg")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+endif()
+
 add_executable(purgatory)
 target_compile_features(purgatory PRIVATE cxx_std_17)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pg")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 
 # Build purgatory using mold if -DPURGATORY_USE_MOLD=ON
 option(PURGATORY_USE_MOLD "Use purgatory to build mold" OFF)
@@ -117,8 +122,49 @@ if(BUILD_TESTING)
 	endif()
 endif()
 
+# Benchmark suite
+if(BUILD_BENCHMARKS)
+	if(${UNIX})
+		if(NOT TARGET solutions)
+			add_library(solutions SHARED ${SOLUTIONS_FILES})
+			target_compile_features(solutions PUBLIC cxx_std_17)
+		endif()
+		add_subdirectory(benchmark)
+	endif()
+endif()
+
 # Generate System.map after linking
 add_custom_command(TARGET purgatory POST_BUILD
 	COMMAND ${CMAKE_NM} -n $<TARGET_FILE:purgatory> > ${CMAKE_BINARY_DIR}/System.map
         COMMENT "Generating System.map for purgatory"
 )
+
+# Performance optimizations for Release builds
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+	# Architecture-specific optimizations
+	if(NOT DEFINED CMAKE_CXX_COMPILER_TARGET)
+		# Use x86-64-v3 for CI compatibility, native for local builds
+		if(DEFINED ENV{CI})
+			target_compile_options(purgatory PRIVATE -march=x86-64-v3)
+		else()
+			target_compile_options(purgatory PRIVATE -march=native -mtune=native)
+		endif()
+	endif()
+	
+	# Additional performance flags
+	target_compile_options(purgatory PRIVATE
+		-fomit-frame-pointer
+		-funroll-loops
+		-fmerge-all-constants
+	)
+	
+	# Link-time optimizations (if supported)
+	include(CheckIPOSupported)
+	check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
+	if(ipo_supported)
+		message(STATUS "IPO/LTO enabled")
+		set_property(TARGET purgatory PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+	else()
+		message(STATUS "IPO/LTO not supported: ${ipo_error}")
+	endif()
+endif()
