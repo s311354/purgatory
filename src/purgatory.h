@@ -292,6 +292,11 @@ public:
 
   long long maximumTotalDamage(vector<int> &power);
 
+  int firstMatchingIndex(string s);
+
+  int maxRemovals(string source, string pattern,
+                  const vector<int> &targetIndices);
+
   // sliding window
   bool containsNearbyDuplicate(const vector<int> &nums, int k);
 

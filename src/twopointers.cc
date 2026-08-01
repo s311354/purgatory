@@ -1289,4 +1289,54 @@ long long Purgatory::maximumTotalDamage(vector<int> &power) {
   return dp.back();
 }
 
+int Purgatory::firstMatchingIndex(string s) {
+  const int n = static_cast<int>(s.size());
+
+  if (n == 0)
+    return -1;
+
+  // cpu pipeline
+  int left = 0;
+  int right = n - 1;
+
+  while (left <= right) {
+    if (s[left] == s[right])
+      return left;
+
+    ++left;
+    --right;
+  }
+
+  return -1;
+}
+
+int Purgatory::maxRemovals(string source, string pattern,
+                           const vector<int> &targetIndices) {
+  int sourceLength = source.size();
+  int patternLength = pattern.size();
+
+  vector<int> isTarget(sourceLength, 0);
+
+  for (int index : targetIndices)
+    isTarget[index] = 1;
+
+  const int INF = INT_MAX >> 1;
+
+  vector<int> dp(patternLength, INF);
+  dp[0] = 0;
+
+  for (int i = 0; i < sourceLength; ++i) {
+    char current = source[i];
+    int cost = isTarget[i];
+
+    for (int matched = patternLength; matched >= 1; --matched) {
+      if (current == pattern[matched - 1]) {
+        dp[current] = min(dp[matched], dp[matched - 1] + cost);
+      }
+    }
+  }
+
+  return targetIndices.size() - dp[patternLength];
+}
+
 } // namespace purgatory

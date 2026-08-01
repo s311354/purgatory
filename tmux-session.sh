@@ -42,13 +42,13 @@ case "$MODE" in
         txt "$SESSION:1" "# "    
         txt "$SESSION:1" "# Build commands:"
         txt "$SESSION:1" "#   cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=c++ -DBUILD_TESTING=ON -B build"
-        txt "$SESSION:1" "#   cmake --build build -j\$(nproc)"
+        txt "$SESSION:1" "#   cmake --build build -j\$(nproc) --parallel"
 
         tmux split-window -v -t "$SESSION:1" -c "$REPO_DIR" -p 40
 	sleep 0.5
         title "$SESSION:1.1" "Test"
         txt "$SESSION:1" "# Test commands:"
-	txt "$SESSION:1" "#   ctest --test-dir build --output-on-failure -j\$(nproc)"
+	txt "$SESSION:1" "#   ctest --test-dir build --output-on-failure -j\$(nproc) --parallel"
 
         tmux new-window -t "$SESSION:2" -n git -c "$REPO_DIR"
 	sleep 0.5

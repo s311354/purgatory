@@ -1729,6 +1729,50 @@ TEST(X86_64Test, maximumTotalDamageCheck) {
   EXPECT_EQ(expected, solutions.maximumTotalDamage(power));
 }
 
+TEST(X86_64Test, maxRemovalsCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  string source = "abbaa";
+
+  string pattern = "aba";
+
+  vector<int> targetIndices = {0, 1, 2};
+
+  int expected = 1;
+
+  EXPECT_EQ(expected, solutions.maxRemovals(source, pattern, targetIndices));
+
+  // Edge Case:
+  source = "dda";
+
+  pattern = "dda";
+
+  targetIndices = {0, 1, 2};
+
+  expected = 0;
+
+  EXPECT_EQ(expected, solutions.maxRemovals(source, pattern, targetIndices));
+}
+
+TEST(X86_64Test, firstMatchingIndexCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  string s = "abcacbd";
+
+  int expected = 1;
+
+  EXPECT_EQ(expected, solutions.firstMatchingIndex(s));
+
+  // Edge Case:
+  s = "a";
+
+  expected = 0;
+
+  EXPECT_EQ(expected, solutions.firstMatchingIndex(s));
+}
+
 TEST(X86_64Test, findIndicesCheck) {
   purgatory::Purgatory solutions;
 
