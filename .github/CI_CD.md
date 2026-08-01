@@ -97,7 +97,7 @@ The `benchmark` job runs on Ubuntu 22.04 with GCC 12, Ninja, and the mold linker
 2. Configures a Release build with `BUILD_BENCHMARKS=ON` and optimizations enabled.
 3. Runs benchmarks with 3 repetitions and JSON output.
 4. Uploads benchmark results as artifacts (retained for 90 days).
-5. For main branch: saves results as `benchmark-baseline` for future comparisons.
+5. For main branch: validates and saves results as `benchmark-baseline` for future comparisons.
 6. For pull requests: downloads the baseline and performs regression analysis.
 
 ### Regression Detection

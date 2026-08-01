@@ -56,6 +56,40 @@ jobs:
         path: benchmark_results.json
         retention-days: 90
     
+    # ========================================
+    # Main Branch: Validate and Store Baseline
+    # ========================================
+    # These steps run on push to main to validate benchmark output
+    # and store it as the baseline for future PR comparisons
+    
+    - name: Setup Python for validation
+      if: github.ref == 'refs/heads/main'
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+    
+    - name: Validate benchmark results (main branch)
+      if: github.ref == 'refs/heads/main'
+      run: |
+        set -euo pipefail
+        
+        echo "🔍 Validating benchmark output before storing as baseline..."
+        
+        # Validate JSON structure
+        if ! python3 -c "import json; data = json.load(open('benchmark_results.json')); print(f\"Found {len(data.get('benchmarks', []))} benchmarks\")" 2>&1; then
+          echo "::error::Invalid benchmark JSON output - cannot store as baseline"
+          exit 1
+        fi
+        
+        # Check for empty results
+        benchmark_count=$(python3 -c "import json; print(len(json.load(open('benchmark_results.json')).get('benchmarks', [])))")
+        if [[ "$benchmark_count" -eq 0 ]]; then
+          echo "::error::No benchmarks found in output - cannot store as baseline"
+          exit 1
+        fi
+        
+        echo "✅ Benchmark validation passed: $benchmark_count benchmarks"
+    
     - name: Upload benchmark results (main branch baseline)
       if: github.ref == 'refs/heads/main'
       uses: actions/upload-artifact@v4
@@ -63,6 +97,18 @@ jobs:
         name: benchmark-baseline
         path: benchmark_results.json
         retention-days: 90
+    
+    # ========================================
+    # Pull Requests: Compare Against Baseline
+    # ========================================
+    # These steps run only on PRs to compare performance
+    # against the baseline stored from main branch
+    
+    - name: Setup Python for benchmark comparison
+      if: github.event_name == 'pull_request'
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
     
     - name: Download baseline results
       if: github.event_name == 'pull_request'
@@ -74,12 +120,6 @@ jobs:
         path: baseline
         if_no_artifact_found: warn
       continue-on-error: true
-    
-    - name: Setup Python for benchmark comparison
-      if: github.event_name == 'pull_request'
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.x'
     
     - name: Performance regression check
       if: github.event_name == 'pull_request'
@@ -223,20 +263,6 @@ jobs:
               body: body
             });
           }
-      continue-on-error: true
-    
-    - name: Store benchmark result
-      if: github.ref == 'refs/heads/main'
-      uses: benchmark-action/github-action-benchmark@v1
-      with:
-        tool: 'googlecpp'
-        output-file-path: benchmark_results.json
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        auto-push: true
-        alert-threshold: '120%'
-        comment-on-alert: true
-        fail-on-alert: false
-        alert-comment-cc-users: '@s311354'
       continue-on-error: true
 
   cpu-profiling:
