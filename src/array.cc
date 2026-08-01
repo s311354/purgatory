@@ -109,7 +109,7 @@ int Purgatory::removeDuplicates(vector<int> &nums) {
  *  - reverse suffix
  *  T: O(n), S: O(1)
  */
-inline void reverse_int(int *l, int *r) {
+static inline void reverse_int(int *l, int *r) {
   while (l < r) {
     int tmp = *l;
     *l++ = *r;
@@ -382,8 +382,9 @@ void Purgatory::nextPermutation(vector<int> &nums) {
  *  - stop recursion early when sum exceeds target
  *  T: O(2^n), S: O(n)
  */
-void backtrackingCombinationSum2(vector<int> &nums, int remain, int start,
-                                 vector<int> &path, vector<vector<int>> &res) {
+static void backtrackingCombinationSum2(vector<int> &nums, int remain,
+                                        int start, vector<int> &path,
+                                        vector<vector<int>> &res) {
   if (remain == 0) {
     res.push_back(path);
     return;
@@ -942,8 +943,9 @@ bool Purgatory::isPossbile(const vector<int> &nums) {
   return true;
 }
 
-bool backtrackCanPartitionKSubsets(vector<int> &nums, vector<int> &buckets,
-                                   int index, int target) {
+static bool backtrackCanPartitionKSubsets(vector<int> &nums,
+                                          vector<int> &buckets, int index,
+                                          int target) {
   if (index == nums.size())
     return true;
 
