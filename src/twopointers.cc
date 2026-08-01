@@ -1322,16 +1322,16 @@ int Purgatory::maxRemovals(string source, string pattern,
 
   const int INF = INT_MAX >> 1;
 
-  vector<int> dp(patternLength, INF);
+  vector<int> dp(patternLength + 1, INF);
   dp[0] = 0;
 
   for (int i = 0; i < sourceLength; ++i) {
-    char current = source[i];
-    int cost = isTarget[i];
+    const char current = source[i];
+    const int cost = isTarget[i];
 
     for (int matched = patternLength; matched >= 1; --matched) {
       if (current == pattern[matched - 1]) {
-        dp[current] = min(dp[matched], dp[matched - 1] + cost);
+        dp[matched] = min(dp[matched], dp[matched - 1] + cost);
       }
     }
   }

@@ -139,7 +139,7 @@ See [.github/CI_CD.md](.github/CI_CD.md) for workflow triggers, release behavior
 
 ## Algorithm Catalog
 
-purgatory includes **303 algorithm implementations** organized by pattern:
+purgatory includes **305 algorithm implementations** organized by pattern:
 
 📚 **[Complete Algorithm Index](docs/ALGORITHMS.md)** - Full catalog with complexity analysis
 

@@ -1,11 +1,11 @@
 # Two Pointers Algorithms
 
-**File**: `src/twopointers.cc` (1292 LOC)  
-**Total Problems**: 38
+**File**: `src/twopointers.cc` (1343 LOC)  
+**Total Problems**: 40
 
 ## Problems
 
-### Easy (14 problems)
+### Easy (15 problems)
 
 | Function | Description | Time | Space |
 |----------|-------------|------|-------|
@@ -23,8 +23,9 @@
 | `reverseOnlyLetters()` | Reverse only letters | O(n) | O(1) |
 | `applyOperations()` | Apply operations | O(n) | O(1) |
 | `arithmeticTriplets()` | Count arithmetic triplets | O(n²) | O(1) |
+| `firstMatchingIndex()` | First matching index from ends | O(n) | O(1) |
 
-### Medium (23 problems)
+### Medium (24 problems)
 
 | Function | Description | Time | Space |
 |----------|-------------|------|-------|
@@ -51,6 +52,7 @@
 | `maxCapacity()` | Maximum capacity with budget | O(n) | O(budget) |
 | `distinctAverage()` | Number of distinct averages | O(n) | O(1) |
 | `maximumTotalDamage()` | Maximum total damage | O(n log n) | O(n) |
+| `maxRemovals()` | Maximum removals from source | O(n×m) | O(n) |
 
 ### Hard (1 problem)
 

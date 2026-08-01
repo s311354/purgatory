@@ -4,9 +4,9 @@ Comprehensive catalog of all algorithms implemented in purgatory, organized by p
 
 ## Quick Stats
 
-- **Total Algorithms**: 305
-- **Total Test Cases**: 257
-- **Lines of Code**: ~9,614
+- **Total Algorithms**: 307
+- **Total Test Cases**: 259
+- **Lines of Code**: ~9,665
 - **C++ Standard**: C++17
 
 ## Pattern Overview
@@ -15,7 +15,7 @@ Comprehensive catalog of all algorithms implemented in purgatory, organized by p
 |---------|------|-----|------------|---------------|
 | Array/String | array.cc | 1162 | 40+ | ✓ |
 | Hash Map | hashmap.cc | 762 | 24+ | ✓ |
-| Two Pointers | twopointers.cc | 1292 | 38 | ✓ |
+| Two Pointers | twopointers.cc | 1343 | 40 | ✓ |
 | Sliding Window | slidingwindow.cc | 596 | 19+ | ✓ |
 | Stack | stack.cc | 1178 | 44+ | ✓ |
 | Binary Tree | binarytree.cc | 446 | 11+ | ✓ |
