@@ -24,7 +24,8 @@ if(PURGATORY_USE_MOLD)
 	endif()
 
 	if(CMAKE_BUILD_TYPE MATCHES "^Rel")
-		target_link_options(purgatory PRIVATE -Wl,--gc-sections,--icf=safe)
+		# mold supports --icf=all or --icf, but not --icf=safe (gold/lld specific)
+		target_link_options(purgatory PRIVATE -Wl,--gc-sections,--icf=all)
 	endif()
 endif()
 
