@@ -75,23 +75,61 @@ jobs:
         if_no_artifact_found: warn
       continue-on-error: true
     
+    - name: Setup Python for benchmark comparison
+      if: github.event_name == 'pull_request'
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+    
     - name: Performance regression check
       if: github.event_name == 'pull_request'
       env:
         REGRESSION_THRESHOLD: ${{ vars.BENCHMARK_THRESHOLD || '10' }}
+        STRICT_MODE: ${{ vars.BENCHMARK_STRICT_MODE || 'false' }}
       run: |
+        set -euo pipefail
+        
+        # Validate Python availability
+        if ! python3 --version; then
+          echo "::error::Python3 not available for benchmark comparison"
+          exit 1
+        fi
+        
+        # Check for baseline
         if [[ ! -f baseline/benchmark_results.json ]]; then
           echo "⚠️  No baseline found - this may be the first benchmark run"
+          echo "::warning::No baseline benchmark available for comparison"
           echo "BASELINE_AVAILABLE=false" >> $GITHUB_ENV
-        else
-          echo "📊 Comparing against baseline (threshold: ${REGRESSION_THRESHOLD}%)..."
-          python3 benchmark/benchmark_compare.py \
+          exit 0
+        fi
+        
+        # Validate benchmark output
+        if ! python3 -c "import json; json.load(open('benchmark_results.json'))" 2>/dev/null; then
+          echo "::error::Invalid benchmark JSON output"
+          exit 1
+        fi
+        
+        # Run comparison
+        echo "📊 Comparing against baseline (threshold: ${REGRESSION_THRESHOLD}%)..."
+        
+        if python3 benchmark/benchmark_compare.py \
             baseline/benchmark_results.json \
             benchmark_results.json \
-            --threshold "${REGRESSION_THRESHOLD}" > comparison_report.txt || echo "REGRESSION_DETECTED=true" >> $GITHUB_ENV
-          
+            --threshold "${REGRESSION_THRESHOLD}" 2>&1 | tee comparison_report.txt; then
+          echo "REGRESSION_DETECTED=false" >> $GITHUB_ENV
           echo "BASELINE_AVAILABLE=true" >> $GITHUB_ENV
-          cat comparison_report.txt
+        else
+          echo "REGRESSION_DETECTED=true" >> $GITHUB_ENV
+          echo "BASELINE_AVAILABLE=true" >> $GITHUB_ENV
+          
+          # Check if strict mode is enabled
+          if [[ "${STRICT_MODE}" == "true" ]]; then
+            echo "::error::Performance regressions detected above ${REGRESSION_THRESHOLD}% threshold"
+            echo "::error::BENCHMARK_STRICT_MODE is enabled - failing the workflow"
+            exit 1
+          else
+            echo "::warning::Performance regressions detected but not blocking (set BENCHMARK_STRICT_MODE=true to enforce)"
+          fi
         fi
     
     - name: Generate benchmark report
