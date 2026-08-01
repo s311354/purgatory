@@ -21,6 +21,7 @@ using namespace std;
 #include <bitset>
 #include <climits>
 #include <cmath>
+#include <functional>
 #include <memory>
 #include <numeric>
 #include <string_view>

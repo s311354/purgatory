@@ -144,10 +144,23 @@ add_custom_command(TARGET purgatory POST_BUILD
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
 	# Architecture-specific optimizations
 	if(NOT DEFINED CMAKE_CXX_COMPILER_TARGET)
-		# Use x86-64-v3 for CI compatibility, native for local builds
-		if(DEFINED ENV{CI})
-			target_compile_options(purgatory PRIVATE -march=x86-64-v3)
+		# Detect system architecture
+		if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64")
+			# Use x86-64-v3 for CI compatibility on x86, native for local builds
+			if(DEFINED ENV{CI})
+				target_compile_options(purgatory PRIVATE -march=x86-64-v3)
+			else()
+				target_compile_options(purgatory PRIVATE -march=native -mtune=native)
+			endif()
+		elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
+			# Use armv8-a for CI compatibility on ARM, native for local builds
+			if(DEFINED ENV{CI})
+				target_compile_options(purgatory PRIVATE -march=armv8-a)
+			else()
+				target_compile_options(purgatory PRIVATE -march=native -mtune=native)
+			endif()
 		else()
+			# Fallback for other architectures
 			target_compile_options(purgatory PRIVATE -march=native -mtune=native)
 		endif()
 	endif()
