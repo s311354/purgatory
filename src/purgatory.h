@@ -298,6 +298,14 @@ public:
   int maxRemovals(string source, string pattern,
                   const vector<int> &targetIndices);
 
+  double minimumAverage(vector<int> &nums);
+
+  string pushDominoes(string dominoes);
+
+  vector<vector<int>>
+  intervalIntersection(const vector<vector<int>> &firstList,
+                       const vector<vector<int>> &secondList);
+
   // sliding window
   bool containsNearbyDuplicate(const vector<int> &nums, int k);
 

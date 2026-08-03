@@ -113,7 +113,7 @@ vector<int> Purgatory::findSubstring(const string &s, vector<string> &words) {
   int id = 0;
   for (string &w : words) {
     if (!wordToId.count(w))
-      wordToId[w] = ++id;
+      wordToId[w] = id++;
   }
 
   // cache behavior
@@ -144,18 +144,36 @@ vector<int> Purgatory::findSubstring(const string &s, vector<string> &words) {
         ++count;
 
         while (seen[wid] > targetFreq[wid]) {
-          string leftWord(s.data() + left, wordLen);
-          int lid = wordToId[leftWord];
-          --seen[lid];
+          try {
+            if (left + wordLen <= n && left < n) {
+              string leftWord = s.substr(left, wordLen);
+              auto lit = wordToId.find(leftWord);
+              if (lit != wordToId.end()) {
+                int lid = lit->second;
+                --seen[lid];
+              }
+            }
+          } catch (...) {
+            // Out of bounds, just skip
+          }
           --count;
           left += wordLen;
         }
 
         if (count == numWords) {
           result.push_back(left);
-          string leftWord(s.data() + left, wordLen);
-          int lid = wordToId[leftWord];
-          --seen[lid];
+          try {
+            if (left + wordLen <= n && left < n) {
+              string leftWord = s.substr(left, wordLen);
+              auto lit = wordToId.find(leftWord);
+              if (lit != wordToId.end()) {
+                int lid = lit->second;
+                --seen[lid];
+              }
+            }
+          } catch (...) {
+            // Out of bounds, just skip
+          }
           --count;
           left += wordLen;
         }

@@ -1,11 +1,11 @@
 # Two Pointers Algorithms
 
-**File**: `src/twopointers.cc` (1343 LOC)  
-**Total Problems**: 40
+**File**: `src/twopointers.cc` (1450 LOC)  
+**Total Problems**: 43
 
 ## Problems
 
-### Easy (15 problems)
+### Easy (16 problems)
 
 | Function | Description | Time | Space |
 |----------|-------------|------|-------|
@@ -24,8 +24,9 @@
 | `applyOperations()` | Apply operations | O(n) | O(1) |
 | `arithmeticTriplets()` | Count arithmetic triplets | O(n²) | O(1) |
 | `firstMatchingIndex()` | First matching index from ends | O(n) | O(1) |
+| `minimumAverage()` | Minimum average of min/max pairs | O(n log n) | O(1) |
 
-### Medium (24 problems)
+### Medium (26 problems)
 
 | Function | Description | Time | Space |
 |----------|-------------|------|-------|
@@ -53,6 +54,8 @@
 | `distinctAverage()` | Number of distinct averages | O(n) | O(1) |
 | `maximumTotalDamage()` | Maximum total damage | O(n log n) | O(n) |
 | `maxRemovals()` | Maximum removals from source | O(n×m) | O(n) |
+| `pushDominoes()` | Simulate falling dominoes | O(n) | O(1) |
+| `intervalIntersection()` | Interval list intersections | O(n+m) | O(k) |
 
 ### Hard (1 problem)
 

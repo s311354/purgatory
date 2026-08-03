@@ -1729,6 +1729,64 @@ TEST(X86_64Test, maximumTotalDamageCheck) {
   EXPECT_EQ(expected, solutions.maximumTotalDamage(power));
 }
 
+TEST(X86_64Test, intervalIntersectionCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  vector<vector<int>> firstList = {{0, 2}, {5, 10}, {13, 23}, {24, 25}};
+  vector<vector<int>> secondList = {{1, 5}, {8, 12}, {15, 24}, {25, 26}};
+
+  vector<vector<int>> expected = {{1, 2},   {5, 5},   {8, 10},
+                                  {15, 23}, {24, 24}, {25, 25}};
+
+  EXPECT_EQ(expected, solutions.intervalIntersection(firstList, secondList));
+
+  // Edge Case:
+  firstList = {{}};
+
+  secondList = {{1, 3}};
+
+  expected = {};
+
+  EXPECT_EQ(expected, solutions.intervalIntersection(firstList, secondList));
+}
+
+TEST(X86_64Test, pushDominoesCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  string dominoes = "RR.L";
+
+  string expected = "RR.L";
+
+  EXPECT_EQ(expected, solutions.pushDominoes(dominoes));
+
+  // Edge Case:
+  dominoes = "....";
+
+  expected = "....";
+
+  EXPECT_EQ(expected, solutions.pushDominoes(dominoes));
+}
+
+TEST(X86_64Test, minimumAverageCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  vector<int> nums = {7, 8, 3, 4, 15, 13, 4, 1};
+
+  double expected = 5.5;
+
+  EXPECT_EQ(expected, solutions.minimumAverage(nums));
+
+  // Edge Case:
+  nums = {5, 5, 5, 5};
+
+  expected = 5;
+
+  EXPECT_EQ(expected, solutions.minimumAverage(nums));
+}
+
 TEST(X86_64Test, maxRemovalsCheck) {
   purgatory::Purgatory solutions;
 

@@ -1339,4 +1339,111 @@ int Purgatory::maxRemovals(string source, string pattern,
   return targetIndices.size() - dp[patternLength];
 }
 
+double Purgatory::minimumAverage(vector<int> &nums) {
+  if (nums.empty())
+    return 0;
+
+  double result = INT_MAX;
+
+  sort(nums.begin(), nums.end());
+
+  // branch prediction
+  for (int left = 0, right = nums.size() - 1; left < right; ++left, --right) {
+    // register vs memory
+    const int minValue = nums[left];
+    const int maxValue = nums[right];
+
+    double average = static_cast<double>(minValue + maxValue) / 2;
+
+    result = result < average ? result : average;
+  }
+
+  return result;
+}
+
+string Purgatory::pushDominoes(string dominoes) {
+  int prevForce = 'L';
+  int prevIndex = -1;
+
+  const int n = dominoes.size();
+
+  // cpu pipleline
+  for (int i = 0; i <= n; ++i) {
+    char current = (i == n) ? 'R' : dominoes[i];
+
+    // branch prediction
+    if (current == '.')
+      continue;
+
+    if (prevForce == current) {
+      for (int j = prevIndex + 1; j < i; ++j) {
+        dominoes[j] = current;
+      }
+    } else if (prevForce == 'R' && current == 'L') {
+      int left = prevIndex + 1;
+      int right = i - 1;
+
+      while (left < right) {
+        dominoes[++left] == 'R';
+        dominoes[--right] == 'L';
+      }
+    }
+
+    prevForce = current;
+    prevIndex = i;
+  }
+
+  return dominoes;
+}
+
+vector<vector<int>>
+Purgatory::intervalIntersection(const vector<vector<int>> &firstList,
+                                const vector<vector<int>> &secondList) {
+  const int n = firstList.size();
+  const int m = secondList.size();
+
+  int firstIndex = 0;
+  int secondIndex = 0;
+
+  vector<vector<int>> result;
+
+  // cpu pipleline
+  while (firstIndex < n && secondIndex < m) {
+    // register vs memory
+    const auto &first = firstList[firstIndex];
+    const auto &second = secondList[secondIndex];
+
+    // Skip empty intervals
+    if (first.empty() || second.empty()) {
+      if (first.empty())
+        ++firstIndex;
+      if (second.empty())
+        ++secondIndex;
+      continue;
+    }
+
+    const int firstStart = first[0];
+    const int firstEnd = first[1];
+
+    const int secondStart = second[0];
+    const int secondEnd = second[1];
+
+    int left = max(firstStart, secondStart);
+    int right = min(firstEnd, secondEnd);
+
+    // branch prediction
+    if (left <= right) {
+      result.push_back({left, right});
+    }
+
+    if (firstEnd < secondEnd) {
+      ++firstIndex;
+    } else {
+      ++secondIndex;
+    }
+  }
+
+  return result;
+}
+
 } // namespace purgatory
