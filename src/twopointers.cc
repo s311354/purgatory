@@ -1446,4 +1446,88 @@ Purgatory::intervalIntersection(const vector<vector<int>> &firstList,
   return result;
 }
 
+bool Purgatory::isLongPressedName(string name, string typed) {
+  const int nameLength = name.size();
+  const int typedLength = typed.size();
+
+  if (nameLength > typedLength)
+    return false;
+
+  int nameIndex = 0;
+
+  // cpu pipleline
+  for (int typedIndex = 0; typedIndex < typedLength; ++typedIndex) {
+    // register vs memory
+    const char current = typed[typedIndex];
+
+    if (nameIndex < nameLength && name[nameIndex] == current) {
+      ++nameIndex;
+      continue;
+    }
+
+    if (typedIndex == 0 || current != typed[typedIndex - 1])
+      return false;
+  }
+
+  return nameIndex == nameLength;
+}
+
+long long Purgatory::findTheArrayConcVal(vector<int> &nums) {
+  long long result = 0;
+
+  int left = 0;
+  int right = nums.size() - 1;
+
+  // cpu pipleline
+  while (left <= right) {
+    if (left == right) {
+      result += nums[left];
+      break;
+    }
+
+    int leftNum = nums[left];
+    int rightNum = nums[right];
+    int multi = rightNum < 10      ? 10
+                : rightNum < 100   ? 100
+                : rightNum < 1000  ? 1000
+                : rightNum < 10000 ? 10000
+                                   : 100000;
+
+    result += leftNum * multi + rightNum;
+    ++left;
+    --right;
+  }
+
+  return result;
+}
+
+int Purgatory::maxNumOfMarkedIndices(vector<int> &nums) {
+  int n = nums.size();
+
+  if (n < 2)
+    return 0;
+
+  sort(nums.begin(), nums.end());
+
+  int limit = n / 2;
+  int left = 0;
+  int right = (n + 1) / 2;
+  int pair = 0;
+
+  while (left < limit && right < n) {
+    const long long twice = nums[left] << 1;
+    const int large = nums[right];
+
+    // branch prediction
+    if (twice <= large) {
+      ++pair;
+      ++left;
+    }
+
+    ++right;
+  }
+
+  return pair << 1;
+}
+
 } // namespace purgatory

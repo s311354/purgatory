@@ -145,8 +145,12 @@ public:
 
   bool canPartitionKSubsets(vector<int> &nums, int k);
 
+  long long findTheArrayConcVal(vector<int> &nums);
+
+  int maxNumOfMarkedIndices(vector<int> &nums);
+
   // hashmap
-  bool canConstruct(string ransomNot, string magazine);
+  bool canConstruct(string &ransomNot, string &magazine);
 
   vector<vector<string>> groupAnagrams(vector<string> &strs);
 
@@ -305,6 +309,8 @@ public:
   vector<vector<int>>
   intervalIntersection(const vector<vector<int>> &firstList,
                        const vector<vector<int>> &secondList);
+
+  bool isLongPressedName(string name, string typed);
 
   // sliding window
   bool containsNearbyDuplicate(const vector<int> &nums, int k);

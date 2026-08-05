@@ -1751,6 +1751,64 @@ TEST(X86_64Test, intervalIntersectionCheck) {
   EXPECT_EQ(expected, solutions.intervalIntersection(firstList, secondList));
 }
 
+TEST(X86_64Test, isLongPressedNameCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  string name = "alex";
+
+  string typed = "aaleex";
+
+  bool expected = true;
+
+  EXPECT_EQ(expected, solutions.isLongPressedName(name, typed));
+
+  // Edge Case:
+  name = "a";
+
+  typed = "aaaa";
+
+  expected = true;
+
+  EXPECT_EQ(expected, solutions.isLongPressedName(name, typed));
+}
+
+TEST(X86_64Test, findTheArrayConcValCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  vector<int> nums = {7, 52, 2, 4};
+
+  long long expected = 596;
+
+  EXPECT_EQ(expected, solutions.findTheArrayConcVal(nums));
+
+  // Edge Case:
+  nums = {9};
+
+  expected = 9;
+
+  EXPECT_EQ(expected, solutions.findTheArrayConcVal(nums));
+}
+
+TEST(X86_64Test, maxNumOfMarkedIndicesCheck) {
+  purgatory::Purgatory solutions;
+
+  // Basic Case:
+  vector<int> nums = {3, 5, 2, 4};
+
+  int expected = 2;
+
+  EXPECT_EQ(expected, solutions.maxNumOfMarkedIndices(nums));
+
+  // Edge Case:
+  nums = {7, 6, 8};
+
+  expected = 0;
+
+  EXPECT_EQ(expected, solutions.maxNumOfMarkedIndices(nums));
+}
+
 TEST(X86_64Test, pushDominoesCheck) {
   purgatory::Purgatory solutions;
 
