@@ -1472,7 +1472,7 @@ bool Purgatory::isLongPressedName(string name, string typed) {
   return nameIndex == nameLength;
 }
 
-long long Purgatory::findTheArrayConcVal(vector<int> &nums) {
+long long Purgatory::findTheArrayConcVal(const vector<int> &nums) {
   long long result = 0;
 
   int left = 0;

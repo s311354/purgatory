@@ -7,18 +7,24 @@ namespace purgatory {
  * times each letter is available T: O(n), S: O(1)
  */
 bool Purgatory::canConstruct(const string &ransomNot, const string &magazine) {
-  if (ransomNot.size() > magazine.size())
-    return false;
+  int count[26] = {0};
 
+  // register vs memory
+  int m = magazine.size();
   // cache behavior
-  array<int, 26> count{};
-
-  for (const char c : magazine) {
-    ++count[c - 'a'];
+  for (int i = 0; i < m; ++i) {
+    int idx = magazine[i] - 'a';
+    ++count[idx];
   }
 
-  for (const char c : ransomNot) {
-    if (--count[c - 'a'] < 0)
+  // register vs memory
+  int n = ransomNot.size();
+  // cache behavior
+  for (int i = 0; i < n; ++i) {
+    int idx = ransomNot[i] - 'a';
+    int val = --count[idx];
+
+    if (val < 0)
       return false;
   }
 
@@ -38,24 +44,23 @@ vector<vector<string>> Purgatory::groupAnagrams(vector<string> &strs) {
 
   for (string &s : strs) {
     // cache behavior
-    unsigned char freq[26] = {0};
-    for (char c : s) {
-      ++freq[c - 'a'];
+    int freq[26] = {0};
+    for (char &c : s) {
+      freq[c - 'a']++;
     }
 
     // cache behavior
-    string key(26, '\0');
+    string key(26, 0);
+    for (int i = 0; i < 26; ++i)
+      key[i] = freq[i];
 
-    // cpu pipeline
-    memcpy(key.data(), freq, 26);
-
-    groups[key].emplace_back(s);
+    groups[key].push_back(move(s));
   }
 
   vector<vector<string>> result;
   result.reserve(groups.size());
-  for (auto &pair : groups) {
-    result.push_back(move(pair.second));
+  for (auto &entry : groups) {
+    result.push_back(move(entry.second));
   }
 
   return result;
@@ -75,21 +80,18 @@ int Purgatory::longestConsecutive(vector<int> &nums) {
 
   int longest = 0;
 
-  for (const int num : numSet) {
-    // branch prediction
-    if (numSet.find(num - 1) != numSet.end())
-      continue;
+  for (int num : numSet) {
+    if (!numSet.count(num - 1)) {
+      // register vs memory
+      int currentNum = num;
+      int next = currentNum + 1;
 
-    int end = num;
+      while (numSet.count(next)) {
+        currentNum = next;
+        next++;
+      }
 
-    while (numSet.find(end + 1) != numSet.end()) {
-      ++end;
-    }
-
-    const int length = end - num + 1;
-
-    if (length > longest) {
-      longest = length;
+      longest = max(longest, currentNum - num + 1);
     }
   }
 
@@ -103,92 +105,82 @@ int Purgatory::longestConsecutive(vector<int> &nums) {
 vector<int> Purgatory::findSubstring(const string &s, vector<string> &words) {
   vector<int> result;
 
-  if (words.empty() || s.empty() || words[0].empty())
-    return result;
-
-  const int sourceLength = s.size();
-  const int wordLength = words[0].size();
-  const int wordCount = words.size();
-  const long long windowLength = 1LL * wordLength * wordCount;
-
-  if (windowLength > sourceLength)
+  if (words.empty() || s.empty())
     return result;
 
   // cache behavior
   unordered_map<string, int> wordToId;
-  wordToId.reserve(wordCount);
-
   int id = 0;
-  for (const string &w : words) {
-    const auto inserted = wordToId.emplace(w, id);
-
-    if (inserted.second)
-      ++id;
+  for (string &w : words) {
+    if (!wordToId.count(w))
+      wordToId[w] = id++;
   }
 
   // cache behavior
   vector<int> targetFreq(id, 0);
-  for (const string &w : words) {
-    const auto iterator = wordToId.find(w);
-    ++targetFreq[iterator->second];
+  for (auto &w : words) {
+    targetFreq[wordToId[w]]++;
   }
 
-  const int tokenCount = sourceLength - wordLength + 1;
-  vector<int> tokenId(tokenCount, -1);
+  // register vs memory
+  int n = s.size();
+  int wordLen = words[0].size();
+  int numWords = words.size();
 
-  for (int i = 0; i < tokenCount; ++i) {
-    const string token(s.data() + i, wordLength);
+  for (int i = 0; i < wordLen; ++i) {
+    int left = i, count = 0;
+    // cache behavior
+    vector<int> seen(id, 0);
 
-    const auto iterator = wordToId.find(token);
+    for (int j = i; j + wordLen <= n; j += wordLen) {
+      // cpu pipeline
+      string word(s.data() + j, wordLen);
 
-    if (iterator != wordToId.end()) {
-      tokenId[i] = iterator->second;
-    }
-  }
+      auto it = wordToId.find(word);
+      if (it != wordToId.end()) {
+        int wid = it->second;
 
-  result.reserve(sourceLength / wordLength + 1);
-  // cache behavior
-  vector<int> seen(id, 0);
+        ++seen[wid];
+        ++count;
 
-  for (int offset = 0;
-       offset < wordLength && offset + wordLength <= sourceLength; ++offset) {
-    fill(seen.begin(), seen.end(), 0);
+        while (seen[wid] > targetFreq[wid]) {
+          try {
+            if (left + wordLen <= n && left < n) {
+              string leftWord = s.substr(left, wordLen);
+              auto lit = wordToId.find(leftWord);
+              if (lit != wordToId.end()) {
+                int lid = lit->second;
+                --seen[lid];
+              }
+            }
+          } catch (...) {
+            // Out of bounds, just skip
+          }
+          --count;
+          left += wordLen;
+        }
 
-    int left = offset;
-    int wordsInWindow = 0;
-
-    // branch prediction
-    for (int right = offset; right + wordLength <= sourceLength;
-         right += wordLength) {
-      const int currentId = tokenId[right];
-
-      if (currentId < 0) {
+        if (count == numWords) {
+          result.push_back(left);
+          try {
+            if (left + wordLen <= n && left < n) {
+              string leftWord = s.substr(left, wordLen);
+              auto lit = wordToId.find(leftWord);
+              if (lit != wordToId.end()) {
+                int lid = lit->second;
+                --seen[lid];
+              }
+            }
+          } catch (...) {
+            // Out of bounds, just skip
+          }
+          --count;
+          left += wordLen;
+        }
+      } else {
         fill(seen.begin(), seen.end(), 0);
-
-        wordsInWindow = 0;
-        left = right + wordLength;
-        continue;
-      }
-
-      ++seen[currentId];
-      ++wordsInWindow;
-
-      while (seen[currentId] > targetFreq[currentId]) {
-        const int leftId = tokenId[left];
-
-        --seen[leftId];
-        --wordsInWindow;
-        left += wordLength;
-      }
-
-      if (wordsInWindow == wordCount) {
-        result.push_back(left);
-
-        const int leftId = tokenId[left];
-
-        --seen[leftId];
-        --wordsInWindow;
-        left += wordLength;
+        count = 0;
+        left = j + wordLen;
       }
     }
   }
