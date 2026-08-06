@@ -21,10 +21,13 @@ purgatory is a lightweight, modular C++17-based environment for prototyping, emb
 ├── .clang-format          # LLVM-based C++ formatting rules
 ├── .github/               # CI, coverage, and release workflows
 ├── CMakeLists.txt         # Root CMake configuration
-├── format.sh              # Check or apply clang-format
-├── coverage.sh            # Generate code coverage reports
-├── install-build-deps.sh  # Script to install compiler/tools
-├── tmux-session.sh        # Launch development tmux sessions
+├── scripts/               # Development and CI scripts
+│   ├── format.sh          # Check or apply clang-format
+│   ├── coverage.sh        # Generate code coverage reports
+│   ├── cppcheck.sh        # Run static code analysis
+│   ├── benchmark_verify.sh # Verify benchmark performance
+│   ├── install-build-deps.sh # Install compiler/tools
+│   └── tmux-session.sh    # Launch development tmux sessions
 ├── src/
 │   ├── main.cc            # Sandbox for quick experiments
 │   ├── entry.cc           # Entry point or application driver
