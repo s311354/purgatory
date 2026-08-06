@@ -64,7 +64,7 @@ cppcheck \
 
 ```bash
 # Match CI exactly
-./cppcheck.sh strict
+./scripts/cppcheck.sh strict
 
 # Or use raw command
 cppcheck --enable=warning,style,performance,portability \
@@ -77,7 +77,7 @@ cppcheck --enable=warning,style,performance,portability \
 ## Verification
 
 ✅ All checks pass locally:
-- `./cppcheck.sh strict` - ✓ No issues found
+- `./scripts/cppcheck.sh strict` - ✓ No issues found
 - `cmake --build build` - ✓ Builds successfully
 - `ctest --test-dir build` - ✓ 251/251 tests pass
 
@@ -89,7 +89,7 @@ cppcheck --enable=warning,style,performance,portability \
 
 1. **Quality Gate**: Prevents regressions from being merged
 2. **Clear Standards**: Enforces const correctness, performance best practices
-3. **Developer Friendly**: Same checks available locally via `./cppcheck.sh`
+3. **Developer Friendly**: Same checks available locally via `./scripts/cppcheck.sh`
 4. **Educational**: Suppressions documented with clear rationale
 5. **Artifact History**: 30-day retention for trend analysis
 

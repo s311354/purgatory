@@ -538,6 +538,119 @@ static void BM_AddSpaces(benchmark::State &state) {
 BENCHMARK(BM_AddSpaces)->Range(8, 8 << 12)->Complexity();
 
 // ============================================================================
+// Benchmark: isLongPressedName
+// ============================================================================
+
+static void BM_IsLongPressedName(benchmark::State &state) {
+  Purgatory p;
+  string name = "alex";
+  string typed = "aaleex";
+
+  for (auto _ : state) {
+    auto result = p.isLongPressedName(name, typed);
+    benchmark::DoNotOptimize(result);
+  }
+  state.SetItemsProcessed(state.iterations());
+}
+BENCHMARK(BM_IsLongPressedName);
+
+static void BM_IsLongPressedName_Long(benchmark::State &state) {
+  Purgatory p;
+  int n = state.range(0);
+  string name;
+  string typed;
+  name.reserve(n);
+  typed.reserve(n * 2);
+
+  // Generate alternating pattern with long presses
+  for (int i = 0; i < n; ++i) {
+    char c = 'a' + (i % 26);
+    name += c;
+    typed += c;
+    typed += c; // Double each character
+  }
+
+  for (auto _ : state) {
+    auto result = p.isLongPressedName(name, typed);
+    benchmark::DoNotOptimize(result);
+  }
+  state.SetComplexityN(n);
+  state.SetItemsProcessed(state.iterations() * n);
+}
+BENCHMARK(BM_IsLongPressedName_Long)->Range(8, 8 << 12)->Complexity();
+
+// ============================================================================
+// Benchmark: findTheArrayConcVal
+// ============================================================================
+
+static void BM_FindTheArrayConcVal_Small(benchmark::State &state) {
+  Purgatory p;
+  vector<int> nums = {7, 52, 2, 4};
+
+  for (auto _ : state) {
+    auto result = p.findTheArrayConcVal(nums);
+    benchmark::DoNotOptimize(result);
+  }
+  state.SetItemsProcessed(state.iterations());
+}
+BENCHMARK(BM_FindTheArrayConcVal_Small);
+
+static void BM_FindTheArrayConcVal(benchmark::State &state) {
+  Purgatory p;
+  int n = state.range(0);
+  vector<int> nums(n);
+
+  mt19937 rng(42);
+  uniform_int_distribution<int> dist(1, 99999);
+  for (auto &num : nums) {
+    num = dist(rng);
+  }
+
+  for (auto _ : state) {
+    auto result = p.findTheArrayConcVal(nums);
+    benchmark::DoNotOptimize(result);
+  }
+  state.SetComplexityN(n);
+  state.SetItemsProcessed(state.iterations() * n);
+}
+BENCHMARK(BM_FindTheArrayConcVal)->Range(8, 8 << 12)->Complexity();
+
+// ============================================================================
+// Benchmark: maxNumOfMarkedIndices
+// ============================================================================
+
+static void BM_MaxNumOfMarkedIndices_Small(benchmark::State &state) {
+  Purgatory p;
+  vector<int> nums = {3, 5, 2, 4};
+
+  for (auto _ : state) {
+    auto result = p.maxNumOfMarkedIndices(nums);
+    benchmark::DoNotOptimize(result);
+  }
+  state.SetItemsProcessed(state.iterations());
+}
+BENCHMARK(BM_MaxNumOfMarkedIndices_Small);
+
+static void BM_MaxNumOfMarkedIndices(benchmark::State &state) {
+  Purgatory p;
+  int n = state.range(0);
+  vector<int> nums(n);
+
+  mt19937 rng(42);
+  uniform_int_distribution<int> dist(1, 1000000);
+  for (auto &num : nums) {
+    num = dist(rng);
+  }
+
+  for (auto _ : state) {
+    auto result = p.maxNumOfMarkedIndices(nums);
+    benchmark::DoNotOptimize(result);
+  }
+  state.SetComplexityN(n);
+}
+BENCHMARK(BM_MaxNumOfMarkedIndices)->Range(8, 8 << 12)->Complexity();
+
+// ============================================================================
 // Main
 // ============================================================================
 

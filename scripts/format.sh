@@ -14,6 +14,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Detect clang-format binary
 CLANG_FORMAT=""
@@ -43,12 +44,12 @@ fi
 TARGETS=()
 if [[ -z "$TARGET_DIR" ]]; then
     # Default: format both src and test
-    [[ -d "$SCRIPT_DIR/src" ]] && TARGETS+=("$SCRIPT_DIR/src")
-    [[ -d "$SCRIPT_DIR/test" ]] && TARGETS+=("$SCRIPT_DIR/test")
+    [[ -d "$PROJECT_ROOT/src" ]] && TARGETS+=("$PROJECT_ROOT/src")
+    [[ -d "$PROJECT_ROOT/test" ]] && TARGETS+=("$PROJECT_ROOT/test")
 else
     # Specific directory provided
-    if [[ -d "$SCRIPT_DIR/$TARGET_DIR" ]]; then
-        TARGETS+=("$SCRIPT_DIR/$TARGET_DIR")
+    if [[ -d "$PROJECT_ROOT/$TARGET_DIR" ]]; then
+        TARGETS+=("$PROJECT_ROOT/$TARGET_DIR")
     elif [[ -d "$TARGET_DIR" ]]; then
         TARGETS+=("$TARGET_DIR")
     else

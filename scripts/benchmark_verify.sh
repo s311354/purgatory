@@ -35,7 +35,7 @@ MIN_TIME="0.5s"
 BASELINE_FILE=""
 OUTPUT_FILE=""
 BENCHMARK_BINARY="./build/benchmark/purgatory_bench"
-COMPARE_SCRIPT="$(dirname "$0")/benchmark/benchmark_compare.py"
+COMPARE_SCRIPT="$(dirname "$0")/../benchmark/benchmark_compare.py"
 TEMP_RESULTS="/tmp/benchmark_results_$$.json"
 
 # Colors for output

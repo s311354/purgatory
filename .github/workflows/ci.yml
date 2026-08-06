@@ -111,7 +111,7 @@ jobs:
         test -f README.md
         test -f LICENSE
         test -f docs/ALGORITHMS.md
-        test -f tmux-session.sh
+        test -f scripts/tmux-session.sh
         echo "✓ All documentation files present"
     
     - name: Validate markdown links

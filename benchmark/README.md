@@ -2,6 +2,47 @@
 
 This directory contains microbenchmarks for purgatory algorithms using [Google Benchmark](https://github.com/google/benchmark).
 
+## Benchmark Organization
+
+**Current Implementation**: 46 benchmarks across 2 benchmark files
+
+### Benchmark Files
+
+1. **twopointers_bench.cc** (33 benchmarks)
+   - Two pointers and string manipulation algorithms
+   - Includes: isPalindrome, twoSum, maxArea, trap, reverseString, sortColors, compareVersion, checkInclusion, judgeSquareSum, countBinarySubstrings, countSubstrings, longestMountain, reverseStr, shortestToChar, getCommon, reverseOnlyLetters, numRescueBoats, applyOperations, minimumSteps, addSpaces, isLongPressedName, findTheArrayConcVal, maxNumOfMarkedIndices, findContentChildren
+
+2. **hashmap_bench.cc** (13 benchmarks)
+   - Hash map and hash set algorithms
+   - Includes: canConstruct, groupAnagrams, longestConsecutive, findSubstring, containsDuplicate
+
+All benchmark files are compiled into a single `purgatory_bench` executable.
+
+### Benchmark Categories
+
+**Two Pointers & String Algorithms** (33 benchmarks):
+- String validation: isPalindrome, checkInclusion, isLongPressedName
+- Array operations: twoSum, maxArea, trap, reverseString, sortColors
+- String transformations: compareVersion, reverseStr, reverseOnlyLetters, addSpaces
+- Greedy algorithms: findContentChildren, numRescueBoats
+- Array manipulation: applyOperations, minimumSteps, findTheArrayConcVal, maxNumOfMarkedIndices
+- Pattern detection: countBinarySubstrings, countSubstrings, longestMountain
+- Distance calculations: shortestToChar, getCommon
+- Mathematical: judgeSquareSum
+
+**Hash Map & Set Algorithms** (13 benchmarks):
+- Frequency counting: canConstruct
+- Grouping & anagrams: groupAnagrams
+- Sequence detection: longestConsecutive
+- Substring matching: findSubstring (with multiple variants)
+- Duplicate detection: containsDuplicate (with no-dup, with-dup, and random variants)
+
+Each algorithm typically includes multiple variants:
+- **_Small**: Fixed small input for basic performance
+- **_Large/Long**: Scalable input with complexity analysis
+- **_Random**: Randomized input for average-case behavior
+- **Parameterized**: Uses `->Range()` for scaling analysis with `->Complexity()`
+
 ## Quick Start
 
 ```bash
@@ -9,12 +50,16 @@ This directory contains microbenchmarks for purgatory algorithms using [Google B
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_BENCHMARKS=ON
 cmake --build build --parallel
 
-# Run all benchmarks
+# Run all benchmarks (from both twopointers_bench.cc and hashmap_bench.cc)
 ./build/benchmark/purgatory_bench
 
+# Run specific category
+./build/benchmark/purgatory_bench --benchmark_filter=".*TwoSum.*"
+./build/benchmark/purgatory_bench --benchmark_filter=".*HashMap.*|.*GroupAnagrams.*"
+
 # Generate baseline and verify performance
-./benchmark_verify.sh --output baseline.json
-./benchmark_verify.sh --baseline baseline.json  # Detects >10% regressions
+../scripts/benchmark_verify.sh --output baseline.json
+../scripts/benchmark_verify.sh --baseline baseline.json  # Detects >10% regressions
 ```
 
 ## Configuration
@@ -23,11 +68,11 @@ cmake --build build --parallel
 
 | Context | Threshold | Purpose |
 |---------|-----------|---------|
-| **PR Checks** | **10%** | Early detection during code review |
-| **CI Alerts** | **20%** | Filter CI noise, catch critical regressions |
-| **Custom** | Variable | Override via `--threshold N` or `BENCHMARK_THRESHOLD` |
+| **Local Verification** | **10%** (default) | Used by `benchmark_verify.sh` for local testing |
+| **CI (main branch)** | **10%** | Regression detection on main branch pushes |
+| **Custom** | Variable | Override via `--threshold N` flag |
 
-**Rationale**: 10% catches most real regressions while 20% reduces false positives from CI environment variance.
+**Rationale**: 10% catches most real regressions while allowing some variance from system and compiler differences.
 
 ## Building Benchmarks
 
@@ -55,16 +100,16 @@ cmake --build build --parallel
 ### Verify performance (detect >10% regressions)
 ```bash
 # Generate baseline
-./benchmark_verify.sh --output baseline.json
+../scripts/benchmark_verify.sh --output baseline.json
 
 # Later, verify against baseline
-./benchmark_verify.sh --baseline baseline.json
+../scripts/benchmark_verify.sh --baseline baseline.json
 
 # Custom threshold (e.g., 15%)
-./benchmark_verify.sh --baseline baseline.json --threshold 15
+../scripts/benchmark_verify.sh --baseline baseline.json --threshold 15
 
 # Filter specific benchmarks
-./benchmark_verify.sh --baseline baseline.json --filter "BM_TwoSum.*"
+../scripts/benchmark_verify.sh --baseline baseline.json --filter "BM_TwoSum.*"
 ```
 
 The verification script automatically:
@@ -86,6 +131,9 @@ The verification script automatically:
 ```
 
 ### Run with CPU profiling
+
+**Note**: Requires `perf` to be installed. Run `./install-build-deps.sh` to install all dependencies including `perf`.
+
 ```bash
 ./build/benchmark/purgatory_bench --benchmark_filter=.*_Large --benchmark_perf_counters=CYCLES,INSTRUCTIONS
 ```
@@ -98,8 +146,8 @@ The verification script automatically:
 # After optimization
 ./build/benchmark/purgatory_bench --benchmark_out=optimized.json --benchmark_out_format=json
 
-# Compare
-../third-party/benchmark/tools/compare.py benchmarks baseline.json optimized.json
+# Compare using benchmark_compare.py
+./benchmark/benchmark_compare.py baseline.json optimized.json --threshold 10
 ```
 
 ## Benchmark Options
@@ -121,11 +169,26 @@ Benchmark                        Time             CPU   Iterations
 --------------------------------------------------------------------
 BM_IsPalindrome_Short          156 ns          156 ns      4480000
 BM_IsPalindrome_Long         15234 ns        15229 ns        45926
+BM_CanConstruct/8               18.7 ns        18.7 ns     7516089
+BM_GroupAnagrams/64           14089 ns        14105 ns        9970
 ```
 
 - **Time**: Wall-clock time per iteration
 - **CPU**: CPU time per iteration
 - **Iterations**: Number of times the benchmark was executed
+
+### Example Output with Complexity Analysis
+
+```
+BM_ContainsDuplicate_Random/8              471 ns          476 ns       296062
+BM_ContainsDuplicate_Random/64             646 ns          652 ns       215190
+BM_ContainsDuplicate_Random/512           1337 ns         1343 ns       102410
+BM_ContainsDuplicate_Random/4096          4002 ns         4001 ns        34604
+BM_ContainsDuplicate_Random_BigO          0.29 N          0.29 N
+BM_ContainsDuplicate_Random_RMS             24 %            24 %
+```
+
+The `_BigO` line shows the measured time complexity (0.29 N indicates O(N) behavior), and `_RMS` shows the variance.
 
 ### Performance Metrics
 
@@ -135,6 +198,16 @@ The benchmarks track:
 - **Bytes Processed**: Memory bandwidth
 
 ## Adding New Benchmarks
+
+### 1. Choose or Create Benchmark File
+
+Add benchmarks to existing files by category:
+- **twopointers_bench.cc**: Two pointers, string manipulation, greedy algorithms
+- **hashmap_bench.cc**: Hash map/set operations, frequency counting
+
+Or create a new file for a different category (e.g., `array_bench.cc`, `tree_bench.cc`).
+
+### 2. Implement Benchmark Function
 
 ```cpp
 static void BM_YourAlgorithm(benchmark::State& state) {
@@ -153,6 +226,20 @@ static void BM_YourAlgorithm(benchmark::State& state) {
 }
 BENCHMARK(BM_YourAlgorithm)->Range(8, 8<<10)->Complexity();
 ```
+
+### 3. Update Build Configuration (if creating new file)
+
+If creating a new benchmark file, add it to `benchmark/CMakeLists.txt`:
+
+```cmake
+add_executable(purgatory_bench
+    twopointers_bench.cc
+    hashmap_bench.cc
+    your_new_bench.cc  # Add your file here
+)
+```
+
+**Important**: Only `twopointers_bench.cc` should have `BENCHMARK_MAIN()` at the end. All other benchmark files should omit this macro to avoid multiple `main()` definitions during linking.
 
 ## Best Practices
 
@@ -173,27 +260,25 @@ Benchmarks run automatically on:
 
 ### Regression Detection Strategy
 
-The project uses a **two-tier threshold approach**:
+The CI workflow performs regression detection on **main branch pushes only**:
 
-1. **10% threshold** (PR checks): Stricter detection for code review
-   - Catches performance regressions early
-   - Used in `benchmark_verify.sh` by default
-   - Triggers detailed comparison reports in PRs
+- **Automatic baseline updates**: Each main branch push becomes the new baseline
+- **10% threshold**: Regressions >10% trigger workflow failure
+- **Artifact storage**: Results stored for 90 days via GitHub Actions artifacts
+- **Historical tracking**: Compare against the most recent main branch baseline
 
-2. **20% threshold** (Critical alerts): CI noise tolerance
-   - Used by `github-action-benchmark` for persistent tracking
-   - Only triggers alerts for significant regressions
-   - Accounts for CI environment variability
-
-**Override threshold** using repository variable:
-```yaml
-# Set in GitHub: Settings → Secrets and variables → Actions → Variables
-BENCHMARK_THRESHOLD=15  # Custom threshold percentage
+**Note**: Regression detection does not run on pull requests. To verify performance before merging:
+```bash
+# On your PR branch
+git checkout main
+./benchmark_verify.sh --output main_baseline.json
+git checkout your-branch
+./benchmark_verify.sh --baseline main_baseline.json
 ```
 
 **Local verification** with custom threshold:
 ```bash
-./benchmark_verify.sh --baseline baseline.json --threshold 15
+../scripts/benchmark_verify.sh --baseline baseline.json --threshold 15
 ```
 
 ## Hardware Info
@@ -223,12 +308,12 @@ If you see "Performance regression detected" in your PR:
    git checkout main
    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_BENCHMARKS=ON
    cmake --build build --parallel
-   ./benchmark_verify.sh --output baseline.json
+   ./scripts/benchmark_verify.sh --output baseline.json
    
    # Checkout your PR branch and compare
    git checkout your-branch
    cmake --build build --parallel
-   ./benchmark_verify.sh --baseline baseline.json
+   ./scripts/benchmark_verify.sh --baseline baseline.json
    ```
 
 2. **Identify the cause** - Check what changed:
@@ -236,7 +321,8 @@ If you see "Performance regression detected" in your PR:
    # Profile the specific benchmark
    ./build/benchmark/purgatory_bench --benchmark_filter=<RegrassedBenchmark>
    
-   # Run with perf for detailed analysis
+   # Run with perf for detailed analysis (requires perf installation)
+   # Install via: sudo ./install-build-deps.sh
    perf record ./build/benchmark/purgatory_bench --benchmark_filter=<name>
    perf report
    ```
@@ -283,13 +369,13 @@ cmake -S . -B build \
 
 ### Adjusting Thresholds
 
-**Temporary adjustment** for noisy CI environment:
-```yaml
-# Set GitHub Actions variable: BENCHMARK_THRESHOLD=15
-# Settings → Secrets and variables → Actions → Variables → New variable
+**For local testing**, use the `--threshold` flag:
+```bash
+../scripts/benchmark_verify.sh --baseline baseline.json --threshold 15
 ```
 
-**Permanent adjustment** (requires team consensus):
+**To change CI threshold** (requires editing workflow):
 - Edit `.github/workflows/benchmark.yml`
-- Update default in line: `REGRESSION_THRESHOLD: ${{ vars.BENCHMARK_THRESHOLD || '10' }}`
-- Document reason in commit message
+- Locate the `benchmark_compare.py` call in the "Compare against baseline" step
+- Change `--threshold 10` to your desired percentage
+- Document the reason in your commit message

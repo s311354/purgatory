@@ -2,7 +2,15 @@
 
 A decoupled system for detecting performance regressions in purgatory benchmarks.
 
-## Architecture
+## Benchmark Structure
+
+**Current Implementation**: 46 benchmarks organized in 2 source files:
+- `benchmark/twopointers_bench.cc` - 33 benchmarks (two pointers, strings, greedy)
+- `benchmark/hashmap_bench.cc` - 13 benchmarks (hash maps, sets, frequency counting)
+
+All benchmark files are compiled into a single `purgatory_bench` executable. Only `twopointers_bench.cc` contains `BENCHMARK_MAIN()`; other files omit this macro to avoid linking conflicts.
+
+## Verification Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -46,16 +54,16 @@ A decoupled system for detecting performance regressions in purgatory benchmarks
 **Usage**:
 ```bash
 # Generate baseline
-./benchmark_verify.sh --output baseline.json
+../scripts/benchmark_verify.sh --output baseline.json
 
 # Compare against baseline
-./benchmark_verify.sh --baseline baseline.json
+../scripts/benchmark_verify.sh --baseline baseline.json
 
 # Custom threshold
-./benchmark_verify.sh --baseline baseline.json --threshold 15
+../scripts/benchmark_verify.sh --baseline baseline.json --threshold 15
 
 # Filter specific benchmarks
-./benchmark_verify.sh --baseline baseline.json --filter "BM_TwoSum.*"
+../scripts/benchmark_verify.sh --baseline baseline.json --filter "BM_TwoSum.*"
 ```
 
 ### 2. benchmark/benchmark_compare.py (Python Script)

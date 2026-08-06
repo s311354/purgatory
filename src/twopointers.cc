@@ -1515,7 +1515,7 @@ int Purgatory::maxNumOfMarkedIndices(vector<int> &nums) {
   int pair = 0;
 
   while (left < limit && right < n) {
-    const long long twice = nums[left] << 1;
+    const long long twice = static_cast<long long>(nums[left]) << 1;
     const int large = nums[right];
 
     // branch prediction

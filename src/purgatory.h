@@ -145,12 +145,12 @@ public:
 
   bool canPartitionKSubsets(vector<int> &nums, int k);
 
-  long long findTheArrayConcVal(vector<int> &nums);
+  long long findTheArrayConcVal(const vector<int> &nums);
 
   int maxNumOfMarkedIndices(vector<int> &nums);
 
   // hashmap
-  bool canConstruct(string &ransomNot, string &magazine);
+  bool canConstruct(const string &ransomNot, const string &magazine);
 
   vector<vector<string>> groupAnagrams(vector<string> &strs);
 

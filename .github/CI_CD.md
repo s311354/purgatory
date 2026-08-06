@@ -195,9 +195,9 @@ cppcheck \
 Or use the provided script:
 
 ```bash
-./cppcheck.sh strict   # Same checks as CI (includes portability)
-./cppcheck.sh check    # Standard checks (warnings + style + performance)
-./cppcheck.sh report   # Generate detailed report
+./scripts/cppcheck.sh strict   # Same checks as CI (includes portability)
+./scripts/cppcheck.sh check    # Standard checks (warnings + style + performance)
+./scripts/cppcheck.sh report   # Generate detailed report
 ```
 
 ### Formatting
@@ -261,16 +261,16 @@ Generate baseline and verify performance:
 
 ```bash
 # Generate baseline
-./benchmark_verify.sh --output baseline.json
+./scripts/benchmark_verify.sh --output baseline.json
 
 # Later, verify against baseline (10% threshold)
-./benchmark_verify.sh --baseline baseline.json
+./scripts/benchmark_verify.sh --baseline baseline.json
 
 # Custom threshold (e.g., 15%)
-./benchmark_verify.sh --baseline baseline.json --threshold 15
+./scripts/benchmark_verify.sh --baseline baseline.json --threshold 15
 
 # Filter specific benchmarks
-./benchmark_verify.sh --baseline baseline.json --filter "BM_TwoSum.*"
+./scripts/benchmark_verify.sh --baseline baseline.json --filter "BM_TwoSum.*"
 ```
 
 See [benchmark/README.md](../benchmark/README.md) for detailed benchmark usage and troubleshooting.

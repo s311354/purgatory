@@ -94,10 +94,10 @@ Add unit tests in `test/test.cc`, then run the build, CTest, sample executable, 
 Use `format.sh` to check or apply clang-format:
 
 ```shell
-./format.sh check              # Check formatting in src/ and test/
-./format.sh apply              # Apply formatting to src/ and test/
-./format.sh check src          # Check only src/ directory
-./format.sh apply test         # Apply formatting to test/ directory
+./scripts/format.sh check              # Check formatting in src/ and test/
+./scripts/format.sh apply              # Apply formatting to src/ and test/
+./scripts/format.sh check src          # Check only src/ directory
+./scripts/format.sh apply test         # Apply formatting to test/ directory
 ```
 
 ### Static Analysis
@@ -105,9 +105,9 @@ Use `format.sh` to check or apply clang-format:
 Use `cppcheck.sh` to run static code analysis:
 
 ```shell
-./cppcheck.sh check            # Standard checks (warnings + style + performance) [default]
-./cppcheck.sh strict           # Comprehensive analysis (includes portability)
-./cppcheck.sh report           # Generate detailed report to cppcheck-report.txt
+./scripts/cppcheck.sh check            # Standard checks (warnings + style + performance) [default]
+./scripts/cppcheck.sh strict           # Comprehensive analysis (includes portability)
+./scripts/cppcheck.sh report           # Generate detailed report to cppcheck-report.txt
 ```
 
 The script automatically suppresses:
@@ -120,8 +120,8 @@ The script automatically suppresses:
 Use `coverage.sh` to generate code coverage reports:
 
 ```shell
-./coverage.sh                  # Generate text summary (default)
-./coverage.sh --clean          # Clean coverage artifacts
+./scripts/coverage.sh                  # Generate text summary (default)
+./scripts/coverage.sh --clean          # Clean coverage artifacts
 ```
 
 To review and apply fixes for cppcheck findings:
@@ -131,9 +131,9 @@ To review and apply fixes for cppcheck findings:
 For an optional tmux workspace:
 
 ```shell
-./tmux-session.sh dev
+./scripts/tmux-session.sh dev
 # or
-./tmux-session.sh quick
+./scripts/tmux-session.sh quick
 ```
 
 See [.github/CI_CD.md](.github/CI_CD.md) for workflow triggers, release behavior, coverage details, and troubleshooting.
@@ -169,4 +169,5 @@ Before submitting a change:
 2. Add or update tests for behavior changes.
 3. Run the test-enabled Release build and sample executable.
 4. Apply clang-format 14 and confirm the dry-run check passes.
-5. Update the algorithm documentation when adding or changing an algorithm.
+5. Add or update benchmarks for new algorithms.
+6. Update the algorithm documentation when adding or changing an algorithm.

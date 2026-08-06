@@ -24,6 +24,7 @@ if(BUILD_BENCHMARKS)
     # Create benchmark executable
     add_executable(purgatory_bench
         twopointers_bench.cc
+        hashmap_bench.cc
     )
     
     target_link_libraries(purgatory_bench
