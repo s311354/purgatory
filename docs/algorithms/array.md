@@ -1,7 +1,7 @@
 # Array & String Algorithms
 
 **File**: `src/array.cc` (1162 LOC)  
-**Total Problems**: 40+
+**Total Problems**: 42+
 
 ## Problems
 
@@ -45,6 +45,8 @@
 | `countPrimes()` | Count prime numbers | O(n log log n) | O(n) |
 | `wiggleMaxLength()` | Wiggle subsequence | O(n) | O(1) |
 | `findDuplicates()` | Find duplicates | O(n) | O(1) |
+| `findRestaurant()` | Find common favorite restaurants | O(n+m) | O(n) |
+| `findDisappearedNumber()` | Find disappeared numbers | O(n) | O(1) |
 
 ### Hard
 
