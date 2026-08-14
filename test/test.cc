@@ -4968,7 +4968,7 @@ TEST(X86_64Test, maxRotateFunctionCheck) {
   // Edge Case - test max calculation (line 931-932)
   nums = {1, 2, 3, 4, 5};
 
-  expected = 30;
+  expected = 40; // F(0) = 0*1 + 1*2 + 2*3 + 3*4 + 4*5 = 40 (maximum)
 
   EXPECT_EQ(expected, solutions.maxRotateFunction(nums));
 }

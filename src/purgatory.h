@@ -121,7 +121,7 @@ public:
 
   int arrayPairSum(const vector<int> &nums);
 
-  int maxProduct(vector<string> &words);
+  int maxProduct(const vector<string> &words);
 
   vector<int> largestDivisibleSubset(vector<int> &nums);
 

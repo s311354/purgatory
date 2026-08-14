@@ -2,7 +2,7 @@
 # tmux-session.sh - Development environment
 set -e
 
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SESSION="purgatory"
 MODE="${1:-dev}"
 
