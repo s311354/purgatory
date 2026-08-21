@@ -2227,12 +2227,18 @@ TEST(X86_64Test, maxProductofTwoCheck) {
   // Basic Case:
   vector<int> nums = {3, 4, 5, 2};
 
-  int expected = 12;
+  int expected = 120;
 
   EXPECT_EQ(expected, solutions.maxProduct(nums));
 
   // Edge Case:
   nums = {1, 1};
+
+  expected = 1;
+
+  EXPECT_EQ(expected, solutions.maxProduct(nums));
+
+  nums = {-2, 0, -1};
 
   expected = 0;
 

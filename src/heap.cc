@@ -10,27 +10,32 @@ namespace purgatory {
  *  - handle smash rules
  */
 int Purgatory::lastStoneWeight(const vector<int> &stones) {
+  if (stones.empty())
+    return 0;
+
   // cache behavior
   vector<int> heap = stones;
   make_heap(heap.begin(), heap.end());
 
   while (heap.size() > 1) {
     pop_heap(heap.begin(), heap.end());
-    int y = heap.back();
-    heap.pop_back();
-    pop_heap(heap.begin(), heap.end());
-    int x = heap.back();
+    const int y = heap.back();
     heap.pop_back();
 
+    pop_heap(heap.begin(), heap.end());
+    const int x = heap.back();
+
     // branch prediction
-    int diff = y - x;
-    if (diff > 0) {
-      heap.push_back(diff);
+    const int diff = y - x;
+    if (diff == 0) {
+      heap.pop_back();
+    } else {
+      heap.back() = diff;
       push_heap(heap.begin(), heap.end());
     }
   }
 
-  return heap.empty() ? 0 : heap.back();
+  return heap.empty() ? 0 : heap.front();
 }
 
 /*
@@ -39,6 +44,9 @@ int Purgatory::lastStoneWeight(const vector<int> &stones) {
  * minimum
  */
 int Purgatory::nthUglyNumber(int n) {
+  if (n <= 0)
+    return 0;
+
   vector<int> ugly(n);
   ugly[0] = 1;
 
@@ -58,7 +66,7 @@ int Purgatory::nthUglyNumber(int n) {
 
     if (nextUgly == next2) {
       p2++;
-      next2 = ugly[p2] << 1;
+      next2 = ugly[p2] * 2;
     }
 
     if (nextUgly == next3) {
@@ -79,35 +87,45 @@ int Purgatory::nthUglyNumber(int n) {
  * elements, not a full sort.
  */
 vector<int> Purgatory::topKFrequent(const vector<int> &nums, int k) {
+  if (nums.empty() || k <= 0)
+    return {};
+
   unordered_map<int, int> freq;
   // cache behavior
   freq.reserve(nums.size());
-  for (int n : nums) {
-    freq[n]++;
+  freq.max_load_factor(0.7f);
+
+  for (const int n : nums) {
+    ++freq[n];
   }
 
+  using Entry = pair<int, int>;
+
+  vector<Entry> heap;
+  heap.reserve(k + 1);
+
   // cpu pipeline
-  struct Compare {
-    bool operator()(const pair<int, int> &a, const pair<int, int> &b) const {
-      return a.first > b.first;
-    }
+  const auto cmp = [](const Entry &a, const Entry &b) {
+    return a.first > b.first;
   };
 
-  priority_queue<pair<int, int>, vector<pair<int, int>>, Compare> pq;
+  for (auto &entry : freq) {
+    heap.emplace_back(entry.second, entry.first);
+    push_heap(heap.begin(), heap.end(), cmp);
 
-  for (auto &f : freq) {
-    pq.emplace(f.second, f.first);
-
-    if (pq.size() > k)
-      pq.pop();
+    if (heap.size() > k) {
+      pop_heap(heap.begin(), heap.end(), cmp);
+      heap.pop_back();
+    }
   }
 
   vector<int> result;
   result.reserve(k);
 
-  while (!pq.empty()) {
-    result.push_back(pq.top().second);
-    pq.pop();
+  while (!heap.empty()) {
+    pop_heap(heap.begin(), heap.end(), cmp);
+    result.push_back(heap.back().second);
+    heap.pop_back();
   }
 
   return result;
@@ -121,6 +139,9 @@ vector<int> Purgatory::maxSlidingWindow(vector<int> &nums, int k) {
   // register vs memory
   int n = nums.size();
 
+  if (n == 0 || k <= 0 || k > n)
+    return {};
+
   // cache behavior
   vector<int> dq(n);
   int head = 0, tail = 0;
@@ -130,13 +151,19 @@ vector<int> Purgatory::maxSlidingWindow(vector<int> &nums, int k) {
 
   for (int i = 0; i < n; ++i) {
     // register vs memory
-    int cur = nums[i];
+    const int cur = nums[i];
 
     if (head < tail && dq[head] <= i - k)
       head++;
 
-    while (head < tail && nums[dq[tail - 1]] <= cur)
-      tail--;
+    while (head < tail) {
+      const int backIndex = dq[tail - 1];
+
+      if (nums[backIndex] > cur)
+        break;
+
+      --tail;
+    }
 
     dq[tail++] = i;
 
@@ -149,48 +176,63 @@ vector<int> Purgatory::maxSlidingWindow(vector<int> &nums, int k) {
 }
 
 int Purgatory::maxProduct(const vector<int> &nums) {
-  // register vs memory
-  int largest = 0;
-  int secondLargest = 0;
+  if (nums.empty())
+    return 0;
 
-  for (const int value : nums) {
-    if (value >= largest) {
-      secondLargest = largest;
-      largest = value;
-    } else if (value > secondLargest) {
-      secondLargest = value;
-    }
+  // register vs memory
+  int currentMax = nums[0];
+  int currentMin = nums[0];
+  int result = nums[0];
+
+  for (int i = 1; i < nums.size(); ++i) {
+    const int value = nums[i];
+
+    if (value < 0)
+      swap(currentMax, currentMin);
+
+    currentMax = max(value, currentMax * value);
+    currentMin = min(value, currentMin * value);
+
+    result = max(result, currentMax);
   }
 
-  return (largest - 1) * (secondLargest - 1);
+  return result;
 }
 
 string Purgatory::frequencySort(string s) {
-  int freq[128] = {0};
-  int maxFreq = 0;
+  constexpr int RANGE = 256;
 
-  // cache behavior
+  int freq[RANGE] = {0};
+
+  for (const unsigned char c : s) {
+    // register vs memory
+    ++freq[c];
+  }
+
+  struct Entry {
+    int count;
+    unsigned char ch;
+  };
+
+  vector<Entry> entries;
+  entries.reserve(RANGE);
+
+  for (int ch = 0; ch < RANGE; ++ch) {
+    // register vs memory
+    const int f = freq[ch];
+
+    if (f != 0)
+      entries.push_back({f, static_cast<unsigned char>(ch)});
+  }
+
+  sort(entries.begin(), entries.end(),
+       [](const Entry &a, const Entry &b) { return a.count > b.count; });
+
   string result;
   result.reserve(s.size());
 
-  for (const char c : s) {
-    // register vs memory
-    int f = ++freq[(unsigned char)c];
-    maxFreq = f > maxFreq ? f : maxFreq;
-  }
-
-  vector<string> buckets(maxFreq + 1);
-
-  for (int ch = 0; ch < 128; ++ch) {
-    // register vs memory
-    int f = freq[ch];
-    if (f)
-      buckets[f].push_back(static_cast<char>(ch));
-  }
-
-  for (int count = maxFreq; count >= 1; --count) {
-    for (const char c : buckets[count])
-      result.append(count, c);
+  for (const Entry &entry : entries) {
+    result.append(entry.count, static_cast<char>(entry.ch));
   }
 
   return result;
@@ -201,15 +243,18 @@ vector<int> Purgatory::rearrangeBarcodes(vector<int> &barcodes) {
   constexpr int MAXV = 10000;
   int freq[MAXV + 1] = {};
 
-  for (int code : barcodes) {
+  for (const int code : barcodes) {
     ++freq[code];
   }
 
   vector<pair<int, int>> sortedCodes;
+  sortedCodes.reserve(barcodes.size());
 
   for (int i = 1; i <= MAXV; ++i) {
-    if (freq[i])
-      sortedCodes.push_back({freq[i], i});
+    const int count = freq[i];
+
+    if (count != 0)
+      sortedCodes.emplace_back(count, i);
   }
 
   sort(sortedCodes.begin(), sortedCodes.end(),
@@ -224,7 +269,7 @@ vector<int> Purgatory::rearrangeBarcodes(vector<int> &barcodes) {
   int index = 0;
   for (const auto &entry : sortedCodes) {
     int count = entry.first;
-    int value = entry.second;
+    const int value = entry.second;
 
     while (count--) {
       result[index] = value;
@@ -367,16 +412,21 @@ int Purgatory::networkDelayTime(const vector<vector<int>> &times, int n,
   pq.push({0, k});
 
   while (!pq.empty()) {
-    auto [currDist, node] = pq.top();
+    const auto current = pq.top();
     pq.pop();
+
+    const int currDist = current.first;
+    const int node = current.second;
 
     if (currDist > dist[node])
       continue;
 
-    for (const EdgeNetwork &edge : graph[node]) {
+    const auto &neighbors = graph[node];
+
+    for (const EdgeNetwork &edge : neighbors) {
       // register vs memory
-      int next = edge.to;
-      int newDist = currDist + edge.w;
+      const int next = edge.to;
+      const int newDist = currDist + edge.w;
 
       if (newDist < dist[next]) {
         dist[next] = newDist;
