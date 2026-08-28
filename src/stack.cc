@@ -8,33 +8,35 @@ namespace purgatory {
  */
 bool Purgatory::isValid(string s) {
   // cache behavior
-  vector<char> st;
-  st.reserve(s.size());
+  vector<char> stack;
+  stack.reserve(s.size());
+  int top = 0;
+
+  for (const char c : s) {
+    char expected = 0;
+
+    switch (c) {
+    case ')':
+      expected = '(';
+      break;
+    case ']':
+      expected = '[';
+      break;
+    case '}':
+      expected = '{';
+      break;
+    default:
+      stack[top++] = c;
+      continue;
+    }
+
+    if (top == 0 || stack[top - 1] != expected)
+      return false;
+    --top;
+  }
 
   // cpu pipelie
-  auto match = [](unsigned char c) -> char {
-    if (c == ')')
-      return '(';
-    if (c == ']')
-      return '[';
-    if (c == '}')
-      return '{';
-    return 0;
-  };
-
-  for (char c : s) {
-    char m = match(c);
-    if (m) {
-      // branch prediction
-      if (st.empty() || st.back() != m)
-        return false;
-
-      st.pop_back();
-    } else {
-      st.push_back(c);
-    }
-  }
-  return st.empty();
+  return top == 0;
 }
 
 /*
@@ -43,10 +45,15 @@ bool Purgatory::isValid(string s) {
  * applying rules for ".", "..", and normal names. T: O(n), S: O(n)
  */
 string Purgatory::simplifyPath(string path) {
-  int n = path.size();
-  // cache behavior
-  vector<string> stack;
-  stack.reserve(n);
+  struct Slice {
+    int start;
+    int len;
+  };
+
+  const int n = path.size();
+
+  vector<Slice> dirs;
+  dirs.reserve(n / 2 + 1);
 
   int i = 0;
   // cpu pipeline
@@ -54,12 +61,12 @@ string Purgatory::simplifyPath(string path) {
     while (i < n && path[i] == '/')
       ++i;
 
-    int start = i;
+    const int start = i;
 
     while (i < n && path[i] != '/')
       ++i;
 
-    int len = i - start;
+    const int len = i - start;
 
     if (len == 0)
       continue;
@@ -69,22 +76,24 @@ string Purgatory::simplifyPath(string path) {
 
     // branch prediction
     if (len == 2 && path[start] == '.' && path[start + 1] == '.') {
-      if (!stack.empty())
-        stack.pop_back();
-    } else {
-      stack.emplace_back(path.substr(start, len));
+      if (!dirs.empty())
+        dirs.pop_back();
+
+      continue;
     }
+
+    dirs.push_back({start, len});
   }
 
-  if (stack.empty())
+  if (dirs.empty())
     return "/";
 
   string result;
   result.reserve(path.size());
 
-  for (const string &dir : stack) {
+  for (const Slice &dir : dirs) {
     result.push_back('/');
-    result.append(dir);
+    result.append(path, dir.start, dir.len);
   }
 
   return result;
@@ -101,39 +110,54 @@ int Purgatory::evalRPN(const vector<string> &tokens) {
 
   for (const string &tok : tokens) {
     // branch prediction
-    if (tok.size() == 1 && !isdigit(tok[0])) {
-      int b = st.back();
-      st.pop_back();
-      int a = st.back();
-      st.pop_back();
+    if (tok.size() == 1) {
+      const char c = tok[0];
 
-      // register vs memory
-      char op = tok[0];
+      if (c == '+' || c == '-' || c == '*' || c == '/') {
+        const int b = st.back();
+        st.pop_back();
+        const int a = st.back();
+        st.pop_back();
 
-      if (op == '+')
-        st.push_back(a + b);
-      else if (op == '-')
-        st.push_back(a - b);
-      else if (op == '*')
-        st.push_back(a * b);
-      else if (op == '/')
-        st.push_back(a / b);
-    } else {
-      // function call
-      int num = 0, sign = 1, i = 0;
+        int value;
 
-      if (tok[0] == '-') {
-        sign = -1;
-        i = 1;
+        switch (c) {
+        case '+':
+          value = a + b;
+          break;
+        case '-':
+          value = a - b;
+          break;
+        case '*':
+          value = a * b;
+          break;
+        default:
+          value = a / b;
+          break;
+        }
+
+        st.push_back(value);
+        continue;
       }
-
-      for (; i < tok.size(); ++i) {
-        num = num * 10 + (tok[i] - '0');
-      }
-
-      st.push_back(sign * num);
     }
+
+    int sign = 1;
+    int index = 0;
+    int value = 0;
+
+    if (tok[0] == '-') {
+      sign = -1;
+      index = 1;
+    }
+
+    const int length = tok.size();
+    for (; index < length; ++index) {
+      value = value * 10 + (tok[index] - '0');
+    }
+
+    st.push_back(sign * value);
   }
+
   return st.back();
 }
 
@@ -147,26 +171,30 @@ int Purgatory::calculate(const string &s) {
   signs.reserve(64);
   signs.push_back(1);
 
-  int result = 0;
+  long long result = 0;
   int sign = 1;
 
   // cpu pipeline
-  const char *p = s.c_str();
+  const char *p = s.data();
+  const char *end = p + s.size();
 
-  while (*p) {
-    char c = *p;
+  while (p < end) {
+    const char c = *p;
 
     // branch prediction
     if (c >= '0' && c <= '9') {
       long long number = 0;
 
-      while (*p >= '0' && *p <= '9') {
+      do {
         number = number * 10 + (*p - '0');
         ++p;
-      }
-      result += sign * number;
+      } while (p < end && *p >= '0' && *p <= '9');
+
+      result += static_cast<long long>(sign) * number;
       continue;
-    } else if (c == '+') {
+    }
+
+    if (c == '+') {
       sign = signs.back();
     } else if (c == '-') {
       sign = -signs.back();
@@ -179,7 +207,7 @@ int Purgatory::calculate(const string &s) {
     ++p;
   }
 
-  return result;
+  return static_cast<int>(result);
 }
 
 /*
@@ -188,25 +216,22 @@ int Purgatory::calculate(const string &s) {
  */
 vector<int> Purgatory::nextGreaterElement(const vector<int> &nums1,
                                           const vector<int> &nums2) {
+  constexpr int MAX_VALUE = 10000;
   // cache behavior
-  vector<int> next(10001, -1);
+  vector<int> next(MAX_VALUE + 1, -1);
   vector<int> st;
   st.reserve(nums2.size());
 
-  for (int x : nums2) {
+  for (const int x : nums2) {
     // register vs memory
-    int top;
-    while (!st.empty() && x > (top = st.back())) {
-      next[top] = x;
+    while (!st.empty() && x > st.back()) {
+      const int smaller = st.back();
       st.pop_back();
+
+      next[smaller] = x;
     }
 
     st.push_back(x);
-  }
-
-  while (!st.empty()) {
-    next[st.back()] = -1;
-    st.pop_back();
   }
 
   vector<int> result;
@@ -226,41 +251,43 @@ vector<int> Purgatory::nextGreaterElement(const vector<int> &nums1,
  */
 string Purgatory::removeDuplicateLetters(string s) {
   // cache behavior
-  int last[256];
-  for (int i = 0; i < 256; ++i)
+  int last[26];
+  for (int i = 0; i < 26; ++i)
     last[i] = -1;
 
-  int n = s.size();
+  const int n = s.size();
   for (int i = 0; i < n; ++i)
-    last[(unsigned char)s[i]] = i;
+    last[s[i] - 'a'] = i;
 
   // cache behavior
-  bool inStack[256] = {false};
+  bool inStack[26] = {};
   string st;
-  st.reserve(n);
+  st.reserve(26);
 
   for (int i = 0; i < n; ++i) {
-    char c = s[i];
+    const char c = s[i];
+    const int index = c - 'a';
 
-    if (inStack[(unsigned char)c])
+    if (inStack[index])
       continue;
 
     // branch prediction
     while (!st.empty()) {
-      char top = st.back();
+      const char top = st.back();
 
       if (top <= c)
         break;
 
-      if (last[(unsigned char)top] <= i)
+      const int topIndex = top - 'a';
+      if (last[topIndex] <= i)
         break;
 
-      inStack[(unsigned char)top] = false;
+      inStack[topIndex] = false;
       st.pop_back();
     }
 
     st.push_back(c);
-    inStack[(unsigned char)c] = true;
+    inStack[index] = true;
   }
 
   return st;
@@ -270,48 +297,54 @@ string Purgatory::removeDuplicateLetters(string s) {
  *  using a single pass + stack approach here becuase we cn break the expression
  * into terms. This handles operator precedence naturally. T: O(n), S: O(n)
  */
-int Purgatory::calculateII(string s) {
+int Purgatory::calculateII(const string &s) {
   int n = s.size();
-  long current = 0;
-  char lastOp = '+';
-  long result = 0;
-  long last = 0;
 
-  for (int i = 0; i < n; ++i) {
-    char c = s[i];
+  const char *p = s.data();
+  const char *end = p + s.size();
 
-    // function call
-    if (c >= '0' && c <= '9')
-      current = current * 10 + (c - '0');
+  long long result = 0;
+  long long last = 0;
+  char op = '+';
+
+  while (p < end) {
+
+    while (p < end && *p == ' ')
+      ++p;
+
+    long long number = 0;
+
+    while (p < end && *p >= '0' && *p <= '9') {
+      number = number * 10 + (*p - '0');
+      ++p;
+    }
 
     // branch prediction
-    bool isLast = (i == n - 1);
-    bool isOp = !(c >= '0' && c <= '9') && c != ' ';
-    if (isOp || isLast) {
-      // branch prediction
-      switch (lastOp) {
-      case '+':
-        result += last;
-        last = current;
-        break;
-      case '-':
-        result += last;
-        last = -current;
-        break;
-      case '*':
-        last = last * current;
-        break;
-      case '/':
-        last = last / current;
-        break;
-      }
-
-      current = 0;
-      lastOp = c;
+    switch (op) {
+    case '+':
+      result += last;
+      last = number;
+      break;
+    case '-':
+      result += last;
+      last = -number;
+      break;
+    case '*':
+      last = last * number;
+      break;
+    case '/':
+      last = last / number;
+      break;
     }
+
+    while (p < end && *p == ' ')
+      ++p;
+
+    if (p < end)
+      op = *p++;
   }
 
-  return (int)result + last;
+  return static_cast<int>(result + last);
 }
 
 /*
@@ -320,21 +353,20 @@ int Purgatory::calculateII(string s) {
  */
 int Purgatory::longestValidParentheses(string s) {
   // register vs memory
-  int n = s.size();
+  const int n = s.size();
   int maxLen = 0;
-
   int left = 0, right = 0;
 
   for (int i = 0; i < n; ++i) {
     // register vs memory
-    char c = s[i];
+    const char c = s[i];
     // branch prediction
     left += (c == '(');
     right += (c == ')');
 
     if (left == right) {
       // function call
-      int len = right << 1;
+      const int len = right << 1;
       maxLen = maxLen > len ? maxLen : len;
     } else if (right > left) {
       left = right = 0;
@@ -344,14 +376,14 @@ int Purgatory::longestValidParentheses(string s) {
   left = right = 0;
   for (int i = n - 1; i >= 0; --i) {
     // register vs memory
-    char c = s[i];
+    const char c = s[i];
     // branch prediction
     left += (c == '(');
     right += (c == ')');
 
     if (left == right) {
       // function call
-      int len = left << 1;
+      const int len = left << 1;
       maxLen = maxLen > len ? maxLen : len;
     } else if (left > right) {
       left = right = 0;
@@ -365,31 +397,33 @@ bool Purgatory::backspaceCompare(string s, string t) {
   int i = s.size() - 1, j = t.size() - 1;
   int skipS = 0, skipT = 0;
 
-  while (true) {
+  while (i >= 0 || j >= 0) {
     while (i >= 0) {
       // register vs memory
-      char c = s[i--];
+      const char c = s[i];
       // branch prediction
-      if (c == '#')
-        skipS++;
-      else if (skipS > 0)
-        skipS--;
-      else {
-        ++i;
+      if (c == '#') {
+        ++skipS;
+        --i;
+      } else if (skipS > 0) {
+        --skipS;
+        --i;
+      } else {
         break;
       }
     }
 
     while (j >= 0) {
       // register vs memory
-      char c = t[j--];
+      const char c = t[j];
       // branch prediction
-      if (c == '#')
-        skipT++;
-      else if (skipT > 0)
-        skipT--;
-      else {
-        ++j;
+      if (c == '#') {
+        ++skipT;
+        --j;
+      } else if (skipT > 0) {
+        --skipT;
+        --j;
+      } else {
         break;
       }
     }
@@ -404,49 +438,58 @@ bool Purgatory::backspaceCompare(string s, string t) {
     --i;
     --j;
   }
+
+  return true;
 }
 
 int Purgatory::findUnsortedSubarray(const vector<int> &nums) {
-  int n = nums.size();
+  const int n = nums.size();
+
+  if (n < 2)
+    return 0;
+
   int left = n, right = -1;
 
   int curMax = nums[0];
   int curMin = nums[n - 1];
 
-  for (int i = 1; i < n; ++i) {
-    curMax = max(curMax, nums[i]);
-    if (nums[i] < curMax)
-      right = i;
+  for (int i = 1, j = n - 2; i < n; ++i, --j) {
+    const int forward = nums[i];
+    const int backward = nums[j];
 
-    int j = n - 1 - i;
-    curMin = min(curMin, nums[j]);
-    if (nums[j] > curMin)
-      left = j;
+    curMax = (curMax > forward) ? curMax : forward;
+    curMin = (curMin < backward) ? curMin : backward;
+
+    right = (forward < curMax) ? i : right;
+    left = (backward > curMin) ? j : left;
   }
 
-  return right == -1 ? 0 : right - left + 1;
+  return (right < 0) ? 0 : right - left + 1;
 }
 
 int Purgatory::carFleet(int target, vector<int> &position, vector<int> &speed) {
-  int n = position.size();
+  const int n = position.size();
 
   // cache behavior
-  vector<int> idx(n);
-  iota(idx.begin(), idx.end(), 0);
-  sort(idx.begin(), idx.end(),
-       [&](int a, int b) { return position[a] < position[b]; });
+  vector<pair<int, int>> cars;
+
+  for (int i = 0; i < n; ++i) {
+    cars.push_back(make_pair(position[i], speed[i]));
+  }
+
+  sort(cars.begin(), cars.end());
 
   int fleets = 0;
-  double maxTime = 0;
+  double maxTime = -1.0;
 
   for (int i = n - 1; i >= 0; --i) {
-    int id = idx[i];
-    double time = (double)(target - position[id]) / speed[id];
+    const double time =
+        static_cast<double>(target - cars[i].first) / cars[i].second;
 
     // branch prediction
     if (time > maxTime) {
-      fleets++;
       maxTime = time;
+      ++fleets;
     }
   }
 
@@ -454,69 +497,78 @@ int Purgatory::carFleet(int target, vector<int> &position, vector<int> &speed) {
 }
 
 int Purgatory::sumSubarrayMins(vector<int> &arr) {
-  const int MOD = 1e9 + 7;
-  int n = arr.size();
+  const long long MOD = 1e9 + 7;
+
+  struct Entry {
+    int value;
+    int count;
+  };
 
   // cache behavior
-  vector<int> left(n), right(n), stack(n);
-  int top = -1;
+  vector<Entry> st;
+  st.reserve(arr.size());
 
-  for (int i = 0; i < n; ++i) {
-    while (top >= 0 && arr[stack[top]] > arr[i]) {
-      --top;
-    }
-
-    left[i] = (top < 0) ? (i + 1) : (i - stack[top]);
-    stack[++top] = i;
-  }
-
-  top = -1;
-
-  for (int i = n - 1; i >= 0; --i) {
-    while (top >= 0 && arr[stack[top]] >= arr[i]) {
-      top--;
-    }
-
-    right[i] = (top < 0) ? (n - i) : (stack[top] - i);
-    stack[++top] = i;
-  }
-
+  long long currentSum = 0;
   long long result = 0;
 
-  for (int i = 0; i < n; ++i) {
-    result = result + (long long)arr[i] * left[i] * right[i] % MOD;
+  for (const int value : arr) {
+    int count = 1;
+
+    while (!st.empty() && st.back().value >= value) {
+      const Entry top = st.back();
+      st.pop_back();
+
+      count += top.count;
+
+      currentSum -= static_cast<long long>(top.value) * top.count;
+    }
+
+    st.push_back({value, count});
+
+    currentSum += static_cast<long long>(value) * count;
+
+    currentSum %= MOD;
+    result += currentSum;
+    result %= MOD;
   }
 
-  return (int)result;
+  return static_cast<int>(result);
 }
 
 string Purgatory::removeOccurrences(const string &s, const string &part) {
-  string result;
+  const int m = part.size();
 
-  int m = part.size();
+  if (m == 0)
+    return s;
+
+  string result;
+  result.reserve(m);
+
+  const char lastChar = part[m - 1];
 
   for (char c : s) {
     result.push_back(c);
 
-    if (result.size() >= m) {
-      // branch prediction
-      if (memcmp(&result[result.size() - m], part.data(), m) == 0)
-        result.resize(result.size() - m);
+    const size_t size = result.size();
+
+    if (size >= m && c == lastChar &&
+        memcmp(&result[size - m], part.data(), m) == 0) {
+      result.resize(size - m);
     }
   }
 
   return result;
 }
 
-int removePattern(string &s, char a, char b, int score) {
-  int n = s.size();
+static int removePattern(string &s, char a, char b, int score) {
+  const int n = s.size();
   // cpu pipeline
   int write = 0;
   int total = 0;
 
   for (int read = 0; read < n; ++read) {
     // register vs memory
-    char c = s[read];
+    const char c = s[read];
 
     // branch prediction
     if (write > 0 && s[write - 1] == a && c == b) {
@@ -532,56 +584,50 @@ int removePattern(string &s, char a, char b, int score) {
 }
 
 int Purgatory::maximumGain(string s, int x, int y) {
-  int result = 0;
 
-  if (x > y) {
-    result += removePattern(s, 'a', 'b', x);
-    result += removePattern(s, 'b', 'a', y);
-  } else {
-    result += removePattern(s, 'b', 'a', y);
-    result += removePattern(s, 'a', 'b', x);
+  if (x >= y) {
+    return removePattern(s, 'a', 'b', x) + removePattern(s, 'b', 'a', y);
   }
 
-  return result;
+  return removePattern(s, 'b', 'a', y) + removePattern(s, 'a', 'b', x);
 }
 
 int Purgatory::addMinimum(string word) {
-  int insertions = 0;
-  int expected = 0;
+  const int n = word.size();
 
-  for (char c : word) {
-    // register vs memory
-    int cur = c - 'a';
+  if (n == 0)
+    return 0;
 
-    // branch prediction
-    while (cur != expected) {
-      ++insertions;
-      expected = (expected + 1) % 3;
-    }
+  int groups = 1;
+  char prev = word[0];
 
-    expected = (expected + 1) % 3;
+  for (int i = 1; i < n; ++i) {
+    const char current = word[i];
+
+    groups += (current <= prev);
+    prev = current;
   }
 
-  if (expected != 0)
-    insertions += (3 - expected);
-
-  return insertions;
+  return groups * 3 - n;
 }
 
 long long Purgatory::calculateScore(string s) {
   // cache behavior
   vector<int> stacks[26];
   long long score = 0;
+  const int n = s.size();
 
-  for (int i = 0; i < s.size(); ++i) {
-    int cur = s[i] - 'a';
-    int mirror = 25 - cur;
+  for (int i = 0; i < n; ++i) {
+    const int cur = s[i] - 'a';
+    const int mirror = 25 - cur;
 
     // register vs memory
-    auto &stk = stacks[mirror];
+    vector<int> &stk = stacks[mirror];
     if (!stk.empty()) {
-      score += i - stk.back();
+      const int index = stk.back();
       stk.pop_back();
+
+      score += static_cast<long long>(i - index);
     } else {
       stacks[cur].push_back(i);
     }

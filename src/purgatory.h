@@ -413,7 +413,7 @@ public:
 
   string removeDuplicateLetters(string s);
 
-  int calculateII(string s);
+  int calculateII(const string &s);
 
   int longestValidParentheses(string s);
 
