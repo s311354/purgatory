@@ -8,24 +8,27 @@ namespace purgatory {
  *  T: O(n), S: O(1)
  */
 bool Purgatory::hasCycle(ListNode *head) {
-  if (!head || !head->next)
+  if (!head)
     return false;
 
-  ListNode *slow = head;
-  ListNode *fast = head;
+  ListNode *tortoise = head;
+  ListNode *hare = head->next;
 
-  while (fast) {
-    // branch prediction
-    ListNode *next = fast->next;
-    if (!next)
-      break;
+  size_t power = 1;
+  size_t length = 1;
 
-    // cpu pipeline
-    slow = slow->next;
-    fast = next->next;
-
-    if (slow == fast)
+  while (hare) {
+    if (tortoise == hare)
       return true;
+
+    if (length == power) {
+      tortoise = hare;
+      power <<= 1;
+      length = 0;
+    }
+
+    hare = hare->next;
+    ++length;
   }
 
   return false;
@@ -64,8 +67,9 @@ ListNode *Purgatory::addTwoNumber(ListNode *l1, ListNode *l2) {
       carry = 0;
     }
 
-    tail->next = new ListNode(sum);
-    tail = tail->next;
+    ListNode *node = new ListNode(sum);
+    tail->next = node;
+    tail = node;
   }
 
   return dummy.next;
@@ -95,12 +99,10 @@ ListNode *Purgatory::removeNthFromEnd(ListNode *head, int n) {
     slow = slow->next;
   }
 
-  if (slow->next) {
-    // cpu pipeline
-    ListNode *toDelete = slow->next;
-    slow->next = toDelete->next;
-    delete toDelete;
-  }
+  // cpu pipeline
+  ListNode *toDelete = slow->next;
+  slow->next = toDelete->next;
+  delete toDelete;
 
   return dummy.next;
 }
@@ -121,12 +123,15 @@ ListNode *Purgatory::reverseKGroup(ListNode *head, int k) {
   ListNode dummy(0);
   dummy.next = head;
 
-  ListNode *prevGroupEnd = &dummy;
+  ListNode *groupPrev = &dummy;
+  const int groupCount = len / k;
 
   // branch prediction
-  for (int g = 0; g < len / k; ++g) {
+  for (int g = 0; g < groupCount; ++g) {
     // register vs memory
-    ListNode *curr = prevGroupEnd->next;
+    ListNode *curr = groupPrev->next;
+
+    ListNode *groupTail = curr;
     ListNode *prev = nullptr;
 
     for (int i = 0; i < k; ++i) {
@@ -137,10 +142,9 @@ ListNode *Purgatory::reverseKGroup(ListNode *head, int k) {
     }
 
     // cpu pipeline
-    ListNode *tail = prevGroupEnd->next;
-    prevGroupEnd->next = prev;
-    tail->next = curr;
-    prevGroupEnd = tail;
+    groupPrev->next = prev;
+    groupTail->next = curr;
+    groupPrev = groupTail;
   }
 
   return dummy.next;
@@ -153,32 +157,49 @@ bool Purgatory::isPalindromeLinkedList(ListNode *head) {
   // register vs memory
   ListNode *slow = head, *fast = head;
 
-  while (fast && fast->next) {
+  while (fast->next && fast->next->next) {
     slow = slow->next;
     fast = fast->next->next;
   }
 
+  ListNode *second = slow->next;
   ListNode *prev = nullptr;
 
-  while (slow) {
-    ListNode *next = slow->next;
-    slow->next = prev;
-    prev = slow;
-    slow = next;
+  while (second) {
+    ListNode *next = second->next;
+    second->next = prev;
+    prev = second;
+    second = next;
   }
 
   // register vs memory
-  ListNode *p1 = head, *p2 = prev;
+  ListNode *secondHalfHead = prev;
+  ListNode *p1 = head, *p2 = secondHalfHead;
+
+  bool result = true;
 
   while (p2) {
-    if (p1->val != p2->val)
-      return false;
+    if (p1->val != p2->val) {
+      result = false;
+      break;
+    }
 
     p1 = p1->next;
     p2 = p2->next;
   }
 
-  return true;
+  second = secondHalfHead;
+  prev = nullptr;
+
+  while (second) {
+    ListNode *next = second->next;
+    prev = second;
+    second = next;
+  }
+
+  slow->next = prev;
+
+  return result;
 }
 
 ListNode *Purgatory::swapPairs(ListNode *head) {
@@ -186,18 +207,11 @@ ListNode *Purgatory::swapPairs(ListNode *head) {
   dummy.next = head;
 
   ListNode *prev = &dummy;
+  ListNode *first = head;
 
-  while (true) {
-    // branch prediction
-    ListNode *first = prev->next;
-    if (!first)
-      break;
-
+  while (first && first->next) {
     // branch prediction
     ListNode *second = first->next;
-    if (!second)
-      break;
-
     ListNode *nextPair = second->next;
 
     prev->next = second;
@@ -205,21 +219,26 @@ ListNode *Purgatory::swapPairs(ListNode *head) {
     first->next = nextPair;
 
     prev = first;
+    first = nextPair;
   }
 
   return dummy.next;
 }
 
 ListNode *Purgatory::reorderList(ListNode *head) {
-  if (!head)
-    return nullptr;
+  if (!head || !head->next)
+    return head;
 
   // register vs memory
   ListNode *slow = head, *fast = head;
 
-  while (fast && fast->next) {
+  while (fast) {
+    ListNode *fastNext = fast->next;
+    if (!fastNext)
+      break;
+
     slow = slow->next;
-    fast = fast->next->next;
+    fast = fastNext->next;
   }
 
   ListNode *prev = nullptr, *curr = slow;
@@ -232,9 +251,15 @@ ListNode *Purgatory::reorderList(ListNode *head) {
 
   // register vs memory
   ListNode *p1 = head, *p2 = prev;
-  while (p2 && p2->next) {
+  if (!p2)
+    return head;
+
+  for (;;) {
     ListNode *n1 = p1->next;
     ListNode *n2 = p2->next;
+
+    if (!n2)
+      break;
 
     p1->next = p2;
     p2->next = n1;
@@ -247,22 +272,22 @@ ListNode *Purgatory::reorderList(ListNode *head) {
 }
 
 int Purgatory::numComponents(ListNode *head, vector<int> &nums) {
-  unordered_set<int> nodeSet(nums.begin(), nums.end());
+  if (!head || nums.empty())
+    return 0;
+
+  unordered_set<int> nodeSet;
+  nodeSet.reserve(nums.size());
+  nodeSet.insert(nums.begin(), nums.end());
 
   int componentCount = 0;
+  bool inComponent = false;
 
   for (ListNode *current = head; current; current = current->next) {
+    const bool selected = nodeSet.find(current->val) != nodeSet.end();
 
-    // branch prediction
-    if (!nodeSet.count(current->val))
-      continue;
+    componentCount += selected && !inComponent;
 
-    // register vs memory
-    ListNode *nextNode = current->next;
-
-    if (!nextNode || !nodeSet.count(nextNode->val)) {
-      ++componentCount;
-    }
+    inComponent = selected;
   }
 
   return componentCount;
