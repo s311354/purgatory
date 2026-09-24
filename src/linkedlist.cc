@@ -300,21 +300,21 @@ vector<int> Purgatory::nodesBetweenCriticalPoints(ListNode *head) {
   int currentIndex = 2;
   int firstCritical = -1;
   int previousCritical = -1;
-
   int minDistance = INT_MAX;
 
-  ListNode *prev = head;
   ListNode *curr = head->next;
+  int prevVal = head->val;
+  int currVal = curr->val;
 
   while (curr->next) {
     // register vs memory
-    int prevVal = prev->val;
-    int currVal = curr->val;
-    int nextVal = curr->next->val;
+    ListNode *next = curr->next;
+
+    int nextVal = next->val;
 
     // branch prediction
-    bool isCritical = ((currVal > prevVal) && (currVal > nextVal)) ||
-                      ((currVal < prevVal) && (currVal < nextVal));
+    const bool isCritical = ((currVal > prevVal) && (currVal > nextVal)) ||
+                            ((currVal < prevVal) && (currVal < nextVal));
 
     if (isCritical) {
       if (firstCritical == -1)
@@ -326,8 +326,10 @@ vector<int> Purgatory::nodesBetweenCriticalPoints(ListNode *head) {
       previousCritical = currentIndex;
     }
 
-    prev = curr;
-    curr = curr->next;
+    prevVal = currVal;
+    currVal = nextVal;
+
+    curr = next;
     ++currentIndex;
   }
 
@@ -354,58 +356,57 @@ ListNode *Purgatory::removeNodes(ListNode *head) {
   if (!head || !head->next)
     return head;
 
-  ListNode *reversedHead = reverseListRemoveNodes(head);
+  ListNode *curr = reverseListRemoveNodes(head);
 
-  int maxValue = reversedHead->val;
+  ListNode *result = nullptr;
+  int maxValue = INT_MIN;
 
-  ListNode *curr = reversedHead;
-
-  while (curr && curr->next) {
+  while (curr) {
     // register vs memory
-    ListNode *nextNode = curr->next;
+    ListNode *next = curr->next;
 
     // branch prediction
-    const bool isDelete = nextNode->val < maxValue;
+    const bool isDelete = curr->val < maxValue;
 
-    if (isDelete) {
-      curr->next = nextNode->next;
-      delete nextNode;
-    } else {
-      curr = nextNode;
+    if (!isDelete) {
       maxValue = curr->val;
+
+      curr->next = result;
+      result = curr;
     }
+
+    curr = next;
   }
 
-  return reverseListRemoveNodes(reversedHead);
+  return result;
 }
 
 ListNode *Purgatory::doubleIt(ListNode *head) {
   if (!head)
     return nullptr;
 
-  ListNode *reversedHead = reverseListRemoveNodes(head);
+  if (head->val >= 5)
+    head = new ListNode(0, head);
 
-  ListNode *currentNode = reversedHead;
+  ListNode *curr = head;
 
-  int carry = 0;
+  while (curr) {
+    ListNode *next = curr->next;
 
-  ListNode *prevNode = nullptr;
-
-  while (currentNode) {
     // register vs memory
-    int doubledValue = (currentNode->val << 1) + carry;
+    int doubleValue = (curr->val << 1);
 
-    currentNode->val = doubledValue % 10;
-    carry = doubledValue / 10;
+    if (next && next->val >= 5)
+      ++doubleValue;
 
-    prevNode = currentNode;
-    currentNode = currentNode->next;
+    if (doubleValue >= 10)
+      doubleValue -= 10;
+
+    curr->val = doubleValue;
+    curr = next;
   }
 
-  if (carry)
-    prevNode->next = new ListNode(carry);
-
-  return reverseListRemoveNodes(reversedHead);
+  return head;
 }
 
 ListNode *Purgatory::middleNode(ListNode *head) {
@@ -413,9 +414,9 @@ ListNode *Purgatory::middleNode(ListNode *head) {
   ListNode *first = head;
   ListNode *second = head;
 
-  for (; second != nullptr && second->next != nullptr;
-       second = second->next->next) {
+  while (second && second->next) {
     first = first->next;
+    second = second->next->next;
   }
 
   return first;
@@ -434,8 +435,8 @@ ListNode *Purgatory::mergeNodes(ListNode *head) {
       curr = curr->next;
     }
 
-    write->next->val = sum;
     write = write->next;
+    write->val = sum;
 
     curr = curr->next;
   }
@@ -445,21 +446,24 @@ ListNode *Purgatory::mergeNodes(ListNode *head) {
 }
 
 ListNode *Purgatory::insertGreatestCommonDivisors(ListNode *head) {
+  if (!head)
+    return nullptr;
+
   ListNode *curr = head;
 
-  while (curr && curr->next) {
-    ListNode *nextNode = curr->next;
+  while (ListNode *next = curr->next) {
     // register vs memory
-    int a = curr->val, b = nextNode->val;
+    int a = curr->val;
+    int b = next->val;
 
     while (b) {
-      int t = a % b;
+      int remainder = a % b;
       a = b;
-      b = t;
+      b = remainder;
     }
 
-    curr->next = new ListNode(a, nextNode);
-    curr = nextNode;
+    curr->next = new ListNode(a, next);
+    curr = next;
   }
 
   return head;
@@ -470,14 +474,13 @@ ListNode *Purgatory::deleteDuplicates(ListNode *head) {
 
   while (start && start->next) {
     // register vs memory
-    int val = start->val;
     ListNode *nextNode = start->next;
 
-    if (val == nextNode->val) {
+    if (start->val == nextNode->val) {
       start->next = nextNode->next;
       delete nextNode;
     } else {
-      start = start->next;
+      start = nextNode;
     }
   }
 
@@ -486,27 +489,24 @@ ListNode *Purgatory::deleteDuplicates(ListNode *head) {
 
 ListNode *Purgatory::mergeInBetween(ListNode *list1, int a, int b,
                                     ListNode *list2) {
-  ListNode *curr = list1;
-  ListNode *first = nullptr, *second = nullptr;
-
+  ListNode *before = list1;
   // branch prediction
   for (int i = 0; i < a - 1; ++i) {
-    curr = curr->next;
+    before = before->next;
   }
-  first = curr;
 
+  ListNode *after = before;
   // branch prediction
   for (int i = 0; i < b - a + 2; ++i) {
-    curr = curr->next;
+    after = after->next;
   }
-  second = curr;
 
-  ListNode *merged = list2;
-  while (merged->next)
-    merged = merged->next;
+  ListNode *tail = list2;
+  while (ListNode *next = tail->next)
+    tail = next;
 
-  first->next = list2;
-  merged->next = second;
+  before->next = list2;
+  tail->next = after;
 
   return list1;
 }
@@ -514,26 +514,26 @@ ListNode *Purgatory::mergeInBetween(ListNode *list1, int a, int b,
 ListNode *Purgatory::modifiedList(const vector<int> &nums, ListNode *head) {
 
   // cache behavior
-  vector<bool> buckets(100001, false);
+  vector<bool> remove(100001, false);
+
   for (const int num : nums)
-    buckets[num] = true;
+    remove[num] = true;
 
-  ListNode dummy(0);
-  dummy.next = head;
+  ListNode dummy(0, head);
   ListNode *tail = &dummy;
-
   ListNode *curr = head;
 
-  while (curr) {
+  while (curr != nullptr) {
+    ListNode *next = curr->next;
+
     // register vs memory
-    int val = curr->val;
-    if (buckets[val]) {
-      tail->next = curr->next;
+    if (remove[curr->val]) {
+      tail->next = next;
     } else {
       tail = curr;
     }
 
-    curr = curr->next;
+    curr = next;
   }
 
   return dummy.next;
