@@ -541,33 +541,29 @@ ListNode *Purgatory::modifiedList(const vector<int> &nums, ListNode *head) {
 
 vector<int> Purgatory::nextLargerNodes(ListNode *head) {
   // cache behavior
-  vector<int> nums;
-  nums.reserve(100000);
+  vector<int> result;
 
-  while (head) {
-    nums.push_back(head->val);
-    head = head->next;
+  for (const ListNode *node = head; node != nullptr; node = node->next) {
+    result.push_back(node->val);
   }
 
   // register vs memory
-  int n = nums.size();
-  vector<int> result(n, 0);
-  stack<int> st;
+  vector<int> candidates;
+  candidates.reserve(result.size());
 
-  for (int i = 0; i < n; ++i) {
+  for (size_t remaining = result.size(); remaining != 0; --remaining) {
+    const size_t i = remaining - 1;
+
     // register vs memory
-    int curr = nums[i];
+    const int curr = result[i];
 
-    while (!st.empty()) {
-      int topIdx = st.top();
-      if (nums[topIdx] >= curr)
-        break;
-
-      result[topIdx] = curr;
-      st.pop();
+    while (!candidates.empty() && candidates.back() <= curr) {
+      candidates.pop_back();
     }
 
-    st.push(i);
+    result[i] = candidates.empty() ? 0 : candidates.back();
+
+    candidates.push_back(curr);
   }
 
   return result;
@@ -576,64 +572,66 @@ vector<int> Purgatory::nextLargerNodes(ListNode *head) {
 ListNode *Purgatory::removeElements(ListNode *head, int val) {
   ListNode dummy(0);
   dummy.next = head;
-  ListNode *tail = &dummy;
+  ListNode *prev = &dummy;
+  ListNode *curr = head;
 
-  while (tail->next) {
+  while (curr != nullptr) {
     // register vs memory
-    ListNode *nextNode = tail->next;
+    ListNode *nextNode = curr->next;
 
-    if (nextNode->val == val) {
-      tail->next = nextNode->next;
-      delete nextNode;
+    if (curr->val == val) {
+      prev->next = nextNode;
+      delete curr;
     } else {
-      tail = nextNode;
+      prev = curr;
     }
+
+    curr = nextNode;
   }
 
   return dummy.next;
 }
 
 ListNode *Purgatory::reverseEvenLengthGroups(ListNode *head) {
-  ListNode dummy(0);
-  dummy.next = head;
-  ListNode *tail = &dummy;
+  if (head == nullptr)
+    return nullptr;
 
-  ListNode *curr = head;
+  ListNode *prevTail = head;
+  ListNode *groupHead = head->next;
 
   // branch prediction
-  for (int group = 1; curr; ++group) {
-    ListNode *groupEnd = curr;
+  for (size_t groupSize = 2; groupHead != nullptr; ++groupSize) {
+    ListNode *groupTail = groupHead;
+    ListNode *nextGroup = groupHead;
+
     int count = 0;
 
-    while (count < group && groupEnd) {
+    while (nextGroup != nullptr && count < groupSize) {
+      groupTail = nextGroup;
+      nextGroup = nextGroup->next;
       ++count;
-      groupEnd = groupEnd->next;
     }
 
     // branch prediction
-    if ((count & 1) == 0) {
-      ListNode *prev = groupEnd;
-      ListNode *node = curr;
+    if ((count & 1U) == 0U) {
+      ListNode *prev = nextGroup;
+      ListNode *curr = groupHead;
 
-      for (int i = 0; i < count; ++i) {
-        ListNode *next = node->next;
-        node->next = prev;
-        prev = node;
-        node = next;
+      while (curr != nextGroup) {
+        ListNode *next = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = next;
       }
 
-      tail->next = prev;
-      tail = curr;
-      curr = groupEnd;
-
+      prevTail->next = prev;
+      prevTail = groupHead;
     } else {
-      for (int i = 0; i < count; ++i) {
-        tail = curr;
-        curr = curr->next;
-      }
+      prevTail = groupTail;
     }
+    groupHead = nextGroup;
   }
-  return dummy.next;
+  return head;
 }
 
 int Purgatory::getDecimalValue(ListNode *head) {
@@ -648,29 +646,47 @@ int Purgatory::getDecimalValue(ListNode *head) {
 }
 
 ListNode *Purgatory::insertionSortList(ListNode *head) {
+  if (head == nullptr || head->next == nullptr)
+    return head;
+
   ListNode dummy(0);
-  ListNode *curr = head;
-  ListNode *lastSorted = nullptr;
+  dummy.next = head;
 
-  while (curr) {
-    ListNode *next = curr->next;
+  ListNode *sortedTail = head;
 
-    // branch prediction
-    ListNode *prev;
-    if (!lastSorted || lastSorted->val > curr->val) {
-      prev = &dummy;
+  ListNode *searchHint = &dummy;
+  ListNode *curr = head->next;
+
+  while (curr != nullptr) {
+    ListNode *nextUnsorted = curr->next;
+    const int value = curr->val;
+
+    if (sortedTail->val <= value) {
+      searchHint = sortedTail;
+      sortedTail = curr;
     } else {
-      prev = lastSorted;
+      // branch prediction
+      ListNode *prev = searchHint;
+
+      if (prev != &dummy || prev->val > value) {
+        prev = &dummy;
+      }
+
+      ListNode *position = prev->next;
+
+      while (position->val <= value) {
+        prev = position;
+        position = position->next;
+      }
+
+      sortedTail->next = nextUnsorted;
+      curr->next = position;
+      prev->next = curr;
+
+      searchHint = prev;
     }
 
-    while (prev->next && prev->next->val < curr->val)
-      prev = prev->next;
-
-    curr->next = prev->next;
-    prev->next = curr;
-    curr = next;
-
-    lastSorted = prev;
+    curr = nextUnsorted;
   }
 
   return dummy.next;
