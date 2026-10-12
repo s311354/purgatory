@@ -7,24 +7,26 @@ namespace purgatory {
  * times each letter is available T: O(n), S: O(1)
  */
 bool Purgatory::canConstruct(const string &ransomNot, const string &magazine) {
+  if (ransomNot.size() > magazine.size())
+    return false;
+
   int count[26] = {0};
 
   // register vs memory
-  int m = magazine.size();
+  const char *p = magazine.data();
+  const char *end = p + magazine.size();
+
   // cache behavior
-  for (int i = 0; i < m; ++i) {
-    int idx = magazine[i] - 'a';
-    ++count[idx];
+  while (p != end) {
+    ++count[*p++ - 'a'];
   }
 
   // register vs memory
-  int n = ransomNot.size();
+  p = ransomNot.data();
+  end = p + ransomNot.size();
   // cache behavior
-  for (int i = 0; i < n; ++i) {
-    int idx = ransomNot[i] - 'a';
-    int val = --count[idx];
-
-    if (val < 0)
+  while (p != end) {
+    if (--count[*p++ - 'a'] < 0)
       return false;
   }
 
@@ -81,18 +83,19 @@ int Purgatory::longestConsecutive(vector<int> &nums) {
   int longest = 0;
 
   for (int num : numSet) {
-    if (!numSet.count(num - 1)) {
-      // register vs memory
-      int currentNum = num;
-      int next = currentNum + 1;
+    if (num != INT_MIN && numSet.count(num - 1))
+      continue;
 
-      while (numSet.count(next)) {
-        currentNum = next;
-        next++;
-      }
+    // register vs memory
+    int currentNum = num;
+    int length = 1;
 
-      longest = max(longest, currentNum - num + 1);
+    while (currentNum != INT_MAX && numSet.count(currentNum + 1)) {
+      ++currentNum;
+      ++length;
     }
+
+    longest = max(longest, length);
   }
 
   return longest;
@@ -108,80 +111,81 @@ vector<int> Purgatory::findSubstring(const string &s, vector<string> &words) {
   if (words.empty() || s.empty())
     return result;
 
-  // cache behavior
-  unordered_map<string, int> wordToId;
-  int id = 0;
-  for (string &w : words) {
-    if (!wordToId.count(w))
-      wordToId[w] = id++;
-  }
-
-  // cache behavior
-  vector<int> targetFreq(id, 0);
-  for (auto &w : words) {
-    targetFreq[wordToId[w]]++;
-  }
-
   // register vs memory
-  int n = s.size();
-  int wordLen = words[0].size();
-  int numWords = words.size();
+  const size_t n = s.size();
+  const size_t wordLen = words.front().size();
+  const size_t numWords = words.size();
 
-  for (int i = 0; i < wordLen; ++i) {
-    int left = i, count = 0;
-    // cache behavior
-    vector<int> seen(id, 0);
+  if (wordLen == 0)
+    return result;
 
-    for (int j = i; j + wordLen <= n; j += wordLen) {
+  for (const auto &word : words) {
+    if (word.size() != wordLen)
+      return result;
+  }
+
+  if (numWords > (n / wordLen))
+    return result;
+
+  // cache behavior
+  unordered_map<string, size_t> wordToId;
+  wordToId.reserve(numWords);
+  vector<size_t> targetFreq;
+  targetFreq.reserve(numWords);
+
+  for (const auto &w : words) {
+    const auto entry = wordToId.emplace(w, targetFreq.size());
+
+    if (entry.second)
+      targetFreq.push_back(0);
+
+    ++targetFreq[entry.first->second];
+  }
+
+  vector<size_t> seen(targetFreq.size(), 0);
+  deque<size_t> window;
+  string token(wordLen, '\0');
+
+  const size_t lastStart = n - numWords * wordLen;
+
+  for (size_t offset = 0; offset < wordLen && offset <= lastStart; ++offset) {
+    int left = offset;
+
+    const auto popLeft = [&]() {
+      --seen[window.front()];
+      window.pop_front();
+      left += wordLen;
+    };
+
+    for (size_t right = offset; right + wordLen <= n; right += wordLen) {
       // cpu pipeline
-      string word(s.data() + j, wordLen);
+      memcpy(&token[0], s.data() + right, wordLen);
 
-      auto it = wordToId.find(word);
-      if (it != wordToId.end()) {
-        int wid = it->second;
+      auto it = wordToId.find(token);
+      if (it == wordToId.end()) {
+        while (!window.empty())
+          popLeft();
 
-        ++seen[wid];
-        ++count;
-
-        while (seen[wid] > targetFreq[wid]) {
-          try {
-            if (left + wordLen <= n && left < n) {
-              string leftWord = s.substr(left, wordLen);
-              auto lit = wordToId.find(leftWord);
-              if (lit != wordToId.end()) {
-                int lid = lit->second;
-                --seen[lid];
-              }
-            }
-          } catch (...) {
-            // Out of bounds, just skip
-          }
-          --count;
-          left += wordLen;
-        }
-
-        if (count == numWords) {
-          result.push_back(left);
-          try {
-            if (left + wordLen <= n && left < n) {
-              string leftWord = s.substr(left, wordLen);
-              auto lit = wordToId.find(leftWord);
-              if (lit != wordToId.end()) {
-                int lid = lit->second;
-                --seen[lid];
-              }
-            }
-          } catch (...) {
-            // Out of bounds, just skip
-          }
-          --count;
-          left += wordLen;
-        }
-      } else {
-        fill(seen.begin(), seen.end(), 0);
-        count = 0;
-        left = j + wordLen;
+        left = right + wordLen;
+        continue;
       }
+
+      size_t wid = it->second;
+      window.push_back(wid);
+      ++seen[wid];
+
+      while (seen[wid] > targetFreq[wid]) {
+        popLeft();
+      }
+
+      if (window.size() == numWords) {
+        result.push_back(static_cast<int>(left));
+        popLeft();
+      }
+    }
+
+    while (!window.empty()) {
+      popLeft();
     }
   }
 
@@ -222,19 +226,22 @@ string Purgatory::fractionToDecimal(int numerator, int denominator) {
   if (numerator == 0)
     return "0";
 
+  long long n = numerator;
+  long long d = denominator;
+
   string result;
   // cache behavior
   result.reserve(128);
 
-  if ((numerator < 0) ^ (denominator < 0))
+  if ((n < 0) != (d < 0))
     // function call
     result.push_back('-');
 
-  long long n = llabs(numerator);
-  long long d = llabs(denominator);
+  if (d < 0)
+    d = -d;
 
-  if (d == 0)
-    return "0"; // Additional safety check
+  if (n < 0)
+    n = -n;
 
   result += to_string(n / d);
 
@@ -245,28 +252,24 @@ string Purgatory::fractionToDecimal(int numerator, int denominator) {
 
   result.push_back('.');
 
-  unordered_map<long long, int> seen;
+  unordered_map<long long, string::size_type> seen;
   // cahce behavior
   seen.reserve(1024);
 
   while (remainder != 0) {
-    if (seen.count(remainder)) {
-      result.insert(seen[remainder], "(");
+    const auto entry = seen.emplace(remainder, result.size());
+
+    if (!entry.second) {
+      result.insert(entry.first->second, 1, '(');
       result.push_back(')');
-      break;
+      return result;
     }
 
-    seen[remainder] = result.size();
+    const long long scaled = remainder * 10;
+    const int digit = static_cast<int>(scaled / d);
 
-    remainder *= 10;
-    // register vs memory
-    if (d != 0) {
-      int digit = remainder / d;
-      result.push_back('0' + digit);
-      remainder %= d;
-    } else {
-      break; // Safety: should never happen
-    }
+    remainder = scaled % d;
+    result.push_back(static_cast<char>('0' + digit));
   }
 
   return result;
@@ -279,24 +282,26 @@ string Purgatory::fractionToDecimal(int numerator, int denominator) {
  * S: O(1)
  */
 int Purgatory::firstMissingPositive(vector<int> &nums) {
-  int n = nums.size();
+  const int n = nums.size();
 
   for (int i = 0; i < n; ++i) {
     // cpu pipeline
-    while (true) {
+    for (;;) {
       // register vs memory
-      int val = nums[i];
+      const int val = nums[i];
 
       if (val <= 0 || val > n)
         break;
 
       // register vs memory
-      int correct = nums[val - 1];
+      const int target = val - 1;
+      const int correct = nums[target];
 
       if (correct == val)
         break;
 
-      swap(nums[i], nums[val - 1]);
+      nums[target] = val;
+      nums[i] = correct;
     }
   }
 
@@ -310,32 +315,35 @@ int Purgatory::firstMissingPositive(vector<int> &nums) {
 }
 
 vector<int> Purgatory::intersection(vector<int> &nums1, vector<int> &nums2) {
+  vector<int> result;
+
+  if (nums1.empty() || nums2.empty())
+    return result;
+
   sort(nums1.begin(), nums1.end());
   sort(nums2.begin(), nums2.end());
 
-  vector<int> result;
-
-  int i = 0, j = 0;
+  size_t i = 0, j = 0;
 
   // register vs memory
-  int n1 = nums1.size(), n2 = nums2.size();
+  size_t n1 = nums1.size(), n2 = nums2.size();
 
   while (i < n1 && j < n2) {
     // register vs memory
-    int a = nums1[i];
-    int b = nums2[j];
+    const int a = nums1[i];
+    const int b = nums2[j];
 
     if (a == b) {
-      if (result.empty() || result.back() > a) {
+      if (result.empty() || result.back() != a) {
         result.push_back(a);
       }
 
       ++i;
       ++j;
+    } else if (a < b) {
+      ++i;
     } else {
-      // branch prediction
-      i += (a < b);
-      j += (a > b);
+      ++j;
     }
   }
 
@@ -344,7 +352,7 @@ vector<int> Purgatory::intersection(vector<int> &nums1, vector<int> &nums2) {
 
 vector<int> Purgatory::majorityElement(const vector<int> &nums) {
   int candidate1 = 0, candidate2 = 0;
-  int count1 = 0, count2 = 0;
+  size_t count1 = 0, count2 = 0;
 
   for (int num : nums) {
     // branch prediction
@@ -359,7 +367,7 @@ vector<int> Purgatory::majorityElement(const vector<int> &nums) {
       candidate2 = num;
       count2 = 1;
     } else {
-      ++count1;
+      --count1;
       --count2;
     }
   }
@@ -374,11 +382,12 @@ vector<int> Purgatory::majorityElement(const vector<int> &nums) {
 
   vector<int> result;
   int n = nums.size();
+  size_t threshold = n / 3;
 
-  if (count1 > n / 3)
+  if (count1 > threshold)
     result.push_back(candidate1);
 
-  if (count2 > n / 3)
+  if (count2 > threshold)
     result.push_back(candidate2);
 
   return result;
@@ -386,23 +395,28 @@ vector<int> Purgatory::majorityElement(const vector<int> &nums) {
 
 string Purgatory::getHint(const string &secret, const string &guess) {
   int bulls = 0, cows = 0;
-  int freq[10] = {0};
+  int balance[10] = {0};
 
-  for (int i = 0; i < secret.size(); ++i) {
+  size_t n = secret.size();
+
+  for (size_t i = 0; i < n; ++i) {
     // cpu pipeline
-    int si = secret[i] - '0';
-    int gi = guess[i] - '0';
+    const int si = secret[i] - '0';
+    const int gi = guess[i] - '0';
 
     if (si == gi) {
       ++bulls;
-    } else {
-      // branch prediction
-      cows += (freq[si] < 0);
-      cows += (freq[gi] > 0);
-
-      ++freq[si];
-      --freq[gi];
+      continue;
     }
+
+    const int secretBalance = balance[si];
+    const int guessBalance = balance[gi];
+
+    // branch prediction
+    cows += (secretBalance < 0) + (guessBalance > 0);
+
+    balance[si] = secretBalance + 1;
+    balance[gi] = guessBalance - 1;
   }
 
   return to_string(bulls) + 'A' + to_string(cows) + 'B';
